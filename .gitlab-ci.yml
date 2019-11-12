@@ -1,0 +1,8 @@
+image: blang/latex
+
+build:
+  script:
+    - cd thesis && latexmk -pdf
+  artifacts:
+    paths:
+      - "*.pdf"
