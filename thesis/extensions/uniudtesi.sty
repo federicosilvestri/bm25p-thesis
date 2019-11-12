@@ -1,0 +1,162 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{uniudtesi}[2016/05/02  Redefines maketitle for University of Udine Thesis, and sets a binding offset of 1cm; written by Gianluca Gorni]
+\RequirePackage{ifthen}
+\RequirePackage{graphicx}
+%\RequirePackage{hyperref}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Per allontanare la parte stampata %
+% dal margine della rilegatura:     %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage[bindingoffset=1cm]{geometry}
+
+\newcommand{\@facolta}{?}
+\newcommand{\@dipartimento}{Informatica}
+\newcommand{\@corsodilaurea}{?}
+\newcommand{\@corsodilaureatriennale}{?}
+\newcommand{\@corsodilaureaspecialistica}{?}
+\newcommand{\@triennaleOspecialisticaOmagistrale}{?}
+\newcommand{\@titolo}{Senza Titolo}
+\newcommand{\@titoloeng}{No Title}
+\newcommand{\@sottotitolo}{?}
+\newcommand{\@annoaccademico}{?}
+\newcommand{\@relatore}{?}
+\newcommand{\@relatoreDue}{?}
+\newcommand{\@correlatore}{?}
+\newcommand{\@correlatoreDue}{?}
+\newcommand{\@laureando}{?}
+\newcommand{\@laureanda}{?}
+\newcommand{\@autore}{}
+\newcommand{\@laureandoOlaureanda}{?}
+\newcommand{\@dedica}{?}
+
+\newcommand{\facolta}[1]{%
+  \renewcommand{\@facolta}{#1}}
+\newcommand{\dipartimento}[1]{%
+  \renewcommand{\@dipartimento}{#1}}
+\newcommand{\corsodilaurea}[1]{%
+  \renewcommand{\@corsodilaurea}{#1}%
+  \renewcommand{\@triennaleOspecialistica}{\ignorespaces}}
+\newcommand{\corsodilaureatriennalein}[1]{%
+  \renewcommand{\@corsodilaurea}{#1}%
+  \renewcommand{\@triennaleOspecialisticaOmagistrale}{Triennale }}
+\newcommand{\corsodilaureaspecialisticain}[1]{%
+  \renewcommand{\@corsodilaurea}{#1}%
+  \renewcommand{\@triennaleOspecialisticaOmagistrale}{Specialistica }}
+\newcommand{\corsodilaureamagistralein}[1]{%
+  \renewcommand{\@corsodilaurea}{#1}%
+  \renewcommand{\@triennaleOspecialisticaOmagistrale}{Magistrale }}
+\newcommand{\titolo}[1]{%
+  \renewcommand{\@titolo}{\uppercase{#1}}}
+\newcommand{\titoloeng}[1]{%
+  \renewcommand{\@titoloeng}{\uppercase{#1}}}
+\newcommand{\sottotitolo}[1]{%
+  \renewcommand{\@sottotitolo}{\uppercase{#1}}}
+\newcommand{\annoaccademico}[1]{%
+  \renewcommand{\@annoaccademico}{#1}}
+\newcommand{\relatore}[2][Prof.]{%
+  \renewcommand{\@relatore}{#1  \textit{#2}}}
+\newcommand{\correlatore}[2][Prof.]{%
+  \renewcommand{\@correlatore}{#1 \uppercase{#2}}}
+\newcommand{\relatoreDue}[2][Prof.]{%
+  \renewcommand{\@relatoreDue}{#1 \textit{#2}}}
+\newcommand{\correlatoreDue}[2][Prof.]{%
+  \renewcommand{\@correlatoreDue}{#1 \uppercase{#2}}}
+\newcommand{\laureando}[1]{%
+\renewcommand{\@laureando}{\textit{#1}}%
+\renewcommand{\@autore}{\textit{#1}}%
+\renewcommand{\@laureandoOlaureanda}{Candidato}}
+\newcommand{\laureanda}[1]{%
+  \renewcommand{\@laureanda}{\textit{#1}}%
+  \renewcommand{\@autore}{\textit{#1}}%
+  \renewcommand{\@laureandoOlaureanda}{Candidata}}
+\newcommand{\dedica}[1]{%
+  \renewcommand{\@dedica}{#1}}
+\newcommand{\data}[1]{\date{#1}}
+
+\newcommand{\clearemptydoublepage}{
+    \clearpage
+  %\newpage{\pagestyle{empty}%
+  %\cleardoublepage}
+    
+}
+
+\renewcommand\maketitle{\begin{titlepage}
+  \begin{sffamily}
+  \begin{large}
+  	\begin{center}
+  		\includegraphics[width=100px]{cherubino}
+	\end{center}
+  \medskip
+  \begin{center}
+  \begin{Large}    
+    \uppercase{Universit\`a di Pisa}
+    \end{Large}\\
+  \rule{9cm}{.4pt}\\
+  \smallskip
+  \ifthenelse{\equal{\@facolta}{?}}{Dipartimento di 
+     \@dipartimento}{Facolt\`a di \@facolta}\\
+  Corso di Laurea \@triennaleOspecialisticaOmagistrale in
+     \@corsodilaurea\\
+  \bigskip\vfill
+  \begin{Large} Tesi di Laurea Triennale\end{Large}\\
+  \bigskip
+  \bigskip
+  {\vfil
+    \begin{Huge}
+      {\renewcommand{\\}{\cr}
+     \halign{\hbox to\textwidth{\strut\hfil##\hfil}\cr
+     \@titoloeng\cr
+     }}
+    \end{Huge}%
+     \begin{large}
+            \halign{\hbox to\textwidth{\strut\hfil##\hfil}\cr
+     \@titolo\cr
+     }
+     \end{large}
+    \begin{LARGE}
+      {\renewcommand{\\}{\cr}
+      \ifthenelse{\equal{\@sottotitolo}{?}}{}%
+     {\bigskip
+     \halign{\hbox to\textwidth{\strut\hfil##\hfil}\cr
+     \@sottotitolo\cr}}}
+    \end{LARGE}}
+  \bigskip\vfill
+  \begin{tabular*}{\textwidth}{@{}l@{\extracolsep{\fill}}l@{}}
+    \ifthenelse{\equal{\@relatoreDue}{?}}%
+    {Relatore}{Relatori}:&\@laureandoOlaureanda:\\%
+     \vtop{\halign{\strut##\hfil\cr
+       \@relatore\cr}}&%
+     \vtop{\halign{\strut\hfil##\hfil\cr
+       \@autore\cr}}\\
+     \ifthenelse{\equal{\@relatoreDue}{?}}{}{\@relatoreDue}%     
+  \end{tabular*}\end{center}
+  \ifthenelse{\equal{\@correlatore}{?}}{}%
+    {\noindent \ifthenelse{\equal{\@correlatoreDue}{?}}%
+           {Correlatore}{Correlatori}:\newline
+      \vtop{\halign{\strut##\hfil\cr
+        \@correlatore%\cr%
+      \ifthenelse{\equal{\@correlatoreDue}{?}}%
+        {\cr}{\cr\@correlatoreDue\cr}}}}%
+  \begin{center}
+  \vfill
+  \rule{9cm}{.4pt}\\
+  \medskip
+  \uppercase{Anno Accademico \@annoaccademico}\\
+  \end{center}
+  \end{large}
+\end{sffamily}
+\clearemptydoublepage
+\ifthenelse{\equal{\@dedica}{?}}{}{%
+\pagestyle{empty}
+  \null\vfil
+  \begin{Large}
+  \begin{flushright}
+    \@dedica
+  \end{flushright}
+  \end{Large}
+  \vfil\vfil\clearemptydoublepage}
+\end{titlepage}}
+
+
+\endinput

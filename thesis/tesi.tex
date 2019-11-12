@@ -1,0 +1,194 @@
+%!TEX TS-program = pdflatex
+%!TEX encoding = UTF-8 Unicode
+
+\documentclass[12pt,a4paper,oneside,english,italian]{book}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{extensions/uniudtesi}
+
+\usepackage[nottoc]{tocbibind}
+
+\usepackage{indentfirst}
+\usepackage[ruled,vlined,linesnumbered]{algorithm2e}
+
+\graphicspath{{./figure/}}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{latexsym}
+\usepackage{graphicx} % [demo] is just for the example
+\usepackage{wrapfig}
+
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\R}{\mathbb{R}}
+
+\newcommand{\C}{\mathbb{C}}
+
+\DeclareMathOperator{\traccia}{tr}
+\DeclareMathOperator{\sen}{sen}
+\DeclareMathOperator{\arcsen}{arcsen}
+\DeclareMathOperator*{\maxlim}{max\,lim}
+\DeclareMathOperator*{\minlim}{min\,lim}
+\DeclareMathOperator*{\deepinf}{\phantom{\makebox[0pt]{p}}inf}
+
+\newcommand{\varsum}[3]{\sum_{#2}^{#3}\!
+   {\vphantom{\sum}}_{#1}\;}
+\newcommand{\varprod}[3]{\sum_{#2}^{#3}\!
+   {\vphantom{\sum}}_{#1}\;}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\theoremstyle{plain}
+\newtheorem{teorema}{Teorema}[chapter]
+\newtheorem{proposizione}[teorema]{Proposizione}
+\newtheorem{lemma}[teorema]{Lemma}
+\newtheorem{corollario}[teorema]{Corollario}
+
+\theoremstyle{definition}
+%\newtheorem{definizione}[teorema]{Definizione}
+\newtheorem{definizione}[teorema]{Definition}
+\newtheorem{esempio}[teorema]{Example}
+\newtheorem{problema}[teorema]{Problem}
+
+\theoremstyle{remark}
+\newtheorem{osservazione}[teorema]{Osservazione}
+
+\newcommand{\fsamp}{\textsc{F-samp}\xspace}
+\newcommand{\base}{\textsc{base}\xspace}
+\newcommand{\fcount}{\textsc{F-count}\xspace}
+
+
+\usepackage{makeidx}
+\makeindex
+
+% Ridefiniamo la riga di testa delle pagine:
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\renewcommand{\chaptermark}[1]{\markboth{#1}{}}
+\renewcommand{\sectionmark}[1]{\markright{\thesection\ #1}}
+\fancyhf{}
+\fancyhead[LE,RO]{\bfseries\thepage}
+\fancyhead[LO]{\bfseries\rightmark}
+\fancyhead[RE]{\bfseries\leftmark}
+\renewcommand{\headrulewidth}{0.5pt}
+\renewcommand{\footrulewidth}{0pt}
+\setlength{\headheight}{14.5pt}
+
+  \titolo{Ottimizzazione dell'algoritmo BM25P}
+  \titoloeng{Optimization of BM25P algorithm}
+  \laureando{Federico Silvestri}
+  \annoaccademico{2019-2020}
+  %\facolta{Scienze Matematiche, Fisiche e Naturali}
+  \corsodilaureatriennalein{Informatica}
+  \relatore[Prof.]{Cristina Ioana Muntean}
+  \relatoreDue[Prof.]{Franco Maria Nardini}
+  \correlatore[Prof.]{Maria Simi}
+  \dedica{Dedicato ai miei genitori, che mi hanno sempre aiutato, e agli amici che mi hanno sempre sostenuto}
+
+% Per l'ipertesto:
+ \usepackage{hyperref} % gia' caricato da uniudtesi
+ \hypersetup{
+  bookmarksopen, % default
+  bookmarksopenlevel=2, % default;
+  pdftitle={Optimization of BM25P algorithm},
+  pdfauthor={Federico Silvestri},
+  pdfsubject={Tesis of Bachelor Degree in Computer Science},
+  pdfkeywords={Tesis Bachelor Degree Computer Science Federico Silvestri}
+  }
+  
+\usepackage{listings}
+\usepackage{xcolor}
+\definecolor{listinggray}{gray}{0.9}
+\definecolor{lbcolor}{rgb}{0.9,0.9,0.9}
+\lstset{
+	backgroundcolor=\color{lbcolor},
+	tabsize=2,    
+	language=Java,
+	basicstyle=\scriptsize,
+	upquote=true,
+	aboveskip={1.5\baselineskip},
+	columns=fixed,
+	showstringspaces=false,
+	extendedchars=false,
+	breaklines=true,
+	prebreak = \raisebox{0ex}[0ex][0ex]{\ensuremath{\hookleftarrow}},
+	frame=single,
+	numbers=left,
+	showtabs=false,
+	showspaces=false,
+	showstringspaces=false,
+	identifierstyle=\ttfamily,
+	keywordstyle=\color[rgb]{0,0,1},
+	commentstyle=\color[rgb]{0.026,0.112,0.095},
+	stringstyle=\color[rgb]{0.627,0.126,0.941},
+	numberstyle=\color[rgb]{0.205, 0.142, 0.73},
+}
+
+ \lstset{
+ 	backgroundcolor=\color{lbcolor},
+ 	tabsize=2,
+ 	language=Java,
+ 	captionpos=b,
+ 	tabsize=2,
+ 	frame=lines,
+ 	numbers=left,
+ 	numberstyle=\tiny,
+ 	numbersep=5pt,
+ 	breaklines=true,
+ 	showstringspaces=false,
+ 	basicstyle=\footnotesize,
+ 	% identifierstyle=\color{magenta},
+ 	keywordstyle=\color[rgb]{0,0,1},
+ 	commentstyle=\color[rgb]{0,0.39,0},
+ 	stringstyle=\color{red},
+ 	morecomment=[l][\color{magenta}]{\#}
+ }
+
+
+\usepackage{bold-extra}
+\usepackage{lmodern}
+
+\begin{document}
+
+\renewcommand{\theequation}{\thechapter.\arabic{equation}}
+\renewcommand{\thesection}{\thechapter.\arabic{section}}
+
+\frontmatter
+
+\maketitle
+
+\cleardoublepage
+
+\tableofcontents
+
+% \listoffigures
+
+\mainmatter
+
+% \let\cleardoublepage\clearpage
+ 
+\input{1_intro}
+ 
+%\input{2_capitolo}
+ 
+%\input{3_capitolo}
+
+%\input{4_capitolo}
+
+%\input{5_capitolo}
+
+\appendix
+
+%\input{appendici}
+
+\clearpage
+
+\bibliographystyle{plain}
+\bibliography{mybib}
+
+% \printindex
+
+\input{ringraziamenti}
+
+\end{document}
