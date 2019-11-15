@@ -56,4 +56,12 @@
 		</plugins>
 	</build>
 
+	<dependencies>
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-core</artifactId>
+			<version>5.1</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
 </project>
