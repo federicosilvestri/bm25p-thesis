@@ -1,0 +1,7 @@
+#this is a sample feature list for learning-to-rank. Remove comments to add features
+#BM25 calculated only on the entire document
+#WMODEL:BM25
+#BM25 calculated only on the first field
+#WMODEL:SingleFieldModel(BM25,0)
+#Applying a DSM as a feature, in this case DFR proximity. NB proximity.dependency.type would need to be set for this feature
+#DSM:org.terrier.matching.dsms.DFRDependenceScoreModifier

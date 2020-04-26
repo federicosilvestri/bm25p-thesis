@@ -1,0 +1,8 @@
+/doc/javadoc/*
+/classes/
+/target/
+/logs/
+/target/
+modules/*/target/
+.settings/
+.DS_Store

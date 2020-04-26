@@ -191,9 +191,14 @@ dmypy.json
 
 .idea/
 
+*.iml
+
 # Eclipse
 .classpath
 .project
 .settings/
+
+# Terrier directory
+terrier/bin
 
 # End of https://www.gitignore.io/api/java,linux,macos,maven,python

@@ -1,0 +1,407 @@
+options {
+	STATIC = false;
+	LOOKAHEAD = 3;
+	FORCE_LA_CHECK = true;
+	DEBUG_PARSER=false;
+}
+
+PARSER_BEGIN(MatchOpQLParser)
+
+package org.terrier.matching.matchops;
+
+import org.terrier.querying.parser.Query.QTPBuilder;
+import org.terrier.matching.MatchingQueryTerms.MatchingTerm;
+import org.terrier.matching.models.WeightingModelFactory;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
+import java.io.StringReader;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
+
+@SuppressWarnings("all")
+public class MatchOpQLParser
+{
+    private final static boolean DEBUG = false;
+    
+    public MatchOpQLParser(String r) {
+    	this(new StringReader(r));
+    }
+	   
+    public static void main(String args[])
+    {
+        try
+        {
+	        if (args.length == 1 && args[0].equals("-"))
+	        {
+	        	BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+	        	String line = null;
+	        	while((line = br.readLine())!= null) {
+	        		MatchOpQLParser parser = new MatchOpQLParser(line.trim());
+	        		System.out.println(parser.parseAll());
+	        	}
+	        }
+	        else
+	        {
+	            String query = args[0];
+	            MatchOpQLParser parser = new MatchOpQLParser(query);
+	            System.out.println(parser.parse());
+	        }
+        }
+        catch(Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+}
+
+PARSER_END(MatchOpQLParser) 
+
+/** Skip these characters, they are considered "white space" **/
+SKIP :                              
+{
+      " "
+    | "\t"
+    | "\r"
+    | "\n"
+
+}
+
+< WithinIndri > SKIP : {
+	" "
+}
+
+/** Reserved tokens for UQL */
+TOKEN :
+{
+	  <HASH : "#"> : WithinIndri
+	  | <WORD : (["A"-"Z","a"-"z","0"-"9"])+ > 
+	  | <PERIOD : ".">
+	  | <BASE64WORD : (["A"-"Z","a"-"z","0"-"9", "+", "=", "/"]) + >
+	  | <CLOSE_PAREN: ")"> : DEFAULT
+}
+
+<WithinIndri> TOKEN : {
+   <BAND: "band">
+   |  <UW:  "uw">
+   |  <OW:  "ow">
+   |  <SYN: "syn">
+   |  <TAG: "tag">
+   |  <COMBINE: "combine">
+   |  <PREFIX: "prefix">
+   |  <FUZZY: "fuzzy">
+   |  <BASE64: "base64">
+   |  <OPEN_PAREN: "("> : DEFAULT
+   |  <COLON : ":"> : WithinCombineKV
+//   | <EQUALS : "=">
+//   | <FLOAT : (["0"-"9"])+"."(["0"-"9"])* >
+   |  <INT : (["0"-"9"])+ >
+}
+
+<WithinCombineKV> TOKEN : {
+ 	<WORD_OR_INT_OR_FLOAT : (["A"-"Z","a"-"z","0"-"9", "_", "."])+ > 
+ 	| <COLON_KV : ":">
+ 	| <EQUALS : "=">
+ 	| <OPEN_PAREN_KV: "("> : DEFAULT
+}
+
+List<MatchingTerm> parseOne() : 
+{
+	List<MatchingTerm> rtrList = new ArrayList<MatchingTerm>();
+	MatchingTerm newWord = null;
+	List<MatchingTerm> newWords = null;
+}
+{
+	(
+	  LOOKAHEAD(<HASH> <TAG>)
+	  <HASH> <TAG> newWords = tag() { rtrList.addAll(newWords); } 
+	| LOOKAHEAD(<HASH> <COMBINE>) 
+	  <HASH> <COMBINE> newWords = combine() { rtrList.addAll(newWords); } 
+	| newWord = parse() { rtrList.add(newWord); })
+	{
+		return rtrList;
+	}
+}
+
+List<MatchingTerm> parseAll() : 
+{
+	List<MatchingTerm> rtrList = new ArrayList<MatchingTerm>();
+	List<MatchingTerm> newWords = null;
+}
+{
+	(
+	newWords = parseOne() { rtrList.addAll(newWords); } 
+	)+
+	{
+		return rtrList;
+	}
+}
+
+
+MatchingTerm parse() :
+{
+	MatchingTerm rtr = null;
+}
+{
+	(
+	<HASH>
+	(	
+	  rtr = syn()
+	| rtr = band()
+	| rtr = uw() 
+	| rtr = ow()
+	| rtr = ow_implicit()
+	| rtr = prefix()
+	| rtr = fuzzy()
+	| rtr = base64()
+	)
+	| rtr = word()
+	)
+	{
+		return rtr;
+	}
+}
+
+List<MatchingTerm> combine(): {
+	List<MatchingTerm> allInnerWords = new ArrayList<MatchingTerm>();
+	List<MatchingTerm> innerWords = null;
+	Token key;
+	Token value;
+	int offset = 0;
+	Map<String,String> kv = new HashMap<String,String>();
+}
+{
+	
+	(
+		(
+			<COLON>
+			(  key = <WORD_OR_INT_OR_FLOAT> <EQUALS> value = <WORD_OR_INT_OR_FLOAT> { kv.put(key.image, value.image); } )
+			(  <COLON_KV> key = <WORD_OR_INT_OR_FLOAT> <EQUALS> value = <WORD_OR_INT_OR_FLOAT> { kv.put(key.image, value.image); } )*
+			<OPEN_PAREN_KV> 
+		) 
+	| <OPEN_PAREN>)
+	(innerWords = parseOne() { 
+		  for(MatchingTerm qt : innerWords)
+		  {
+	    		if (kv.containsKey(String.valueOf(offset)))
+	    		{
+	    			qt.getValue().setWeight(qt.getValue().getWeight() * Double.parseDouble(kv.get(String.valueOf(offset))));
+	    		}
+	      }
+		  offset++; 
+		  allInnerWords.addAll(innerWords);
+		  }  
+	)+  <CLOSE_PAREN>
+	{
+		//allow #combine to set the weighting model for all terms in the group
+		if (kv.containsKey("wmodel"))
+		{
+			String wmodelName = kv.get("wmodel");
+			for(MatchingTerm qt : allInnerWords)
+			{
+				qt.getValue().termModels.clear();
+			 	qt.getValue().termModels.add(WeightingModelFactory.newInstance(wmodelName));
+			}
+		}
+		//allow #combine to set the requirement for all terms in the group
+		if (kv.containsKey("req"))
+		{
+			boolean req = Boolean.parseBoolean(kv.get("req"));
+			for(MatchingTerm qt : allInnerWords)
+			{
+				qt.getValue().setRequired(req);
+			}
+		}
+		//allow #combine to set the tag for all terms in the group 
+		if (kv.containsKey("tag"))
+		{
+			String tag = kv.get("tag");
+			for(MatchingTerm qt : allInnerWords)
+			{
+				qt.getValue().setTag(tag);
+			}
+		}
+    	return allInnerWords;
+    }
+}
+
+List<MatchingTerm> tag(): {
+	List<MatchingTerm> innerWords = null;
+	Token tagName;
+}
+{
+	<OPEN_PAREN> tagName = <WORD> innerWords = parseAll()  <CLOSE_PAREN>
+	{
+    	for(MatchingTerm qt : innerWords)
+    	{
+    		qt.getValue().setTag(tagName.image);
+    	}
+    	return innerWords;
+    }
+}
+
+MatchingTerm prefix(): {
+  MatchingTerm newWord = null;
+}
+{ 
+  <PREFIX> <OPEN_PAREN> newWord = word() <CLOSE_PAREN>
+  {
+    return QTPBuilder.of(new PrefixTermOp( ((SingleTermOp) newWord.getKey()).getTerm())).build();
+  }
+}
+
+
+MatchingTerm syn(): {
+  List<Operator> words = new ArrayList<Operator>();
+  MatchingTerm newWord = null;
+}
+{ 
+  <SYN> <OPEN_PAREN> (newWord = parse() { words.add(newWord.getKey()); })+ <CLOSE_PAREN>
+  {
+    return QTPBuilder.of(new SynonymOp(words.toArray(new Operator[words.size()]))).build();
+  }
+}
+
+MatchingTerm band() : {
+  List<Operator> words = new ArrayList<Operator>();
+  MatchingTerm newWord = null;
+}
+{ 
+  <BAND>  <OPEN_PAREN> (newWord = parse() { words.add(newWord.getKey()); })+ <CLOSE_PAREN>
+  {
+    return QTPBuilder.of(new ANDQueryOp(words.toArray(new Operator[words.size()]))).build();
+  }
+}
+
+MatchingTerm uw(): {
+  List<Operator> words = new ArrayList<Operator>();
+  MatchingTerm newWord = null;
+  Token dist;
+}
+{ 
+  <UW> dist=<INT>  <OPEN_PAREN> (newWord = parse() { words.add(newWord.getKey()); })+ <CLOSE_PAREN>
+  {
+    return QTPBuilder.of(new UnorderedWindowOp(words.toArray(new Operator[words.size()]), Integer.parseInt(dist.image))).build();
+  }
+}
+
+MatchingTerm ow(): {
+  List<Operator> words = new ArrayList<Operator>();
+  MatchingTerm newWord = null;
+  Token dist;
+}
+{ 
+  <OW> dist=<INT>  <OPEN_PAREN> (newWord = parse() { words.add(newWord.getKey()); })+ <CLOSE_PAREN>
+  {
+    int iDist = Integer.parseInt(dist.image);
+  	if (iDist != 1)
+  	{
+  		throw new ParseException("Ordered windows > 1 not yet supported");
+  	}
+    return QTPBuilder.of(new PhraseOp(words.toArray(new Operator[words.size()]))).build();
+  }
+}
+
+
+MatchingTerm ow_implicit(): {
+  List<Operator> words = new ArrayList<Operator>();
+  MatchingTerm newWord = null;
+  Token dist;
+}
+{ 
+  dist=<INT> <OPEN_PAREN> (newWord = parse() { words.add(newWord.getKey()); })+  <CLOSE_PAREN>
+  {
+  	int iDist = Integer.parseInt(dist.image);
+  	if (iDist != 1)
+  	{
+  		throw new ParseException("Ordered windows > 1 not yet supported");
+  	}
+    return QTPBuilder.of(new PhraseOp(words.toArray(new Operator[words.size()]))).build();
+  }
+}
+
+MatchingTerm fuzzy() : {
+	Token word;
+	Token key;
+	Token value;
+	Token field = null;
+	Map<String,String> kv = new HashMap<String,String>();
+}
+{
+	<FUZZY> 
+		(
+		(
+			<COLON>
+			(  key = <WORD_OR_INT_OR_FLOAT> <EQUALS> value = <WORD_OR_INT_OR_FLOAT> { kv.put(key.image, value.image); } )
+			(  <COLON_KV> key = <WORD_OR_INT_OR_FLOAT> <EQUALS> value = <WORD_OR_INT_OR_FLOAT> { kv.put(key.image, value.image); } )*
+			<OPEN_PAREN_KV> 
+		) 
+	| <OPEN_PAREN>)
+	word = <WORD> <CLOSE_PAREN> /*(<PERIOD> field = <WORD>)?*/
+	{
+		String fieldName = null;
+		byte[] decoded = java.util.Base64.getMimeDecoder().decode(word.image);
+		String search = word.image;
+		Integer prefix_length = null;
+		Integer maxDist = null;
+		Integer lowT = null; 
+		Integer highT = null;
+		Integer maxExpansions = null;
+		if (kv.containsKey("max_expansions"))
+			maxExpansions = Integer.parseInt(kv.get("max_expansions"));
+		if (kv.containsKey("prefix_length"))
+			prefix_length = Integer.parseInt(kv.get("prefix_length"));
+		if (kv.containsKey("fuzziness"))
+		{
+			if ("AUTO".equals(kv.get("fuzziness")))
+				maxDist = null;
+			else if (kv.get("fuzziness").startsWith("AUTO"))
+			{
+				String[] parts = kv.get("fuzziness").split("\\.");
+				if (parts.length > 1)
+					lowT = Integer.parseInt(parts[1]);
+				if (parts.length > 2)
+					lowT = Integer.parseInt(parts[2]);
+			}
+			else
+			{
+				maxDist = Integer.parseInt(kv.get("fuzziness"));
+			}
+		}
+		
+		return QTPBuilder.of(new FuzzyTermOp(search, prefix_length, maxExpansions, maxDist, lowT, highT)).build();
+	}
+}
+
+MatchingTerm base64() : {
+	Token word;
+	Token field = null;
+}
+{
+	<BASE64> <OPEN_PAREN> word = <BASE64WORD> <CLOSE_PAREN> (<PERIOD> field = <WORD>)?
+	{
+		String fieldName = null;
+		byte[] decoded = java.util.Base64.getMimeDecoder().decode(word.image);
+		String term = new String(decoded);
+		if (field != null)
+			fieldName = field.image;
+		return QTPBuilder.of(new SingleTermOp(term, fieldName)).build();
+	}
+}
+
+MatchingTerm word() : {
+	Token word;
+	Token field = null;
+}
+{
+	word = <WORD> (<PERIOD> field = <WORD>)?
+	{
+		String fieldName = null;
+		if (field != null)
+			fieldName = field.image;
+		return QTPBuilder.of(new SingleTermOp(word.image, fieldName)).build();
+	}
+}
