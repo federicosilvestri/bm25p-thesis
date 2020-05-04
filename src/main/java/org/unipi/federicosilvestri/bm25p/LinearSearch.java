@@ -1,32 +1,63 @@
 package org.unipi.federicosilvestri.bm25p;
 
 import org.apache.commons.math3.util.Precision;
-import org.terrier.applications.CLITool;
 import org.terrier.applications.batchquerying.TRECQuerying;
 import org.terrier.utility.ApplicationSetup;
 import org.unipi.federicosilvestri.bm25p.treceval.MyTrecEval;
 import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
 
+import java.io.File;
 import java.util.Arrays;
 
 public class LinearSearch {
-    public static final String USER_DIR = System.getProperty("user.dir");
-    public static final String OUTPUT_DATA_DIR = USER_DIR + "/var/output_data/";
 
-    public static void main(String args[]) throws Exception {
-        // First we need to setup terrier environment
-        setupTerrierEnv();
+    /**
+     * Where we want to store the evaluation information (recall, NDCG, ...).
+     */
+    private final String evaluationDir;
+    /**
+     * The file where trec_eval can find the expected results.
+     */
+    private final String qrelsFile;
+    /**
+     * The file where trec_eval can find the calculated results.
+     */
+    private final String trecResultsFile;
 
-        // execute the search
-        search();
+    /**
+     * The directory of NDCG eval.
+     */
+    private final File NDCGEvaluationDir;
+
+    /**
+     * The directory of recall eval.
+     */
+    private final File recallEvaluationDir;
+
+    public LinearSearch() {
+        evaluationDir = ApplicationSetup.getProperty("org.unipi.federicosilvestri.evaluationDir", "var/eval/");
+        qrelsFile = ApplicationSetup.getProperty("org.unipi.federicosilvestri.qrelsFile", null);
+
+        if (qrelsFile == null) {
+            throw new NullPointerException("You must set org.unipi.federicosilvestri.qrelsFile paramater in terrier config!");
+        }
+
+        String resultDir = ApplicationSetup.getProperty("trec.results", null);
+        String resultFile = ApplicationSetup.getProperty("trec.results.file", null);
+
+        trecResultsFile = "var/" + resultDir + resultFile;
+
+        // creating output directories
+        File evaluationDirFile = new File((evaluationDir));
+        evaluationDirFile.mkdir();
+
+        NDCGEvaluationDir = new File(evaluationDir + "ndcg/");
+        recallEvaluationDir = new File(evaluationDir + "recall/");
+        NDCGEvaluationDir.mkdir();
+        recallEvaluationDir.mkdir();
     }
 
-    private static void setupTerrierEnv() {
-        System.setProperty("terrier.home", USER_DIR);
-        System.setProperty("terrier.etc", USER_DIR + "/etc/");
-    }
-
-    private static void search() throws Exception {
+    public void search() throws Exception {
         final int P = 10;
         final double STD_W[] = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.1, 1.0, 1.0};
         final double W_STEP = 1; // the step of search. Each computation executes a sum between w[p] and W_STEP
@@ -35,14 +66,14 @@ public class LinearSearch {
         final double END_W = 10;
 
         // check for consistence
-        assert(END_W > START_W);
-        assert(STD_W.length == P);
+        assert (END_W > START_W);
+        assert (STD_W.length == P);
 
         // for each passage we need to change the value in a linspace
         for (int p = 0; p < P; p++) {
             System.out.println("Working on passage " + p);
-            SerializableMap ndcgMap = new SerializableMap(OUTPUT_DATA_DIR + "ndcg/passage_" + p + ".csv");
-            SerializableMap recallMap = new SerializableMap(OUTPUT_DATA_DIR + "recall/passage_" + p + ".csv");
+            SerializableMap ndcgMap = new SerializableMap(NDCGEvaluationDir.getAbsolutePath() + "/passage_" + p + ".csv");
+            SerializableMap recallMap = new SerializableMap(recallEvaluationDir.getAbsolutePath() + "/passage_" + p + ".csv");
 
             for (double w_p = START_W; w_p < END_W; w_p += W_STEP) {
                 double w[] = STD_W;
@@ -66,7 +97,7 @@ public class LinearSearch {
         }
     }
 
-    private static void executeRetrievePipeline(double w[], int passages) {
+    private void executeRetrievePipeline(double w[], int passages) {
         System.out.println("# # ");
         System.out.println("# # Starting BATCHRETRIEVAL->EVALUATE process");
         System.out.println("# # Using w vector = " + Arrays.toString(w));
@@ -81,10 +112,10 @@ public class LinearSearch {
         trecQuerying.processQueries();
     }
 
-    private static double getNDCGMeasure() {
+    private double getNDCGMeasure() {
         // execute the evaluation
-        MyTrecEval trecEvalEvaluation = new MyTrecEval("share/vaswani_npl/qrels", "ndcg");
-        String[][] result = trecEvalEvaluation.evaluate("var/output/results.txt");
+        MyTrecEval trecEvalEvaluation = new MyTrecEval(this.qrelsFile, "ndcg");
+        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile);
 
         double ndcg = Double.parseDouble(result[0][2]);
 
@@ -96,10 +127,10 @@ public class LinearSearch {
         return ndcg;
     }
 
-    private static double getRecallMeasure() {
+    private double getRecallMeasure() {
         // execute the evaluation
-        MyTrecEval trecEvalEvaluation = new MyTrecEval("share/vaswani_npl/qrels", "recall");
-        String[][] result = trecEvalEvaluation.evaluate("var/output/results.txt");
+        MyTrecEval trecEvalEvaluation = new MyTrecEval(this.qrelsFile, "recall");
+        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile);
 
         double recall = Double.parseDouble(result[0][2]);
 
