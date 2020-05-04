@@ -52,10 +52,10 @@ public class LinearSearch {
     private static void search() throws Exception {
         final int P = 10;
         final double STD_W[] = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.1, 1.0, 1.0};
-        final double W_STEP = 0.05; // the step of search. Each computation executes a sum between w[p] and W_STEP
-        final int W_STEP_PRECISION = 2; // the precision of W_STEP
-        final double START_W = 0.0;
-        final double END_W = 1.0;
+        final double W_STEP = 1; // the step of search. Each computation executes a sum between w[p] and W_STEP
+        final int W_STEP_PRECISION = 1; // the precision of W_STEP
+        final double START_W = 1.0;
+        final double END_W = 10;
 
         // check for consistence
         assert(END_W > START_W);
@@ -64,24 +64,32 @@ public class LinearSearch {
        // for each passage we need to change the value in a linspace
         for (int p = 0; p < P; p++) {
             System.out.println("Working on passage " + p);
-            SerializableMap map = new SerializableMap(OUTPUT_DATA_DIR + "passage_" + p + ".csv");
+            SerializableMap ndcgMap = new SerializableMap(OUTPUT_DATA_DIR + "ndcg/passage_" + p + ".csv");
+            SerializableMap recallMap = new SerializableMap(OUTPUT_DATA_DIR + "recall/passage_" + p + ".csv");
 
             for (double w_p = START_W; w_p < END_W; w_p += W_STEP) {
                 double w[] = STD_W;
                 w[p] = Precision.round(w_p, W_STEP_PRECISION);
 
                 // executing the pipeline
-                double ndcg_eval = executePipelineAndGetNDCG(w, P);
+                executeRetrievePipeline(w, P);
 
-                map.put(w[p], ndcg_eval);
+                // getting measures
+                double ndcg_eval = getNDCGMeasure();
+                double recall = getRecallMeasure();
+
+                ndcgMap.put(w[p], ndcg_eval);
+                recallMap.put(w[p], recall);
             }
 
-            // write to a file the couple w_p, ndcg
-            map.write();
+            // write specified file with the couple w_p, ndcg
+            ndcgMap.write();
+            // same for recall
+            recallMap.write();
         }
     }
 
-    private static double executePipelineAndGetNDCG(double w[], int passages) {
+    private static void executeRetrievePipeline(double w[], int passages) {
         System.out.println("# # ");
         System.out.println("# # Starting BATCHRETRIEVE->EVALUATE process");
         System.out.println("# # Using w vector = " + Arrays.toString(w));
@@ -95,7 +103,9 @@ public class LinearSearch {
         } catch (Exception e) {
             throw new RuntimeException("An exception was thrown by CLITool", e);
         }
+    }
 
+    private static double getNDCGMeasure() {
         // execute the evaluation
         MyTrecEval trecEvalEvaluation = new MyTrecEval("share/vaswani_npl/qrels", "ndcg");
         String[][] result = trecEvalEvaluation.evaluate("var/output/results.txt");
@@ -108,6 +118,21 @@ public class LinearSearch {
         System.out.println("# # ");
 
         return ndcg;
+    }
+
+    private static double getRecallMeasure() {
+        // execute the evaluation
+        MyTrecEval trecEvalEvaluation = new MyTrecEval("share/vaswani_npl/qrels", "recall");
+        String[][] result = trecEvalEvaluation.evaluate("var/output/results.txt");
+
+        double recall = Double.parseDouble(result[0][2]);
+
+        System.out.println("# # ");
+        System.out.println("# # Process BATCHRETRIEVE->EVALUATE completed");
+        System.out.println("# # RECALL=" + recall);
+        System.out.println("# # ");
+
+        return recall;
     }
 }
 
