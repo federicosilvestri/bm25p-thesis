@@ -8,11 +8,11 @@ public class MainClass {
 		// setup Terrier environment
 		setupTerrierEnv();
 
-		 LinearSearch ls = new LinearSearch();
-		 ls.search();
+		 DataCollection ls = new DataCollection();
+		 ls.linearCollect();
 	}
 
-	private static void setupTerrierEnv() {
+	public static void setupTerrierEnv() {
 		System.setProperty("terrier.home", USER_DIR);
 		System.setProperty("terrier.etc", USER_DIR + "/etc/");
 	}

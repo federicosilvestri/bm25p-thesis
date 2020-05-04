@@ -9,7 +9,7 @@ import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
 import java.io.File;
 import java.util.Arrays;
 
-public class LinearSearch {
+public class DataCollection {
 
     /**
      * Where we want to store the evaluation information (recall, NDCG, ...).
@@ -34,7 +34,7 @@ public class LinearSearch {
      */
     private final File recallEvaluationDir;
 
-    public LinearSearch() {
+    public DataCollection() {
         evaluationDir = ApplicationSetup.getProperty("org.unipi.federicosilvestri.evaluationDir", "var/eval/");
         qrelsFile = ApplicationSetup.getProperty("org.unipi.federicosilvestri.qrelsFile", null);
 
@@ -57,7 +57,7 @@ public class LinearSearch {
         recallEvaluationDir.mkdir();
     }
 
-    public void search() throws Exception {
+    public void linearCollect() throws Exception {
         final int P = 10;
         final double STD_W[] = new double[]{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.1, 1.0, 1.0};
         final double W_STEP = 1; // the step of search. Each computation executes a sum between w[p] and W_STEP
@@ -97,7 +97,7 @@ public class LinearSearch {
         }
     }
 
-    private void executeRetrievePipeline(double w[], int passages) {
+    public void executeRetrievePipeline(double w[], int passages) {
         System.out.println("# # ");
         System.out.println("# # Starting BATCHRETRIEVAL->EVALUATE process");
         System.out.println("# # Using w vector = " + Arrays.toString(w));
@@ -112,7 +112,7 @@ public class LinearSearch {
         trecQuerying.processQueries();
     }
 
-    private double getNDCGMeasure() {
+    public double getNDCGMeasure() {
         // execute the evaluation
         MyTrecEval trecEvalEvaluation = new MyTrecEval(this.qrelsFile, "ndcg");
         String[][] result = trecEvalEvaluation.evaluate(trecResultsFile);
@@ -127,7 +127,7 @@ public class LinearSearch {
         return ndcg;
     }
 
-    private double getRecallMeasure() {
+    public double getRecallMeasure() {
         // execute the evaluation
         MyTrecEval trecEvalEvaluation = new MyTrecEval(this.qrelsFile, "recall");
         String[][] result = trecEvalEvaluation.evaluate(trecResultsFile);
