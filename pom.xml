@@ -56,6 +56,12 @@
 		</plugins>
 	</build>
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-concurrent -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-concurrent</artifactId>
+			<version>5.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.terrier</groupId>
 			<artifactId>terrier-core</artifactId>
@@ -91,10 +97,22 @@
 			<artifactId>terrier-assemblies</artifactId>
 			<version>5.2</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-realtime -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-realtime</artifactId>
+			<version>5.2</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-retrieval-api -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-retrieval-api</artifactId>
+			<version>5.2</version>
 		</dependency>
 	</dependencies>
 </project>
