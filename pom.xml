@@ -31,24 +31,19 @@
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
+				<artifactId>maven-shade-plugin</artifactId>
 				<executions>
 					<execution>
-						<phase>package</phase>
 						<goals>
-							<goal>single</goal>
+							<goal>shade</goal>
 						</goals>
 						<configuration>
-							<archive>
-								<manifest>
-									<mainClass>
-										org.unipi.federicosilvestri.bm25p.MainClass
-									</mainClass>
-								</manifest>
-							</archive>
-							<descriptorRefs>
-								<descriptorRef>jar-with-dependencies</descriptorRef>
-							</descriptorRefs>
+							<shadedArtifactAttached>true</shadedArtifactAttached>
+							<transformers>
+								<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+									<mainClass>org.unipi.federicosilvestri.bm25p.MainClass</mainClass>
+								</transformer>
+							</transformers>
 						</configuration>
 					</execution>
 				</executions>
@@ -56,12 +51,6 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-concurrent -->
-		<dependency>
-			<groupId>org.terrier</groupId>
-			<artifactId>terrier-concurrent</artifactId>
-			<version>5.2</version>
-		</dependency>
 		<dependency>
 			<groupId>org.terrier</groupId>
 			<artifactId>terrier-core</artifactId>
@@ -72,47 +61,16 @@
 			<artifactId>terrier-batch-retrieval</artifactId>
 			<version>5.2</version>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-logging -->
 		<dependency>
 			<groupId>org.terrier</groupId>
 			<artifactId>terrier-logging</artifactId>
 			<version>5.2</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-batch-indexers -->
-		<dependency>
-			<groupId>org.terrier</groupId>
-			<artifactId>terrier-batch-indexers</artifactId>
-			<version>5.2</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-platform -->
-		<dependency>
-			<groupId>org.terrier</groupId>
-			<artifactId>terrier-platform</artifactId>
-			<version>5.2</version>
-			<type>pom</type>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-assemblies -->
-		<dependency>
-			<groupId>org.terrier</groupId>
-			<artifactId>terrier-assemblies</artifactId>
-			<version>5.2</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-realtime -->
-		<dependency>
-			<groupId>org.terrier</groupId>
-			<artifactId>terrier-realtime</artifactId>
-			<version>5.2</version>
+			<scope>runtime</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-math3</artifactId>
 			<version>3.2</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-retrieval-api -->
-		<dependency>
-			<groupId>org.terrier</groupId>
-			<artifactId>terrier-retrieval-api</artifactId>
-			<version>5.2</version>
 		</dependency>
 	</dependencies>
 </project>

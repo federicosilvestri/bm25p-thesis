@@ -2,50 +2,23 @@ package org.unipi.federicosilvestri.bm25p;
 
 import org.apache.commons.math3.util.Precision;
 import org.terrier.applications.CLITool;
+import org.terrier.applications.batchquerying.TRECQuerying;
 import org.terrier.utility.ApplicationSetup;
 import org.unipi.federicosilvestri.bm25p.treceval.MyTrecEval;
 import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 
 public class LinearSearch {
-
     public static final String USER_DIR = System.getProperty("user.dir");
-    public static final File TERRIER_FULL_JAR = new File(USER_DIR + "/modules/assemblies/target/terrier-project-5.2-jar-with-dependencies.jar");
-    public static final File LOGBACK_FILE = new File(USER_DIR + "/etc/logback.xml");
     public static final String OUTPUT_DATA_DIR = USER_DIR + "/var/output_data/";
 
     public static void main(String args[]) throws Exception {
-        // loading other classes for terrier
-        addToClasspath(TERRIER_FULL_JAR);
-        // adding logback
-         addToClasspath(LOGBACK_FILE);
-
         // First we need to setup terrier environment
         setupTerrierEnv();
 
         // execute the search
         search();
-    }
-
-    public static void addToClasspath(File file) {
-        try {
-            URL url = file.toURI().toURL();
-
-            URLClassLoader classLoader = new URLClassLoader(
-                    new URL[] {file.toURI().toURL()},
-                    LinearSearch.class.getClassLoader()
-            );
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(classLoader, url);
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);
-        }
     }
 
     private static void setupTerrierEnv() {
@@ -65,7 +38,7 @@ public class LinearSearch {
         assert(END_W > START_W);
         assert(STD_W.length == P);
 
-       // for each passage we need to change the value in a linspace
+        // for each passage we need to change the value in a linspace
         for (int p = 0; p < P; p++) {
             System.out.println("Working on passage " + p);
             SerializableMap ndcgMap = new SerializableMap(OUTPUT_DATA_DIR + "ndcg/passage_" + p + ".csv");
@@ -95,18 +68,17 @@ public class LinearSearch {
 
     private static void executeRetrievePipeline(double w[], int passages) {
         System.out.println("# # ");
-        System.out.println("# # Starting BATCHRETRIEVE->EVALUATE process");
+        System.out.println("# # Starting BATCHRETRIEVAL->EVALUATE process");
         System.out.println("# # Using w vector = " + Arrays.toString(w));
         System.out.println("# # ");
 
         ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.w", Arrays.toString(w));
         ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.p", "" + passages);
 
-        try {
-            CLITool.main(new String[]{"batchretrieve"});
-        } catch (Exception e) {
-            throw new RuntimeException("An exception was thrown by CLITool", e);
-        }
+        // retrieve
+        TRECQuerying trecQuerying = new TRECQuerying();
+        trecQuerying.intialise();
+        trecQuerying.processQueries();
     }
 
     private static double getNDCGMeasure() {
@@ -117,7 +89,7 @@ public class LinearSearch {
         double ndcg = Double.parseDouble(result[0][2]);
 
         System.out.println("# # ");
-        System.out.println("# # Process BATCHRETRIEVE->EVALUATE completed");
+        System.out.println("# # Process BATCHRETRIEVAL->EVALUATE completed");
         System.out.println("# # NDCG=" + ndcg);
         System.out.println("# # ");
 
@@ -132,7 +104,7 @@ public class LinearSearch {
         double recall = Double.parseDouble(result[0][2]);
 
         System.out.println("# # ");
-        System.out.println("# # Process BATCHRETRIEVE->EVALUATE completed");
+        System.out.println("# # Process BATCHRETRIEVAL->EVALUATE completed");
         System.out.println("# # RECALL=" + recall);
         System.out.println("# # ");
 
