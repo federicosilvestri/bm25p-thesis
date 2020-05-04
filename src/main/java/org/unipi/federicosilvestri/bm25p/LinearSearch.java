@@ -21,9 +21,9 @@ public class LinearSearch {
 
     public static void main(String args[]) throws Exception {
         // loading other classes for terrier
-        // addToClasspath(TERRIER_FULL_JAR);
+        addToClasspath(TERRIER_FULL_JAR);
         // adding logback
-        // addToClasspath(LOGBACK_FILE);
+        addToClasspath(LOGBACK_FILE);
 
         // First we need to setup terrier environment
         setupTerrierEnv();
@@ -36,7 +36,10 @@ public class LinearSearch {
         try {
             URL url = file.toURI().toURL();
 
-            URLClassLoader classLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
+            URLClassLoader classLoader = new URLClassLoader(
+                    new URL[] {file.toURI().toURL()},
+                    LinearSearch.class.getClassLoader()
+            );
             Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
             method.setAccessible(true);
             method.invoke(classLoader, url);
