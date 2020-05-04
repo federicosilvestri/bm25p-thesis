@@ -14,9 +14,10 @@ import java.util.Arrays;
 
 public class LinearSearch {
 
-    public static final File TERRIER_FULL_JAR = new File("/home/federicosilvestri/IdeaProjects/bm25p/terrier/modules/assemblies/target/terrier-project-5.2-jar-with-dependencies.jar");
-    public static final File LOGBACK_FILE = new File("/home/federicosilvestri/IdeaProjects/bm25p/terrier/etc/logback.xml");
-    public static final String OUTPUT_DATA_DIR = "/home/federicosilvestri/IdeaProjects/bm25p/terrier/var/output_data/";
+    public static final String USER_DIR = System.getProperty("user.dir");
+    public static final File TERRIER_FULL_JAR = new File(USER_DIR + "/modules/assemblies/target/terrier-project-5.2-jar-with-dependencies.jar");
+    public static final File LOGBACK_FILE = new File(USER_DIR + "/etc/logback.xml");
+    public static final String OUTPUT_DATA_DIR = USER_DIR + "/var/output_data/";
 
     public static void main(String args[]) throws Exception {
         // loading other classes for terrier
@@ -45,8 +46,8 @@ public class LinearSearch {
     }
 
     private static void setupTerrierEnv() {
-        System.setProperty("terrier.home", "/home/federicosilvestri/IdeaProjects/bm25p/terrier");
-        System.setProperty("terrier.etc", "/home/federicosilvestri/IdeaProjects/bm25p/terrier/etc");
+        System.setProperty("terrier.home", USER_DIR);
+        System.setProperty("terrier.etc", USER_DIR + "/etc/");
     }
 
     private static void search() throws Exception {
