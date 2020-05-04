@@ -14,8 +14,8 @@
 	</organization>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.source>11</maven.compiler.source>
-		<maven.compiler.target>11</maven.compiler.target>
+		<maven.compiler.source>8</maven.compiler.source>
+		<maven.compiler.target>8</maven.compiler.target>
 	</properties>
 	<build>
 		<resources>
@@ -60,11 +60,35 @@
 			<groupId>org.terrier</groupId>
 			<artifactId>terrier-core</artifactId>
 			<version>5.2</version>
-			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.terrier</groupId>
 			<artifactId>terrier-batch-retrieval</artifactId>
+			<version>5.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-logging -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-logging</artifactId>
+			<version>5.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-batch-indexers -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-batch-indexers</artifactId>
+			<version>5.2</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-platform -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-platform</artifactId>
+			<version>5.2</version>
+			<type>pom</type>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.terrier/terrier-assemblies -->
+		<dependency>
+			<groupId>org.terrier</groupId>
+			<artifactId>terrier-assemblies</artifactId>
 			<version>5.2</version>
 		</dependency>
 		<dependency>

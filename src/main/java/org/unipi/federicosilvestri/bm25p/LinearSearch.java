@@ -6,46 +6,19 @@ import org.terrier.utility.ApplicationSetup;
 import org.unipi.federicosilvestri.bm25p.treceval.MyTrecEval;
 import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
 
-import java.io.File;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Arrays;
 
 public class LinearSearch {
 
     public static final String USER_DIR = System.getProperty("user.dir");
-    public static final File TERRIER_FULL_JAR = new File(USER_DIR + "/modules/assemblies/target/terrier-project-5.2-jar-with-dependencies.jar");
-    public static final File LOGBACK_FILE = new File(USER_DIR + "/etc/logback.xml");
     public static final String OUTPUT_DATA_DIR = USER_DIR + "/var/output_data/";
 
     public static void main(String args[]) throws Exception {
-        // loading other classes for terrier
-        addToClasspath(TERRIER_FULL_JAR);
-        // adding logback
-        addToClasspath(LOGBACK_FILE);
-
         // First we need to setup terrier environment
         setupTerrierEnv();
 
         // execute the search
         search();
-    }
-
-    public static void addToClasspath(File file) {
-        try {
-            URL url = file.toURI().toURL();
-
-            URLClassLoader classLoader = new URLClassLoader(
-                    new URL[] {file.toURI().toURL()},
-                    LinearSearch.class.getClassLoader()
-            );
-            Method method = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
-            method.setAccessible(true);
-            method.invoke(classLoader, url);
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected exception", e);
-        }
     }
 
     private static void setupTerrierEnv() {
