@@ -6,10 +6,11 @@ public class MainClass {
 
 	public static void main(String args[]) throws Exception {
 		// setup Terrier environment
-		setupTerrierEnv();
+		// setupTerrierEnv();
 
-		 DataCollection ls = new DataCollection();
-		 ls.linearCollect();
+		 // DataCollection ls = new DataCollection();
+		 // ls.linearCollect();
+		GridSearch.main(args);
 	}
 
 	public static void setupTerrierEnv() {

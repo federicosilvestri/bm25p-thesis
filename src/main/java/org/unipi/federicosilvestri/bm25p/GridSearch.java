@@ -1,5 +1,7 @@
 package org.unipi.federicosilvestri.bm25p;
 
+import org.terrier.utility.ApplicationSetup;
+
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -15,7 +17,15 @@ public final class GridSearch {
 
     public static void main(String args[]) {
         MainClass.setupTerrierEnv();
-        GridSearch gs = new GridSearch(GridSearch.MIN_W, GridSearch.MAX_W, 0.05, -1, Double.MAX_VALUE);
+
+
+        String[] split_w = ApplicationSetup.getProperty("org.unipi.federicosilvestri.startW", null).replace("[", "").replace("]", "").split(",");
+        double startW[] = Arrays.stream(split_w).mapToDouble(Double::parseDouble).toArray();
+        split_w = ApplicationSetup.getProperty("org.unipi.federicosilvestri.endW", null).replace("[", "").replace("]", "").split(",");
+        double endW[] = Arrays.stream(split_w).mapToDouble(Double::parseDouble).toArray();
+        double wStep = Double.parseDouble(ApplicationSetup.getProperty("org.unipi.federicosilvestri.wStep", "0.5"));
+
+        GridSearch gs = new GridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
         gs.execute();
         System.out.println(gs.getResults());
     }
