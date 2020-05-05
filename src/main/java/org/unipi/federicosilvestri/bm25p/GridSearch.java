@@ -7,66 +7,15 @@ import org.terrier.utility.ApplicationSetup;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * This class executes a grid search on discretized vector space w,
  * limited by a minimum and a maximum.
  */
-public final class GridSearch {
+public class GridSearch {
 
     protected static final Logger logger = LoggerFactory.getLogger(GridSearch.class);
-
-    public static void main(String args[]) {
-        MainClass.setupTerrierEnv();
-
-        double startW[];
-        {
-            String startWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.startW", null);
-            if (startWString == null) {
-                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.startW!");
-            }
-
-            String splitW[] = startWString.replace("[", "").replace("]", "").split(",");
-            startW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
-        }
-
-        double endW[];
-        {
-            String endWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.endW", null);
-            if (endWString == null) {
-                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.endW!");
-            }
-
-            String splitW[] = endWString.replace("[", "").replace("]", "").split(",");
-            endW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
-        }
-
-        double wStep;
-        {
-            String wStepString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.wStep", null);
-            if (wStepString == null) {
-                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.wStep!");
-            }
-
-            wStep = Double.parseDouble(wStepString);
-        }
-
-        GridSearch gs = new GridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
-
-        logger.info("Starting a new GridSearch with:");
-        logger.info("startW=" + Arrays.toString(startW));
-        logger.info("endW=" + Arrays.toString(endW));
-        logger.info("wStep=" + wStep);
-        logger.info("maxIterations=" + (-1));
-        logger.info("MaxNDCGToStop=" + Double.MAX_VALUE);
-
-        gs.execute();
-
-        logger.info(gs.getResults());
-    }
 
     public static String TEMP_FILE_NAME = "tempResults.txt";
 
@@ -174,7 +123,8 @@ public final class GridSearch {
     public void execute() {
         iterations = 0;
         startTime = System.currentTimeMillis();
-        search(0, new LinkedList<>());
+        TreeMap<Integer, Double> v = new TreeMap<>();
+        search(nextLevel(-1, v), v);
         endTime = System.currentTimeMillis();
     }
 
@@ -184,38 +134,35 @@ public final class GridSearch {
      * @param component
      * @return
      */
-    private List<Double> getValuesFor(int component) {
-        LinkedList<Double> stack = new LinkedList<>();
+    protected ArrayList<Double> getValuesFor(int component) {
+        ArrayList<Double> arrayList = new ArrayList<>();
 
         for (double h = minW[component]; h <= maxW[component]; h += wStep) {
-            stack.add(h);
+            arrayList.add(h);
         }
 
-        return stack;
+        return arrayList;
     }
 
-    private int search(int level, List<Double> v) {
-        iterations += 1;
-
-        if (level >= minW.length) {
+    private int search(int level, Map<Integer, Double> v) {
+        if (!hasNextLevel(level, v)) {
             // we are in a leaf
             double w[] = constructWVector(v);
             int eval = evaluate(w);
+            // take a breath, and invoke GC
+            System.gc();
 
             if (eval < 0 || (maxIterations > 0 && iterations >= maxIterations)) {
                 // stop the iterations
                 return -1;
             }
-
-            // take a breath, and invoke GC
-            System.gc();
-            v = null;
         } else {
-            List<Double> values = getValuesFor(level);
+            ArrayList<Double> values = getValuesFor(level);
             for (Double value : values) {
-                LinkedList<Double> newV = new LinkedList<>(v);
-                newV.add(value);
-                int dir = search(level + 1, newV);
+                TreeMap<Integer, Double> newV = new TreeMap<>(v);
+                newV.put(level, value);
+                int newLevel = nextLevel(level, newV);
+                int dir = search(newLevel, newV);
 
                 if (dir < 0) {
                     return -1;
@@ -226,17 +173,40 @@ public final class GridSearch {
         return 0;
     }
 
-    private double[] constructWVector(List<Double> v) {
-        double w[] = new double[v.size()];
+    /**
+     * This function is the core of the search, because it represents the function
+     * that associates tree depth with vector index.
+     *
+     * @param level   level of the tree
+     * @param weights weigth vector
+     * @return
+     */
+    protected int nextLevel(int level, Map<Integer, Double> weights) {
+        int ret = level + 1;
 
-        for (int i = 0; i < v.size(); i++) {
-            w[i] = v.get(i);
+
+        assert (ret >= 0);
+        assert (ret < this.minW.length);
+        return ret;
+    }
+
+    protected boolean hasNextLevel(int level, Map<Integer, Double> weights) {
+        return level < this.minW.length;
+    }
+
+    private double[] constructWVector(Map<Integer, Double> v) {
+        double w[] = new double[this.minW.length];
+
+        for (Integer key : v.keySet()) {
+            Double value = v.get(key);
+            w[key] = value;
         }
 
         return w;
     }
 
-    private int evaluate(double w[]) {
+    protected int evaluate(double w[]) {
+        iterations += 1;
         dataCollection.executeRetrievePipeline(w, PASSAGES);
         double ndcg = dataCollection.getNDCGMeasure();
 
@@ -244,15 +214,13 @@ public final class GridSearch {
         if (ndcg > maxNDCG) {
             maxNDCG = ndcg;
             maximizedW = w;
-            //temporaryResultsWrite();
+            temporaryResultsWrite();
         }
         if (ndcg < minNDCG) {
             minNDCG = ndcg;
             minimizedW = w;
-            //temporaryResultsWrite();
+            temporaryResultsWrite();
         }
-
-        temporaryResultsWrite();
 
         // return + to continue, - to stop
         if (ndcg > maxNDCGToStop) {
@@ -262,13 +230,32 @@ public final class GridSearch {
         return 1;
     }
 
-    private void temporaryResultsWrite() {
+    protected void temporaryResultsWrite() {
         String results = getResults();
-        try (BufferedWriter output = new BufferedWriter(new FileWriter(TEMP_FILE_NAME, true))){
+        try (BufferedWriter output = new BufferedWriter(new FileWriter(TEMP_FILE_NAME, true))) {
             output.write(results);
         } catch (IOException e) {
             throw new RuntimeException("Cannot write to temporary file!");
         }
+    }
+
+    public String getResults(String w, String ndcg) {
+        String s = "### Results ###";
+        long elapsedTime = 0;
+        if (endTime == 0) {
+            elapsedTime = System.currentTimeMillis() - startTime;
+        } else {
+            elapsedTime = endTime - startTime;
+        }
+        s += "\nNumber of iterations: " + iterations;
+        s += "\nElapsed time:" + elapsedTime / 1000 + "s";
+        s += "\nMinimum NDCG=" + minNDCG + " with w=" + Arrays.toString(minimizedW);
+        s += "\nMaximum NDCG=" + maxNDCG + " with w=" + Arrays.toString(maximizedW);
+        s += "\nCurrent w=" + w;
+        s += "\nCurrent ndcg=" + ndcg;
+        s += "\n### - - - - ###\n";
+
+        return s;
     }
 
     public String getResults() {
@@ -280,12 +267,11 @@ public final class GridSearch {
             elapsedTime = endTime - startTime;
         }
         s += "\nNumber of iterations: " + iterations;
-        s += "\nElapsed time:" + elapsedTime/1000 + "s";
+        s += "\nElapsed time:" + elapsedTime / 1000 + "s";
         s += "\nMinimum NDCG=" + minNDCG + " with w=" + Arrays.toString(minimizedW);
         s += "\nMaximum NDCG=" + maxNDCG + " with w=" + Arrays.toString(maximizedW);
         s += "\n### - - - - ###\n";
 
         return s;
     }
-
 }
