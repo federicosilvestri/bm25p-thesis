@@ -1,5 +1,7 @@
 package org.unipi.federicosilvestri.bm25p;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terrier.utility.ApplicationSetup;
 
 import java.io.BufferedWriter;
@@ -15,19 +17,55 @@ import java.util.List;
  */
 public final class GridSearch {
 
+    protected static final Logger logger = LoggerFactory.getLogger(GridSearch.class);
+
     public static void main(String args[]) {
         MainClass.setupTerrierEnv();
 
+        double startW[];
+        {
+            String startWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.startW", null);
+            if (startWString == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.startW!");
+            }
 
-        String[] split_w = ApplicationSetup.getProperty("org.unipi.federicosilvestri.startW", null).replace("[", "").replace("]", "").split(",");
-        double startW[] = Arrays.stream(split_w).mapToDouble(Double::parseDouble).toArray();
-        split_w = ApplicationSetup.getProperty("org.unipi.federicosilvestri.endW", null).replace("[", "").replace("]", "").split(",");
-        double endW[] = Arrays.stream(split_w).mapToDouble(Double::parseDouble).toArray();
-        double wStep = Double.parseDouble(ApplicationSetup.getProperty("org.unipi.federicosilvestri.wStep", "0.5"));
+            String splitW[] = startWString.replace("[", "").replace("]", "").split(",");
+            startW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
+        }
+
+        double endW[];
+        {
+            String endWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.endW", null);
+            if (endWString == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.endW!");
+            }
+
+            String splitW[] = endWString.replace("[", "").replace("]", "").split(",");
+            endW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
+        }
+
+        double wStep;
+        {
+            String wStepString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.wStep", null);
+            if (wStepString == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.wStep!");
+            }
+
+            wStep = Double.parseDouble(wStepString);
+        }
 
         GridSearch gs = new GridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+
+        logger.info("Starting a new GridSearch with:");
+        logger.info("startW=" + Arrays.toString(startW));
+        logger.info("endW=" + Arrays.toString(endW));
+        logger.info("wStep=" + wStep);
+        logger.info("maxIterations=" + (-1));
+        logger.info("MaxNDCGToStop=" + Double.MAX_VALUE);
+
         gs.execute();
-        System.out.println(gs.getResults());
+
+        logger.info(gs.getResults());
     }
 
     public static String TEMP_FILE_NAME = "tempResults.txt";
@@ -163,6 +201,10 @@ public final class GridSearch {
                 // stop the iterations
                 return -1;
             }
+
+            // take a breath, and invoke GC
+            System.gc();
+            v = null;
         } else {
             List<Double> values = getValuesFor(level);
             for (Double value : values) {
@@ -235,6 +277,7 @@ public final class GridSearch {
         s += "\nMinimum NDCG=" + minNDCG + " with w=" + Arrays.toString(minimizedW);
         s += "\nMaximum NDCG=" + maxNDCG + " with w=" + Arrays.toString(maximizedW);
         s += "\n### - - - - ###";
+
         return s;
     }
 
