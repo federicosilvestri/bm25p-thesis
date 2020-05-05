@@ -9,10 +9,34 @@ import org.terrier.utility.ApplicationSetup;
 import org.unipi.federicosilvestri.bm25p.treceval.MyTrecEval;
 import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
 
+import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.Arrays;
 
 public class DataCollection {
+
+    /**
+     * Registered instance of BM25P
+     */
+    public static BM25P bm25PwiredInstance = null;
+
+    /**
+     * Boolean variable to check if BM25P is registered after one invocation
+     * of processQueries.
+     */
+    public static boolean registeredControl;
+
+    /**
+     * Use only for data collection purpose!
+     * @param bm25P
+     */
+    public static void register(BM25P bm25P) {
+        if (bm25PwiredInstance == null) {
+            bm25PwiredInstance = bm25P;
+            logger.info("BM25P Registered!");
+        }
+    }
+
     protected static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
 
     /**
@@ -122,8 +146,17 @@ public class DataCollection {
         logger.info("# # Using w vector = " + Arrays.toString(w));
         logger.info("# # ");
 
-        ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.w", Arrays.toString(w));
-        ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.p", "" + passages);
+        // updating weights
+        if (bm25PwiredInstance == null && !DataCollection.registeredControl) {
+            // BM25P classes it's not created yet, setup the properties and invoke query processing!
+            ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.w", Arrays.toString(w));
+            ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.p", "" + passages);
+            DataCollection.registeredControl = true;
+        } else if (bm25PwiredInstance == null && DataCollection.registeredControl) {
+            throw new RuntimeException("This is bad! BM25P class is not registered to DataCollection class!");
+        } else {
+            bm25PwiredInstance.setWeights(w);
+        }
 
         // retrieve
         trecQuerying.processQueries();

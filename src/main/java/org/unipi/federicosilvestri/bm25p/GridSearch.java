@@ -244,13 +244,15 @@ public final class GridSearch {
         if (ndcg > maxNDCG) {
             maxNDCG = ndcg;
             maximizedW = w;
-            temporaryResultsWrite();
+            //temporaryResultsWrite();
         }
         if (ndcg < minNDCG) {
             minNDCG = ndcg;
             minimizedW = w;
-            temporaryResultsWrite();
+            //temporaryResultsWrite();
         }
+
+        temporaryResultsWrite();
 
         // return + to continue, - to stop
         if (ndcg > maxNDCGToStop) {

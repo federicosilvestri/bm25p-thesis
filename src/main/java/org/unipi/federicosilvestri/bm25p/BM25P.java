@@ -1,5 +1,7 @@
 package org.unipi.federicosilvestri.bm25p;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terrier.matching.models.WeightingModel;
 import org.terrier.matching.models.WeightingModelLibrary;
 import org.terrier.structures.postings.BlockPosting;
@@ -9,6 +11,11 @@ import org.terrier.utility.ApplicationSetup;
 import java.util.Arrays;
 
 public class BM25P extends WeightingModel {
+
+	/**
+	 * Logger
+	 */
+	protected static final Logger logger = LoggerFactory.getLogger(BM25P.class);
 
 	/**
 	 * Splits each document in p equal parts and multiplies the input weights w with
@@ -29,8 +36,8 @@ public class BM25P extends WeightingModel {
 	 * How many passages?
 	 */
 	private int p = 10;
-	String w = "[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]";
-	double[] weights = new double[p]; // this will change to a different size in constructor
+	private String w = "[1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0]";
+	private double[] weights = new double[p]; // this will change to a different size in constructor
 
 	/**
 	 * Initializing the parameters and creating the weight vector of size p.
@@ -47,6 +54,13 @@ public class BM25P extends WeightingModel {
 		System.out.println("Number of passages: " + String.valueOf(p));
 		String[] split_w = w.replace("[", "").replace("]", "").split(",");
 		weights = Arrays.stream(split_w).mapToDouble(Double::parseDouble).toArray();
+
+		// registering to data collection (only for testing purpose)
+		DataCollection.register(this);
+	}
+
+	public void setWeights(double weights[]) {
+		this.weights = weights;
 	}
 
 	public String getInfo() {
