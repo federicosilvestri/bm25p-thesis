@@ -64,6 +64,11 @@
 		</dependency>
 		<dependency>
 			<groupId>org.terrier</groupId>
+			<artifactId>terrier-concurrent</artifactId>
+			<version>5.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.terrier</groupId>
 			<artifactId>terrier-logging</artifactId>
 			<version>5.2</version>
 			<scope>runtime</scope>

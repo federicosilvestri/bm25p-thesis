@@ -128,12 +128,12 @@ public final class GridSearch {
     private double[] maximizedW;
 
     /**
-     * Maximum NDCG to find. If algorithm finds it, it stops, -1 if no stop.
+     * Maximum NDCG to find. If algorithm finds it, it stops, -1 if no stop
      */
     private double maxNDCGToStop;
 
     /**
-     * Max executions to do.
+     * Max executions to do
      */
     private int maxIterations;
 
@@ -142,10 +142,15 @@ public final class GridSearch {
      */
     private int iterations;
 
+    /**
+     * Start time
+     */
     private long startTime;
+
+    /**
+     * End time
+     */
     private long endTime;
-
-
 
     public GridSearch(double minW[], double maxW[], double wStep, int maxIterations, double maxNDCGToStop) {
         this.minW = minW;

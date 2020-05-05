@@ -18,35 +18,35 @@ public class DataCollection {
     /**
      * Where we want to store the evaluation information (recall, NDCG, ...).
      */
-    private final String evaluationDir;
+    protected final String evaluationDir;
     /**
      * The file where trec_eval can find the expected results.
      */
-    private final String qrelsFile;
+    protected final String qrelsFile;
     /**
      * The file where trec_eval can find the calculated results.
      */
-    private final String trecResultsFile;
+    protected final String trecResultsFile;
 
     /**
      * The directory of NDCG eval.
      */
-    private final File NDCGEvaluationDir;
+    protected final File NDCGEvaluationDir;
 
     /**
      * The directory of recall eval.
      */
-    private final File recallEvaluationDir;
+    protected final File recallEvaluationDir;
 
     /**
      * The trec querying object.
      */
-    private final TRECQuerying trecQuerying;
+    protected TRECQuerying trecQuerying;
 
     /**
      * Trec evaluation
      */
-    private final MyTrecEval trecEvalEvaluation;
+    protected final MyTrecEval trecEvalEvaluation;
 
     public DataCollection() {
         evaluationDir = ApplicationSetup.getProperty("org.unipi.federicosilvestri.evaluationDir", "var/eval/");
