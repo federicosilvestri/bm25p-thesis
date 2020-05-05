@@ -39,8 +39,9 @@ public class MyTrecEval {
         this.additional_args = new String[] {"-m", measure};
     }
 
-    public String[][] evaluate(String resultFilename) {
+    public String[][] evaluate(String resultFilename, String measure) {
         logger.info("Evaluating result file: " + resultFilename);
+        this.additional_args = new String[] {"-m", measure};
         String[] args = new String[]{this.qrels, this.resFile = resultFilename};
         String complete_args[] = new String[args.length + this.additional_args.length];
 

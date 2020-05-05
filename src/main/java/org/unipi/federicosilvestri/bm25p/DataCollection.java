@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.terrier.applications.batchquerying.TRECQuerying;
+import org.terrier.querying.IndexRef;
 import org.terrier.utility.ApplicationSetup;
 import org.unipi.federicosilvestri.bm25p.treceval.MyTrecEval;
 import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
@@ -37,6 +38,16 @@ public class DataCollection {
      */
     private final File recallEvaluationDir;
 
+    /**
+     * The trec querying object.
+     */
+    private final TRECQuerying trecQuerying;
+
+    /**
+     * Trec evaluation
+     */
+    private final MyTrecEval trecEvalEvaluation;
+
     public DataCollection() {
         evaluationDir = ApplicationSetup.getProperty("org.unipi.federicosilvestri.evaluationDir", "var/eval/");
         qrelsFile = ApplicationSetup.getProperty("org.unipi.federicosilvestri.qrelsFile", null);
@@ -44,6 +55,11 @@ public class DataCollection {
         if (qrelsFile == null) {
             throw new NullPointerException("You must set org.unipi.federicosilvestri.qrelsFile paramater in terrier config!");
         }
+
+        IndexRef indexRef = IndexRef.of(ApplicationSetup.TERRIER_INDEX_PATH + "/" + ApplicationSetup.TERRIER_INDEX_PREFIX + ".properties");
+        this.trecQuerying = new TRECQuerying(indexRef);
+        trecQuerying.intialise();
+        this.trecEvalEvaluation = new MyTrecEval(this.qrelsFile);
 
         String resultDir = ApplicationSetup.getProperty("trec.results", null);
         String resultFile = ApplicationSetup.getProperty("trec.results.file", null);
@@ -110,16 +126,13 @@ public class DataCollection {
         ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.p", "" + passages);
 
         // retrieve
-        TRECQuerying trecQuerying = new TRECQuerying();
-        trecQuerying.intialise();
         trecQuerying.processQueries();
         trecQuerying.close();
     }
 
     public double getNDCGMeasure() {
         // execute the evaluation
-        MyTrecEval trecEvalEvaluation = new MyTrecEval(this.qrelsFile, "ndcg");
-        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile);
+        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, "recall");
 
         double ndcg = Double.parseDouble(result[0][2]);
 
@@ -133,8 +146,7 @@ public class DataCollection {
 
     public double getRecallMeasure() {
         // execute the evaluation
-        MyTrecEval trecEvalEvaluation = new MyTrecEval(this.qrelsFile, "recall");
-        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile);
+        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, "recall");
 
         double recall = Double.parseDouble(result[0][2]);
 
