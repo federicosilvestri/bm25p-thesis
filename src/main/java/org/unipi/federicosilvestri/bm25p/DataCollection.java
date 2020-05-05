@@ -1,5 +1,7 @@
 package org.unipi.federicosilvestri.bm25p;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.math3.util.Precision;
 import org.terrier.applications.batchquerying.TRECQuerying;
 import org.terrier.utility.ApplicationSetup;
@@ -10,6 +12,7 @@ import java.io.File;
 import java.util.Arrays;
 
 public class DataCollection {
+    protected static final Logger logger = LoggerFactory.getLogger(DataCollection.class);
 
     /**
      * Where we want to store the evaluation information (recall, NDCG, ...).
@@ -71,7 +74,7 @@ public class DataCollection {
 
         // for each passage we need to change the value in a linspace
         for (int p = 0; p < P; p++) {
-            System.out.println("Working on passage " + p);
+            logger.info("Working on passage " + p);
             SerializableMap ndcgMap = new SerializableMap(NDCGEvaluationDir.getAbsolutePath() + "/passage_" + p + ".csv");
             SerializableMap recallMap = new SerializableMap(recallEvaluationDir.getAbsolutePath() + "/passage_" + p + ".csv");
 
@@ -98,10 +101,10 @@ public class DataCollection {
     }
 
     public void executeRetrievePipeline(double w[], int passages) {
-        System.out.println("# # ");
-        System.out.println("# # Starting BATCHRETRIEVAL->EVALUATE process");
-        System.out.println("# # Using w vector = " + Arrays.toString(w));
-        System.out.println("# # ");
+        logger.info("# # ");
+        logger.info("# # Starting BATCHRETRIEVAL->EVALUATE process");
+        logger.info("# # Using w vector = " + Arrays.toString(w));
+        logger.info("# # ");
 
         ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.w", Arrays.toString(w));
         ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.p", "" + passages);
@@ -110,6 +113,7 @@ public class DataCollection {
         TRECQuerying trecQuerying = new TRECQuerying();
         trecQuerying.intialise();
         trecQuerying.processQueries();
+        trecQuerying.close();
     }
 
     public double getNDCGMeasure() {
@@ -119,10 +123,10 @@ public class DataCollection {
 
         double ndcg = Double.parseDouble(result[0][2]);
 
-        System.out.println("# # ");
-        System.out.println("# # Process BATCHRETRIEVAL->EVALUATE completed");
-        System.out.println("# # NDCG=" + ndcg);
-        System.out.println("# # ");
+        logger.info("# # ");
+        logger.info("# # Process BATCHRETRIEVAL->EVALUATE completed");
+        logger.info("# # NDCG=" + ndcg);
+        logger.info("# # ");
 
         return ndcg;
     }
@@ -134,10 +138,10 @@ public class DataCollection {
 
         double recall = Double.parseDouble(result[0][2]);
 
-        System.out.println("# # ");
-        System.out.println("# # Process BATCHRETRIEVAL->EVALUATE completed");
-        System.out.println("# # RECALL=" + recall);
-        System.out.println("# # ");
+        logger.info("# # ");
+        logger.info("# # Process BATCHRETRIEVAL->EVALUATE completed");
+        logger.info("# # RECALL=" + recall);
+        logger.info("# # ");
 
         return recall;
     }

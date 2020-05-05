@@ -276,7 +276,7 @@ public final class GridSearch {
         s += "\nElapsed time:" + elapsedTime/1000 + "s";
         s += "\nMinimum NDCG=" + minNDCG + " with w=" + Arrays.toString(minimizedW);
         s += "\nMaximum NDCG=" + maxNDCG + " with w=" + Arrays.toString(maximizedW);
-        s += "\n### - - - - ###";
+        s += "\n### - - - - ###\n";
 
         return s;
     }
