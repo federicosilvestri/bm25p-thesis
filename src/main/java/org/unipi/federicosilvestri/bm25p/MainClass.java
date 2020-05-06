@@ -50,14 +50,17 @@ public class MainClass {
         }
 
         SearchAlgorithm sa = null;
-        switch (args[1]) {
+        switch (args[0]) {
             case "lings":
+                System.out.println("Executing linear Grid Search");
                 sa = new GridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
                 break;
             case "nlings":
+                System.out.println("Executing non-linear Grid Search");
                 sa = new BorderGridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
                 break;
             case "incrs":
+                System.out.println("Executing Increment Search");
                 sa = new IncreaseSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
                 break;
             default:
