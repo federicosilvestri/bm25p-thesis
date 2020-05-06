@@ -123,7 +123,7 @@ public class DataCollection {
                 w[p] = Precision.round(w_p, W_STEP_PRECISION);
 
                 // executing the pipeline
-                executeRetrievePipeline(w, P);
+                executeRetrievePipeline(w);
 
                 // getting measures
                 double ndcg_eval = getNDCGMeasure();
@@ -140,7 +140,7 @@ public class DataCollection {
         }
     }
 
-    public void executeRetrievePipeline(double w[], int passages) {
+    public void executeRetrievePipeline(double w[]) {
         logger.info("# # ");
         logger.info("# # Starting BATCHRETRIEVAL->EVALUATE process");
         logger.info("# # Using w vector = " + Arrays.toString(w));
@@ -150,7 +150,6 @@ public class DataCollection {
         if (bm25PwiredInstance == null && !DataCollection.registeredControl) {
             // BM25P classes it's not created yet, setup the properties and invoke query processing!
             ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.w", Arrays.toString(w));
-            ApplicationSetup.setProperty("org.unipi.federicosilvestri.bm25p.p", "" + passages);
             DataCollection.registeredControl = true;
         } else if (bm25PwiredInstance == null && DataCollection.registeredControl) {
             throw new RuntimeException("This is bad! BM25P class is not registered to DataCollection class!");
@@ -165,7 +164,7 @@ public class DataCollection {
 
     public double getNDCGMeasure() {
         // execute the evaluation
-        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, "recall");
+        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, "ndcg");
 
         double ndcg = Double.parseDouble(result[0][2]);
 

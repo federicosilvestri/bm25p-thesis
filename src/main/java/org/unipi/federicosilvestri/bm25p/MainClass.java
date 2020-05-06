@@ -1,60 +1,81 @@
 package org.unipi.federicosilvestri.bm25p;
 
+import com.sun.jersey.api.json.JSONWithPadding;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.terrier.utility.ApplicationSetup;
+import sun.applet.Main;
 
+import javax.xml.crypto.Data;
 import java.util.Arrays;
 
 public class MainClass {
 
-	public static final String USER_DIR = System.getProperty("user.dir");
+    public static final String USER_DIR = System.getProperty("user.dir");
 
-	public static void main(String args[]) throws Exception {
-		// setup Terrier environment
-		setupTerrierEnv();
+    public static void main(String args[]) throws Exception {
+        // setup Terrier environment
+        setupTerrierEnv();
 
-		double[] startW;
-		{
-			String startWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.startW", null);
-			if (startWString == null) {
-				throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.startW!");
-			}
+        double[] startW;
+        {
+            String startWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.startW", null);
+            if (startWString == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.startW!");
+            }
 
-			String splitW[] = startWString.replace("[", "").replace("]", "").split(",");
-			startW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
-		}
+            String splitW[] = startWString.replace("[", "").replace("]", "").split(",");
+            startW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
+        }
 
-		double endW[];
-		{
-			String endWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.endW", null);
-			if (endWString == null) {
-				throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.endW!");
-			}
+        double endW[];
+        {
+            String endWString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.endW", null);
+            if (endWString == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.endW!");
+            }
 
-			String splitW[] = endWString.replace("[", "").replace("]", "").split(",");
-			endW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
-		}
+            String splitW[] = endWString.replace("[", "").replace("]", "").split(",");
+            endW = Arrays.stream(splitW).mapToDouble(Double::parseDouble).toArray();
+        }
 
-		double wStep;
-		{
-			String wStepString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.wStep", null);
-			if (wStepString == null) {
-				throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.wStep!");
-			}
+        double wStep;
+        {
+            String wStepString = ApplicationSetup.getProperty("org.unipi.federicosilvestri.wStep", null);
+            if (wStepString == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.wStep!");
+            }
 
-			wStep = Double.parseDouble(wStepString);
-		}
+            wStep = Double.parseDouble(wStepString);
+        }
 
-		GridSearch gs = new BorderGridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
-		gs.execute();
-		System.out.println(gs.getResults());
+        if (args.length == 0) {
+            throw new IllegalArgumentException("You must pass search type! Available search types: lings,nlings,incrs");
+        }
 
-		 // DataCollection ls = new DataCollection();
-		 // ls.linearCollect();
-	}
+        SearchAlgorithm sa = null;
+        switch (args[1]) {
+            case "lings":
+                sa = new GridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                break;
+            case "nlings":
+                sa = new BorderGridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                break;
+            case "incrs":
+                sa = new IncreaseSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                break;
+            default:
+                throw new IllegalArgumentException("Bad search type!");
 
-	public static void setupTerrierEnv() {
-		System.setProperty("terrier.home", USER_DIR);
-		System.setProperty("terrier.etc", USER_DIR + "/etc/");
-	}
+        }
+
+        sa.execute();
+        System.out.println(sa.getResults());
+    }
+
+    public static void setupTerrierEnv() {
+        System.setProperty("terrier.home", USER_DIR);
+        System.setProperty("terrier.etc", USER_DIR + "/etc/");
+    }
 
 }
