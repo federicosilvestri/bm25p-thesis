@@ -8,8 +8,43 @@ import java.util.*;
  */
 public class GridSearch extends SearchAlgorithm {
 
+    /**
+     * NDCG cuts
+     */
+    public static final int[] NDCG_CUTS = new int[] {5, 10};
+
+    /**
+     * Minimum evals
+     */
+    protected double[] minEvals;
+
+    /**
+     * Maximum evals
+     */
+    protected double[] maxEvals;
+
+    /**
+     * Min evals w vector
+     */
+    protected double[][] minEvalsw;
+
+    /**
+     * Max evals w vector
+     */
+    protected double[][] maxEvalsw;
+
     public GridSearch(double[] minW, double[] maxW, double wStep, int maxIterations, double maxNDCGToStop) {
         super(minW, maxW, wStep, maxIterations, maxNDCGToStop);
+        minEvals = new double[NDCG_CUTS.length];
+        maxEvals = new double[NDCG_CUTS.length];
+
+        for (int i = 0; i < NDCG_CUTS.length; i++) {
+            minEvals[i] = Double.MAX_VALUE;
+            maxEvals[i] = Double.MIN_VALUE;
+        }
+
+        minEvalsw = new double[NDCG_CUTS.length][];
+        maxEvalsw = new double[NDCG_CUTS.length][];
     }
 
     @Override
@@ -74,7 +109,6 @@ public class GridSearch extends SearchAlgorithm {
     protected int nextLevel(int level, Map<Integer, Double> weights) {
         int ret = level + 1;
 
-
         assert (ret >= 0);
         assert (ret < this.minW.length);
         return ret;
@@ -98,16 +132,47 @@ public class GridSearch extends SearchAlgorithm {
     protected int evaluate(double w[]) {
         iterations += 1;
         dataCollection.executeRetrievePipeline(w);
-        double ndcg = dataCollection.getEval();
+        double ndcg[] = dataCollection.getNDCGMeasures(GridSearch.NDCG_CUTS);
 
         // updating stats
-        super.updateData(ndcg, w);
-
-        // return + to continue, - to stop
-        if (ndcg > maxEvalToStop) {
-            return -1;
-        }
+        updateData(ndcg, w);
 
         return 1;
+    }
+
+    protected void updateData(double[] ndcg, double[] w) {
+        for (int i = 0; i < ndcg.length; i++) {
+            if (ndcg[i] < this.minEvals[i]) {
+                this.minEvals[i] = ndcg[i];
+                this.minEvalsw[i] = w;
+                super.temporaryResultsWrite();
+            }
+            if (ndcg[i] > this.maxEvals[i]) {
+                this.maxEvals[i] = ndcg[i];
+                this.maxEvalsw[i] = w;
+                super.temporaryResultsWrite();
+            }
+        }
+    }
+
+    @Override
+    public String getResults(String w, String eval) {
+        String s = "### Results ###\n";
+
+//        for (int i = 0; i < GridSearch.NDCG_CUTS.length; i++) {
+//            s += "MINIMUM NDCG@" + GridSearch.NDCG_CUTS[i];
+//            s += "=" + this.minEvals[i] + "\n";
+//            s += "w=" + Arrays.toString(this.minEvalsw[i]) + "\n";
+//        }
+        s += "- - - - - -\n";
+        for (int i = 0; i < GridSearch.NDCG_CUTS.length; i++) {
+            s += "MAXIMUM NDCG@" + GridSearch.NDCG_CUTS[i];
+            s += "=" + this.maxEvals[i] + "\n";
+            s += "w=" + Arrays.toString(this.maxEvalsw[i]) + "\n";
+        }
+
+        s += "###\n\n";
+
+        return s;
     }
 }
