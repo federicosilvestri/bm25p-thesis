@@ -114,7 +114,6 @@ public class DataCollection {
 
         // for each passage we need to change the value in a linspace
         for (int p = 0; p < P; p++) {
-            logger.info("Working on passage " + p);
             SerializableMap ndcgMap = new SerializableMap(NDCGEvaluationDir.getAbsolutePath() + "/passage_" + p + ".csv");
             SerializableMap recallMap = new SerializableMap(recallEvaluationDir.getAbsolutePath() + "/passage_" + p + ".csv");
 
@@ -141,11 +140,6 @@ public class DataCollection {
     }
 
     public void executeRetrievePipeline(double w[]) {
-        logger.info("# # ");
-        logger.info("# # Starting BATCHRETRIEVAL->EVALUATE process");
-        logger.info("# # Using w vector = " + Arrays.toString(w));
-        logger.info("# # ");
-
         // updating weights
         if (bm25PwiredInstance == null && !DataCollection.registeredControl) {
             // BM25P classes it's not created yet, setup the properties and invoke query processing!
@@ -162,31 +156,44 @@ public class DataCollection {
         trecQuerying.close();
     }
 
+    public double getEval() {
+        double m[] = getNDCGMeasures(new int[] {10, 5});
+        return m[0];
+    }
+
+    public double[] getNDCGMeasures(int[] cut) {
+        if (cut == null || cut.length == 0) {
+            throw new IllegalArgumentException("You must pass a valid cut vector!");
+        }
+
+        String c = "ndcg_cut.";
+        for (int i = 0; i < cut.length - 1; i++) {
+            c += cut[i] + ",";
+        }
+        c += "" + cut[cut.length - 1];
+
+        // execute the evaluation
+        String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, c);
+        double ndcg[] = new double[cut.length];
+
+        for (int i = 0; i < result.length; i++) {
+            ndcg[i] = Double.parseDouble(result[i][2]);
+        }
+
+        return ndcg;
+    }
+
     public double getNDCGMeasure() {
         // execute the evaluation
         String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, "ndcg");
-
         double ndcg = Double.parseDouble(result[0][2]);
-
-        logger.info("# # ");
-        logger.info("# # Process BATCHRETRIEVAL->EVALUATE completed");
-        logger.info("# # NDCG=" + ndcg);
-        logger.info("# # ");
-
         return ndcg;
     }
 
     public double getRecallMeasure() {
         // execute the evaluation
         String[][] result = trecEvalEvaluation.evaluate(trecResultsFile, "recall");
-
         double recall = Double.parseDouble(result[0][2]);
-
-        logger.info("# # ");
-        logger.info("# # Process BATCHRETRIEVAL->EVALUATE completed");
-        logger.info("# # RECALL=" + recall);
-        logger.info("# # ");
-
         return recall;
     }
 }

@@ -98,7 +98,7 @@ public class GridSearch extends SearchAlgorithm {
     protected int evaluate(double w[]) {
         iterations += 1;
         dataCollection.executeRetrievePipeline(w);
-        double ndcg = dataCollection.getNDCGMeasure();
+        double ndcg = dataCollection.getEval();
 
         // updating stats
         super.updateData(ndcg, w);

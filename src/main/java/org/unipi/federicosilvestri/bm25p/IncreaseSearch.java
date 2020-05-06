@@ -181,7 +181,7 @@ public class IncreaseSearch extends SearchAlgorithm {
              */
             this.currentW[component] = w_c;
             super.dataCollection.executeRetrievePipeline(this.currentW);
-            double eval = super.dataCollection.getNDCGMeasure();
+            double eval = super.dataCollection.getEval();
 
             // update the data
             super.updateData(eval, this.currentW);
