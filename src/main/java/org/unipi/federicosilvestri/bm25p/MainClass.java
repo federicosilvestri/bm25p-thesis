@@ -1,12 +1,8 @@
 package org.unipi.federicosilvestri.bm25p;
 
-import com.sun.jersey.api.json.JSONWithPadding;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.terrier.utility.ApplicationSetup;
-import sun.applet.Main;
 
-import javax.xml.crypto.Data;
+import org.terrier.utility.ApplicationSetup;
+
 import java.util.Arrays;
 
 public class MainClass {
