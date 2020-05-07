@@ -23,7 +23,7 @@
 				<directory>src/main/resources</directory>
 				<targetPath>${project.build.directory}</targetPath>
 				<includes>
-					<include>log4j.properties</include>
+					<include>logback.xml</include>
 				</includes>
 			</resource>
 		</resources>

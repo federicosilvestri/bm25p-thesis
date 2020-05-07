@@ -145,7 +145,7 @@ public class GridSearch extends SearchAlgorithm {
             if (ndcg[i] < this.minEvals[i]) {
                 this.minEvals[i] = ndcg[i];
                 this.minEvalsw[i] = w;
-                super.temporaryResultsWrite();
+                // super.temporaryResultsWrite();
             }
             if (ndcg[i] > this.maxEvals[i]) {
                 this.maxEvals[i] = ndcg[i];
@@ -164,10 +164,10 @@ public class GridSearch extends SearchAlgorithm {
 //            s += "=" + this.minEvals[i] + "\n";
 //            s += "w=" + Arrays.toString(this.minEvalsw[i]) + "\n";
 //        }
-        s += "- - - - - -\n";
+//        s += "- - - - - -\n";
         for (int i = 0; i < GridSearch.NDCG_CUTS.length; i++) {
-            s += "MAXIMUM NDCG@" + GridSearch.NDCG_CUTS[i];
-            s += "=" + this.maxEvals[i] + "\n";
+            s += "MAXIMUM NDCG@" + GridSearch.NDCG_CUTS[i] + "\n";
+            s += "eval=" + this.maxEvals[i] + " ";
             s += "w=" + Arrays.toString(this.maxEvalsw[i]) + "\n";
         }
 
