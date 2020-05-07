@@ -11,7 +11,7 @@ public class GridSearch extends SearchAlgorithm {
     /**
      * NDCG cuts
      */
-    public static final int[] NDCG_CUTS = new int[] {5, 10};
+    public static final int[] NDCG_CUTS = new int[]{5, 10};
 
     /**
      * Minimum evals
@@ -165,6 +165,12 @@ public class GridSearch extends SearchAlgorithm {
 //            s += "w=" + Arrays.toString(this.minEvalsw[i]) + "\n";
 //        }
 //        s += "- - - - - -\n";
+        long elapsedTime = System.currentTimeMillis() - this.startTime;
+        elapsedTime /= 1000;
+
+        s += "Iterations=" + iterations + "\n";
+        s += "Elapsed time=" + elapsedTime + "\n";
+        s += "Iterations/sec=" + ((double) iterations / elapsedTime) + "\n";
         for (int i = 0; i < GridSearch.NDCG_CUTS.length; i++) {
             s += "MAXIMUM NDCG@" + GridSearch.NDCG_CUTS[i] + "\n";
             s += "eval=" + this.maxEvals[i] + " ";

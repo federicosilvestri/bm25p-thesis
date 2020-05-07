@@ -3,13 +3,21 @@ package org.unipi.federicosilvestri.bm25p;
 
 import org.terrier.utility.ApplicationSetup;
 
+import java.net.URL;
 import java.util.Arrays;
 
 public class MainClass {
 
     public static final String USER_DIR = System.getProperty("user.dir");
 
-    public static void main(String args[]) throws Exception {
+    public static void main(String args[])  {
+        // locate the logging configuration file
+        URL resource = MainClass.class.getClassLoader().getResource("logback.xml");
+
+        if (resource == null) {
+            throw new RuntimeException("Cannot locate logback.xml!");
+        }
+
         // setup Terrier environment
         setupTerrierEnv();
 

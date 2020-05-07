@@ -77,7 +77,7 @@ public abstract class SearchAlgorithm {
     /**
      * Start time
      */
-    private long startTime;
+    protected long startTime;
 
     /**
      * End time
