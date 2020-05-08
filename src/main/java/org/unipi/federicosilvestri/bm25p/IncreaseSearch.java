@@ -1,7 +1,6 @@
 package org.unipi.federicosilvestri.bm25p;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 
 public class IncreaseSearch extends SearchAlgorithm {
 
@@ -126,39 +125,60 @@ public class IncreaseSearch extends SearchAlgorithm {
 
     public IncreaseSearch(double[] minW, double[] maxW, double wStep, int maxIterations, double maxNDCGToStop) {
         super(minW, maxW, wStep, maxIterations, maxNDCGToStop);
+        /*
+        il numero di step necessari per eseguire tutto l'algoritmo è di O(n!). Quindi è altissimo, nel nostro caso 10!
+        è ineseguibile, direi. Ma possiamo ridurlo a (10-k)! dove k è il numero di elementi centrali da rimuovere.
+        Per esempio per fare una ricerca sui bordi "spessi" 3 si riduce a 6!.
+
+        L'algoritmo è deterministico, ma non è facile capire cosa faccia a causa del suo dinamismo del trend, cioè
+        in base a come NDCG si comporta in funzione dei pesi cercati w.
+         */
     }
 
     @Override
     public void executeAlgorithm() {
         currentW = new double[minW.length];
         System.arraycopy(this.minW, 0, this.currentW, 0, this.minW.length);
-        search(-1);
+        Queue<Integer> q = new LinkedList<>();
+        LinkedList<Integer> l = new LinkedList<>();
+
+        // adding all indexes to queue
+        for (int i = 0; i < minW.length; i++) {
+            // @todo here we can set the priority for index
+            q.add(i);
+        }
+
+        permutation(q, l);
     }
 
-    /**
-     * Get the next component to iterate, given a cardinal index.
-     * -1 is the starter index.
-     *
-     * @param index iteration number (cardinal index)
-     * @return the next cardinal index
-     */
-    protected int getNextComponent(int index) {
-        return index + 1;
+
+    private void permutation(Queue<Integer> q, List<Integer> l) {
+        if (q.isEmpty()) {
+            /*
+            We are in a leaf!
+            execute the search with this permutation of array
+             */
+            logger.info("Executing the search on permutation: " + Arrays.toString(l.toArray()));
+            search(l);
+        } else {
+            Iterator<Integer> it = q.iterator();
+            while (it.hasNext()) {
+                Integer cit = it.next();
+                Queue<Integer> q1 = new LinkedList<>(q);
+                q1.remove(cit);
+                LinkedList<Integer> l1 = new LinkedList<>(l);
+                l1.add(cit);
+                permutation(q1, l1);
+            }
+        }
     }
 
-    protected boolean hasNextComponent(int component) {
-        return component < minW.length - 1;
-    }
-
-    private void search(int currentComponent) {
+    private void search(List<Integer> permutation) {
         // create a tape for monitor the trend of eval measure
         TrendTape trendTape = new TrendTape();
 
         // choose a component to start
-        while (hasNextComponent(currentComponent)) {
-            // get the component
-            currentComponent = getNextComponent(currentComponent);
-
+        for (Integer currentComponent : permutation) {
             logger.info("-----> Iterating the component " + currentComponent);
 
             // start by incrementing it

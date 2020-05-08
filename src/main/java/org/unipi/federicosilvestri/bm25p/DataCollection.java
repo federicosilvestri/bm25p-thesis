@@ -9,7 +9,6 @@ import org.terrier.utility.ApplicationSetup;
 import org.unipi.federicosilvestri.bm25p.treceval.MyTrecEval;
 import org.unipi.federicosilvestri.bm25p.treceval.SerializableMap;
 
-import javax.xml.crypto.Data;
 import java.io.File;
 import java.util.Arrays;
 
@@ -71,6 +70,11 @@ public class DataCollection {
      * Trec evaluation
      */
     protected final MyTrecEval trecEvalEvaluation;
+
+    /**
+     * Default NDCG CUT
+     */
+    public static final int[] DEFAULT_NDCG_CUT = new int[] {10};
 
     public DataCollection() {
         evaluationDir = ApplicationSetup.getProperty("org.unipi.federicosilvestri.evaluationDir", "var/eval/");
@@ -157,7 +161,7 @@ public class DataCollection {
     }
 
     public double getEval() {
-        double m[] = getNDCGMeasures(new int[] {10, 5});
+        double m[] = getNDCGMeasures(DEFAULT_NDCG_CUT);
         return m[0];
     }
 
