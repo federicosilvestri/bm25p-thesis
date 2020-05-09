@@ -67,12 +67,12 @@ public abstract class SearchAlgorithm {
     /**
      * Max executions to do
      */
-    protected final int maxIterations;
+    protected final long maxIterations;
 
     /**
      * Number of iterations
      */
-    protected int iterations;
+    protected long iterations;
 
     /**
      * Start time
@@ -84,7 +84,7 @@ public abstract class SearchAlgorithm {
      */
     private long endTime;
 
-    public SearchAlgorithm(double minW[], double maxW[], double wStep, int maxIterations, double maxEvalToStop) {
+    public SearchAlgorithm(double minW[], double maxW[], double wStep, long maxIterations, double maxEvalToStop) {
         this.minW = minW;
         this.maxW = maxW;
         this.wStep = wStep;

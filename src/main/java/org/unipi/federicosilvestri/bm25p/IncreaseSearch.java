@@ -152,7 +152,7 @@ public class IncreaseSearch extends SearchAlgorithm {
     }
 
 
-    private void permutation(Queue<Integer> q, List<Integer> l) {
+    protected void permutation(Queue<Integer> q, List<Integer> l) {
         if (q.isEmpty()) {
             /*
             We are in a leaf!
@@ -175,7 +175,7 @@ public class IncreaseSearch extends SearchAlgorithm {
         }
     }
 
-    private void search(List<Integer> permutation) {
+    protected void search(List<Integer> permutation) {
         // create a tape for monitor the trend of eval measure
         TrendTape trendTape = new TrendTape();
 
@@ -191,12 +191,13 @@ public class IncreaseSearch extends SearchAlgorithm {
         }
     }
 
-    private void linearIncrement(int component, TrendTape tape) {
+    protected void linearIncrement(int component, TrendTape tape) {
         // linear incrementation
         boolean stop = false;
         int incrementBonus = 0;
 
         for (double w_c = this.currentW[component]; w_c < this.maxW[component] && !stop; w_c += wStep) {
+            super.iterations += 1;
             /*
             calculate the evaluation with current vector,
             by executing the pipeline and invoking trec_eval.
@@ -256,5 +257,10 @@ public class IncreaseSearch extends SearchAlgorithm {
 
         // clear the tape!
         tape.clear();
+    }
+
+    @Override
+    public String getResults() {
+        return super.getResults(Arrays.toString(this.currentW), "" + this.currentEval);
     }
 }

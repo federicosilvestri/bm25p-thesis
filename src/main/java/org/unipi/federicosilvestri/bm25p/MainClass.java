@@ -6,6 +6,7 @@ import org.terrier.utility.ApplicationSetup;
 
 import java.net.URL;
 import java.util.Arrays;
+import java.util.Random;
 
 public class MainClass {
 
@@ -116,7 +117,7 @@ public class MainClass {
         }
 
         if (args.length != 3) {
-            throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs");
+            throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs,randincrs");
         }
 
         int divisions;
@@ -158,6 +159,10 @@ public class MainClass {
             case "incrs":
                 System.out.println("Executing Increment Search");
                 sa = new IncreaseSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                break;
+            case "randincrs":
+                System.out.println("Executing Random Increment Search");
+                sa = new RandomIncreaseSearch(startW, endW, wStep, 200, Double.MAX_VALUE);
                 break;
             default:
                 throw new IllegalArgumentException("Bad search type!");
