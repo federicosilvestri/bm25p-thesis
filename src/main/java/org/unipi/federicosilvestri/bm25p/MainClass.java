@@ -145,7 +145,6 @@ public class MainClass {
 
         logger.info("####### END PARTITIONS INFORMATIONS #######\n\n\n");
 
-
         SearchAlgorithm sa = null;
         switch (args[0]) {
             case "lings":

@@ -97,6 +97,18 @@ public abstract class SearchAlgorithm {
         if (minW.length != maxW.length) {
             throw new IllegalArgumentException("The length of minW vector must be the same of maxW vector!");
         }
+
+        {
+            boolean check = false;
+            for (int i = 0; i < minW.length && !check; i++) {
+                if (minW[i] != maxW[i]) {
+                    check = true;
+                }
+            }
+            if (!check) {
+                throw new IllegalArgumentException("The startW vector is equal to endW vector!");
+            }
+        }
     }
 
     public final void execute() {
