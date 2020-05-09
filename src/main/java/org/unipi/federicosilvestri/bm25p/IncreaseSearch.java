@@ -160,6 +160,8 @@ public class IncreaseSearch extends SearchAlgorithm {
              */
             logger.info("Executing the search on permutation: " + Arrays.toString(l.toArray()));
             search(l);
+            // writing temp results
+            temporaryResultsWrite();
         } else {
             Iterator<Integer> it = q.iterator();
             while (it.hasNext()) {
@@ -211,8 +213,6 @@ public class IncreaseSearch extends SearchAlgorithm {
                 // calculate the trend
                 int trend = tape.calculateTrend();
 
-//                logger.info("Trend is " + trend);
-
                 switch (trend) {
                     case -1: {
                         // we need to rollback to a positive value
@@ -223,7 +223,8 @@ public class IncreaseSearch extends SearchAlgorithm {
                     break;
                     case 0: {
                         /* we have no benefits, we have to choose to stop or continue the incrementation.
-                         In this implementation we give a possibility to continue the incrementation and stops later.
+                         In this implementation we give a possibility to continue the incrementation and stops later
+                         by using a bonus.
                          */
                         if (incrementBonus < MAX_INCREMENT_BONUS) {
                             incrementBonus += 1;
@@ -247,6 +248,8 @@ public class IncreaseSearch extends SearchAlgorithm {
                     case 1:
                         // we have a positive response, continue the incrementation
                         break;
+                    default:
+                        throw new UnsupportedOperationException("You cannot pass a value != {-1, 0, 1}!");
                 }
             }
         }
@@ -254,5 +257,4 @@ public class IncreaseSearch extends SearchAlgorithm {
         // clear the tape!
         tape.clear();
     }
-
 }
