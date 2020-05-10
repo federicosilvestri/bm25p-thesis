@@ -111,12 +111,12 @@ public class IncreaseSearch extends SearchAlgorithm {
     /**
      * Current w vector.
      */
-    private double[] currentW;
+    protected double[] currentW;
 
     /**
      * Current eval.
      */
-    private double currentEval;
+    protected double currentEval;
 
     /**
      * The maximum bonus increments to give in case of stall situation.
@@ -162,6 +162,9 @@ public class IncreaseSearch extends SearchAlgorithm {
             search(l);
             // writing temp results
             temporaryResultsWrite();
+
+            // restart
+            this.currentW = minW;
         } else {
             Iterator<Integer> it = q.iterator();
             while (it.hasNext()) {
