@@ -23,14 +23,19 @@ public class CustomIncreaseSearch extends IncreaseSearch {
     protected void permutation(Queue<Integer> q, List<Integer> l) {
 
         for (Integer p[] : permutations) {
-            logger.info("##### -> Searching on different permutation <- ####");
-            logger.info("Permutation is : " + Arrays.toString(p));
+            logger.info("####### -> Start another permutation <- #######");
+            logger.info("Permutation : " + Arrays.toString(p));
 
             super.search(Arrays.asList(p));
             super.temporaryResultsWrite();
-            
-            // this is the restart
-            super.currentW = minW;
+            super.vectorEvalMap.put(currentW, currentEval);
+            logger.info("Restarting with another permutation!");
+
+            // restarting
+            this.currentW = minW;
         }
+
+        computeBestResult();
+        super.temporaryResultsWrite();
     }
 }

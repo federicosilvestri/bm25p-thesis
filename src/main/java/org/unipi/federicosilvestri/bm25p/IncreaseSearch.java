@@ -123,6 +123,11 @@ public class IncreaseSearch extends SearchAlgorithm {
      */
     public static final int MAX_INCREMENT_BONUS = 4;
 
+    /**
+     * It maintains the association between w vector and eval.
+     */
+    protected final Map<double[], Double> vectorEvalMap;
+
     public IncreaseSearch(double[] minW, double[] maxW, double wStep, int maxIterations, double maxNDCGToStop) {
         super(minW, maxW, wStep, maxIterations, maxNDCGToStop);
         /*
@@ -133,6 +138,7 @@ public class IncreaseSearch extends SearchAlgorithm {
         L'algoritmo è deterministico, ma non è facile capire cosa faccia a causa del suo dinamismo del trend, cioè
         in base a come NDCG si comporta in funzione dei pesi cercati w.
          */
+        vectorEvalMap = new HashMap<>();
     }
 
     @Override
@@ -160,11 +166,15 @@ public class IncreaseSearch extends SearchAlgorithm {
              */
             logger.info("Executing the search on permutation: " + Arrays.toString(l.toArray()));
             search(l);
+
             // writing temp results
             temporaryResultsWrite();
 
-            // restart
-            this.currentW = minW;
+            // saving the association between current vector and the evaluation.
+            this.vectorEvalMap.put(this.currentW, this.currentEval);
+
+            logger.info("Restarting with new permutation");
+            this.currentW = this.minW;
         } else {
             Iterator<Integer> it = q.iterator();
             while (it.hasNext()) {
@@ -176,6 +186,27 @@ public class IncreaseSearch extends SearchAlgorithm {
                 permutation(q1, l1);
             }
         }
+
+        computeBestResult();
+    }
+
+    protected void computeBestResult() {
+        /*
+        we have to choose the best association between eval and v
+         */
+        double maxEval = Double.MIN_VALUE;
+        double maxW[] = null;
+
+        for (double w[] : this.vectorEvalMap.keySet()) {
+            double eval = this.vectorEvalMap.get(w);
+            if (eval > maxEval) {
+                maxEval = eval;
+                maxW = w;
+            }
+        }
+
+        this.currentW = maxW;
+        this.currentEval = maxEval;
     }
 
     protected void search(List<Integer> permutation) {
