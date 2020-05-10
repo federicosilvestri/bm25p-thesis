@@ -72,9 +72,14 @@ public class DataCollection {
     protected final MyTrecEval trecEvalEvaluation;
 
     /**
+     * Default NDCG CUTS
+     */
+    public static final int[] DEFAULT_NDCG_CUTS = new int[] {5, 10};
+
+    /**
      * Default NDCG CUT
      */
-    public static final int[] DEFAULT_NDCG_CUT = new int[] {10};
+    public static final int DEFAULT_NDCG_CUT = 5;
 
     public DataCollection() {
         evaluationDir = ApplicationSetup.getProperty("org.unipi.federicosilvestri.evaluationDir", "var/eval/");
@@ -161,7 +166,7 @@ public class DataCollection {
     }
 
     public double getEval() {
-        double m[] = getNDCGMeasures(DEFAULT_NDCG_CUT);
+        double m[] = getNDCGMeasures(new int[] {DEFAULT_NDCG_CUT});
         return m[0];
     }
 

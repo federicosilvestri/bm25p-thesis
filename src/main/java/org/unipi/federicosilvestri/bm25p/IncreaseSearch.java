@@ -181,13 +181,13 @@ public class IncreaseSearch extends SearchAlgorithm {
 
         // choose a component to start
         for (Integer currentComponent : permutation) {
-            logger.info("-----> Iterating the component " + currentComponent);
+            logger.debug("-----> Iterating the component " + currentComponent);
 
             // start by incrementing it
             linearIncrement(currentComponent, trendTape);
 
-            logger.info("-----> Component " + currentComponent + " iteration finished!");
-            logger.info("##### -> Current eval is= [   " + currentEval + "   ]");
+            logger.debug("-----> Component " + currentComponent + " iteration finished!");
+            logger.debug("##### -> Current eval is= [   " + currentEval + "   ]");
         }
     }
 
@@ -261,6 +261,17 @@ public class IncreaseSearch extends SearchAlgorithm {
 
     @Override
     public String getResults() {
-        return super.getResults(Arrays.toString(this.currentW), "" + this.currentEval);
+        String s = "##### BEGIN INCR SEARCH CURRENT RESULTS ##### \n";
+
+        s += "Iterations=" + super.iterations + "\n";
+        s += "startW=" + Arrays.toString(super.minW) + "\n";
+        s += "endW=" + Arrays.toString(super.maxW) + "\n";
+        s += "wStep=" + super.wStep + "\n";
+        s += "Eval NDCG cut=" + DataCollection.DEFAULT_NDCG_CUT + "\n";
+        s += "Current Eval=" + this.currentEval + "\n";
+        s += "Current w=" + Arrays.toString(this.currentW) + "\n";
+
+        s += "##### END INCR SEARCH CURRENT RESULTS #####\n\n";
+        return s;
     }
 }
