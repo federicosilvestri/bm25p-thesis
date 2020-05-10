@@ -214,12 +214,16 @@ public class IncreaseSearch extends SearchAlgorithm {
                 // calculate the trend
                 int trend = tape.calculateTrend();
 
+                logger.debug("Trend is ready, it's=" + trend);
+
                 switch (trend) {
                     case -1: {
                         // we need to rollback to a positive value
                         double best[] = tape.getBest();
                         this.currentW[component] = best[0];
                         this.currentEval = best[1];
+                        stop = true;
+                        logger.debug("TREND DECISION: STOOP :(");
                     }
                     break;
                     case 0: {
@@ -229,10 +233,11 @@ public class IncreaseSearch extends SearchAlgorithm {
                          */
                         if (incrementBonus < MAX_INCREMENT_BONUS) {
                             incrementBonus += 1;
+                            logger.debug("TREND DECISION: CONTINUE WITH BONUS :)");
                         } else {
                             // stop the incrementation
                             stop = true;
-
+                            logger.debug("TREND DECISION: STOP, NO BONUS LEFT :(");
                             /*
                             we have two choices:
                             1. keep the current value for the component
@@ -247,6 +252,7 @@ public class IncreaseSearch extends SearchAlgorithm {
                     }
                     break;
                     case 1:
+                        logger.debug("TREND DECISION: CONTINUE :)");
                         // we have a positive response, continue the incrementation
                         break;
                     default:
