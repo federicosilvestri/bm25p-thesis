@@ -64,8 +64,16 @@ public class RandomIncreaseSearch extends IncreaseSearch {
             } while (permutations.contains(p));
             permutations.add(p);
 
+            logger.info("Trying with permutation : " + Arrays.toString(p.perm));
             super.search(Arrays.asList(p.perm));
             super.temporaryResultsWrite();
+
+            // add results to container
+            this.vectorEvalMap.put(currentW, currentEval);
+
+            // restart
+            this.currentW = this.minW;
+            logger.info("Restarting with new permutation!");
         }
     }
 }
