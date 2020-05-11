@@ -20,6 +20,11 @@ public abstract class SearchAlgorithm {
     public static String TEMP_FILE_NAME = "tempResults.txt";
 
     /**
+     * Final results
+     */
+    public static String FINAL_RESULTS_FILE_NAME = "finalResults.txt";
+
+    /**
      * Data collection object.
      */
     protected final DataCollection dataCollection;
@@ -129,6 +134,18 @@ public abstract class SearchAlgorithm {
         }
     }
 
+    protected abstract String getFinalResults();
+
+    public final void writeFinalResults() {
+        String finalResults = getFinalResults();
+
+        try (BufferedWriter output = new BufferedWriter(new FileWriter(FINAL_RESULTS_FILE_NAME, false))) {
+            output.write(finalResults);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot write to temporary file!");
+        }
+    }
+
     public String getResults(String w, String eval) {
         String s = "### Results ###";
         long elapsedTime = 0;
@@ -170,5 +187,7 @@ public abstract class SearchAlgorithm {
             temporaryResultsWrite();
         }
     }
+
+
 
 }

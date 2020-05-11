@@ -177,7 +177,8 @@ public class MainClass {
         }
 
         sa.execute();
-        System.out.println(sa.getResults());
+        sa.writeFinalResults();
+        System.out.println("! ! ! ############# EXECUTION FINISHED ############# ! ! !");
     }
 
 

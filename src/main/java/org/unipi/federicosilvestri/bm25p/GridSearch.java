@@ -181,4 +181,10 @@ public class GridSearch extends SearchAlgorithm {
 
         return s;
     }
+
+
+    @Override
+    protected String getFinalResults() {
+        return this.getResults(Arrays.toString(this.maxEvalsw), this.maxEvals.toString());
+    }
 }

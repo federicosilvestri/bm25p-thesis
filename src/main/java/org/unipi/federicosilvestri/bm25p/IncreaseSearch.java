@@ -2,6 +2,11 @@ package org.unipi.federicosilvestri.bm25p;
 
 import java.util.*;
 
+/**
+ * With this algorithm it's not possible
+ * to parallelize the work using the vector space subdivision.
+ * You need to use the permutation space division instead.
+ */
 public class IncreaseSearch extends SearchAlgorithm {
 
     protected static class TrendTape {
@@ -193,13 +198,15 @@ public class IncreaseSearch extends SearchAlgorithm {
             logger.info("Executing the search on permutation: " + Arrays.toString(l.toArray()));
             search(l);
 
-            // writing temp results
-            temporaryResultsWrite();
+            // add to to evalMap
+            double currentW[] = new double[this.currentW.length];
+            System.arraycopy(this.currentW, 0, currentW, 0, this.currentW.length);
+            vectorEvalMap.put(currentW, currentEval);
 
-            // saving the association between current vector and the evaluation.
-            this.vectorEvalMap.put(this.currentW, this.currentEval);
+            // writing temporary results
+            super.temporaryResultsWrite();
 
-            logger.info("Restarting with new permutation");
+            logger.debug("Restarting with the new component");
             restart();
         } else {
             Iterator<Integer> it = q.iterator();
@@ -338,5 +345,21 @@ public class IncreaseSearch extends SearchAlgorithm {
 
         s += "##### END INCR SEARCH CURRENT RESULTS #####\n\n";
         return s;
+    }
+
+    @Override
+    protected String getFinalResults() {
+        computeBestResult();
+        String s = "#### Increase Search Final Results ####\n";
+        s += "Total iterations: " + super.iterations + "\n";
+        s += "startW          : " + Arrays.toString(super.minW) + "\n";
+        s += "endW          : " + Arrays.toString(super.maxW) + "\n";
+        s += "wStep          : " + wStep + "\n";
+        s += "Eval NDCG cut=" + DataCollection.DEFAULT_NDCG_CUT + "\n";
+        s += "--------> Maximum evaluation <--------\n";
+        s += "eval=" + this.currentEval + "\n";
+        s += "w=" + Arrays.toString(this.currentW);
+
+       return s;
     }
 }
