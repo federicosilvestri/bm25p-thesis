@@ -31,17 +31,7 @@ public class CustomIncreaseSearch extends IncreaseSearch {
             logger.info("Permutation : " + Arrays.toString(p));
 
             super.search(Arrays.asList(p));
-            logger.debug("CurrenW = " + Arrays.toString(this.currentW));
-            super.temporaryResultsWrite();
-
-            double currentW[] = new double[this.currentW.length];
-            System.arraycopy(this.currentW, 0, currentW, 0, this.currentW.length);
-
-            super.vectorEvalMap.put(currentW, currentEval);
-            logger.info("Restarting with another permutation!");
-
-            // restarting
-            restart();
+            logger.debug("CurrentW = " + Arrays.toString(this.currentW));
         }
     }
 }

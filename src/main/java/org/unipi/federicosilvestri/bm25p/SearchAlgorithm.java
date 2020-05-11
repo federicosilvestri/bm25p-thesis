@@ -127,27 +127,6 @@ public abstract class SearchAlgorithm {
 
     protected abstract void executeAlgorithm();
 
-    protected void temporaryResultsWrite() {
-        String results = getResults();
-        try (BufferedWriter output = new BufferedWriter(new FileWriter(TEMP_FILE_NAME, true))) {
-            output.write(results);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot write to temporary file!");
-        }
-    }
-
-    protected abstract String getFinalResults();
-
-    public final void writeFinalResults() {
-        String finalResults = getFinalResults();
-
-        try (BufferedWriter output = new BufferedWriter(new FileWriter(FINAL_RESULTS_FILE_NAME, false))) {
-            output.write(finalResults);
-        } catch (IOException e) {
-            throw new RuntimeException("Cannot write to temporary file!");
-        }
-    }
-
     public String getResults(String w, String eval) {
         String s = "### Results ###";
         long elapsedTime = 0;
@@ -171,6 +150,15 @@ public abstract class SearchAlgorithm {
         return getResults("[NOT-GIVEN]", "[NOT-GIVEN]");
     }
 
+    private void temporaryResultsWrite() {
+        String results = getResults();
+        try (BufferedWriter output = new BufferedWriter(new FileWriter(TEMP_FILE_NAME, true))) {
+            output.write(results);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot write to temporary file!");
+        }
+    }
+
     /**
      * Update the internal statistics.
      *
@@ -190,6 +178,31 @@ public abstract class SearchAlgorithm {
         }
     }
 
+    protected String getFinalResults() {
+        String s = "#### Increase Search Final Results ####\n";
+        s += "Total iterations: " + this.iterations + "\n";
+        s += "startW          : " + Arrays.toString(this.minW) + "\n";
+        s += "endW          : " + Arrays.toString(this.maxW) + "\n";
+        s += "wStep          : " + wStep + "\n";
+        s += "Eval NDCG cut=" + DataCollection.DEFAULT_NDCG_CUT + "\n";
+        s += "--------> Minimum evaluation <--------\n";
+        s += "eval=" + this.minEval + "\n";
+        s += "w=" + Arrays.toString(this.minimizedW) + "\n";
+        s += "--------> Maximum evaluation <--------\n";
+        s += "eval=" + this.maxEval + "\n";
+        s += "w=" + Arrays.toString(this.maximizedW) + "\n";
 
+        return s;
+    }
+
+    public final void writeFinalResults() {
+        String finalResults = getFinalResults();
+
+        try (BufferedWriter output = new BufferedWriter(new FileWriter(FINAL_RESULTS_FILE_NAME, false))) {
+            output.write(finalResults);
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot write to temporary file!");
+        }
+    }
 
 }

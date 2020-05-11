@@ -7,7 +7,7 @@
         </encoder>
     </appender>
 
-    <logger name="org.unipi.federicosilvestri.bm25p.SearchAlgorithm" level="debug">
+    <logger name="org.unipi.federicosilvestri.bm25p.SearchAlgorithm" level="info">
     </logger>
     <logger name="org.unipi.federicosilvestri.bm25p.MainClass" level="info">
     </logger>

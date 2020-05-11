@@ -150,7 +150,6 @@ public class GridSearch extends SearchAlgorithm {
             if (ndcg[i] > this.maxEvals[i]) {
                 this.maxEvals[i] = ndcg[i];
                 this.maxEvalsw[i] = w;
-                super.temporaryResultsWrite();
             }
         }
     }

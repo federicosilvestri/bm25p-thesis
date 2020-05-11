@@ -174,11 +174,8 @@ public class IncreaseSearch extends SearchAlgorithm {
             q.add(i);
         }
 
-        // execute the permutations
+        // execute the initial permutations
         permutation(q, l);
-
-        // now we can compute the best results
-        computeBestResult();
     }
 
     /**
@@ -195,19 +192,12 @@ public class IncreaseSearch extends SearchAlgorithm {
             We are in a leaf!
             execute the search with this permutation of array
              */
-            logger.info("Executing the search on permutation: " + Arrays.toString(l.toArray()));
-            search(l);
-
-            // add to to evalMap
-            double currentW[] = new double[this.currentW.length];
-            System.arraycopy(this.currentW, 0, currentW, 0, this.currentW.length);
-            vectorEvalMap.put(currentW, currentEval);
-
-            // writing temporary results
-            super.temporaryResultsWrite();
-
-            logger.debug("Restarting with the new component");
-            restart();
+            if (this.iterations < this.maxIterations) {
+                search(l);
+            } else {
+                // we have to return!
+                return;
+            }
         } else {
             Iterator<Integer> it = q.iterator();
             while (it.hasNext()) {
@@ -226,22 +216,17 @@ public class IncreaseSearch extends SearchAlgorithm {
         /*
         we have to choose the best association between eval and v
          */
-        double maxEval = Double.MIN_VALUE;
-        double maxW[] = null;
 
         for (double w[] : this.vectorEvalMap.keySet()) {
             double eval = this.vectorEvalMap.get(w);
-            if (eval > maxEval) {
-                maxEval = eval;
-                maxW = w;
-            }
+            // updating
+            super.updateData(eval, w);
         }
-
-        this.currentW = maxW;
-        this.currentEval = maxEval;
     }
 
     protected void search(List<Integer> permutation) {
+        logger.info("Executing the search on permutation: " + Arrays.toString(permutation.toArray()));
+
         // create a tape for monitor the trend of eval measure
         TrendTape trendTape = new TrendTape();
 
@@ -253,41 +238,58 @@ public class IncreaseSearch extends SearchAlgorithm {
             linearIncrement(currentComponent, trendTape);
 
             logger.debug("-----> Component " + currentComponent + " iteration finished!");
-            logger.debug("##### -> Current eval is= [   " + currentEval + "   ]");
+            logger.info("##### -> Current w is= " + Arrays.toString(currentW));
+            logger.info("##### -> Current eval is= [   " + currentEval + "   ]");
+
         }
+
+        // add to to evalMap
+        double currentW[] = new double[this.currentW.length];
+        System.arraycopy(this.currentW, 0, currentW, 0, this.currentW.length);
+        vectorEvalMap.put(currentW, currentEval);
+
+        /*
+         search for this permutation is finished, so we need to calculate the best results
+         with others
+         */
+
+        // calculating best results
+        this.computeBestResult();
+
+        logger.debug("Clean up restarting with the new permutation");
+        restart();
     }
 
     protected void linearIncrement(int component, TrendTape tape) {
         // linear incrementation
         boolean stop = false;
         int incrementBonus = 0;
+        double workingW[] = new double[this.currentW.length];
+        double workingEval = -1;
+        System.arraycopy(this.currentW, 0, workingW, 0, this.currentW.length);
 
-        for (double w_c = this.currentW[component]; w_c < this.maxW[component] && !stop; w_c += wStep) {
+        for (double w_c = workingW[component]; w_c < this.maxW[component] && !stop; w_c += wStep) {
             super.iterations += 1;
             /*
             calculate the evaluation with current vector,
             by executing the pipeline and invoking trec_eval.
              */
-            this.currentW[component] = w_c;
-            super.dataCollection.executeRetrievePipeline(this.currentW);
-            double eval = super.dataCollection.getEval();
+            workingW[component] = w_c;
+            super.dataCollection.executeRetrievePipeline(workingW);
+            workingEval = super.dataCollection.getEval();
+            tape.add(w_c, workingEval);
 
-            // update the data
-            super.updateData(eval, this.currentW);
-
-            tape.add(w_c, eval);
             if (tape.isTrendReady()) {
                 // calculate the trend
                 int trend = tape.calculateTrend();
-
                 logger.debug("Trend is ready, it's=" + trend);
 
                 switch (trend) {
                     case -1: {
                         // we need to rollback to a positive value
                         double best[] = tape.getBest();
-                        this.currentW[component] = best[0];
-                        this.currentEval = best[1];
+                        workingW[component] = best[0];
+                        workingEval = best[1];
                         stop = true;
                         logger.debug("TREND DECISION: STOOP :(");
                     }
@@ -312,8 +314,8 @@ public class IncreaseSearch extends SearchAlgorithm {
                             implementation choice = 2
                              */
                             double best[] = tape.getBest();
-                            this.currentW[component] = best[0];
-                            this.currentEval = best[1];
+                            workingW[component] = best[0];
+                            workingEval = best[1];
                         }
                     }
                     break;
@@ -326,6 +328,10 @@ public class IncreaseSearch extends SearchAlgorithm {
                 }
             }
         }
+
+        // now we can update the object values
+        this.currentW = workingW;
+        this.currentEval = workingEval;
 
         // clear the tape!
         tape.clear();
@@ -347,19 +353,4 @@ public class IncreaseSearch extends SearchAlgorithm {
         return s;
     }
 
-    @Override
-    protected String getFinalResults() {
-        computeBestResult();
-        String s = "#### Increase Search Final Results ####\n";
-        s += "Total iterations: " + super.iterations + "\n";
-        s += "startW          : " + Arrays.toString(super.minW) + "\n";
-        s += "endW          : " + Arrays.toString(super.maxW) + "\n";
-        s += "wStep          : " + wStep + "\n";
-        s += "Eval NDCG cut=" + DataCollection.DEFAULT_NDCG_CUT + "\n";
-        s += "--------> Maximum evaluation <--------\n";
-        s += "eval=" + this.currentEval + "\n";
-        s += "w=" + Arrays.toString(this.currentW);
-
-       return s;
-    }
 }

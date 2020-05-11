@@ -35,6 +35,11 @@ public class MainClass {
      */
     private double[] endW;
 
+    /**
+     * Maximum iterations.
+     */
+    private int maxIterations;
+
 
     public static void setupTerrierEnv() {
         System.setProperty("terrier.home", USER_DIR);
@@ -116,6 +121,15 @@ public class MainClass {
             wStep = Double.parseDouble(wStepString);
         }
 
+        {
+            String wMaxIterations = ApplicationSetup.getProperty("org.unipi.federicosilvestri.maxIterations", null);
+            if (wMaxIterations == null) {
+                throw new IllegalArgumentException("You must configure org.unipi.federicosilvestri.maxIterations!");
+            }
+
+            maxIterations = Integer.parseInt(wMaxIterations);
+        }
+
         if (args.length != 3) {
             throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs,randincrs,us");
         }
@@ -150,23 +164,23 @@ public class MainClass {
         switch (args[0]) {
             case "lings":
                 System.out.println("Executing linear Grid Search");
-                sa = new GridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                sa = new GridSearch(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
                 break;
             case "nlings":
                 System.out.println("Executing non-linear Grid Search");
-                sa = new BorderGridSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                sa = new BorderGridSearch(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
                 break;
             case "incrs":
                 System.out.println("Executing Increment Search");
-                sa = new IncreaseSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                sa = new IncreaseSearch(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
                 break;
             case "randincrs":
                 System.out.println("Executing Random Increment Search");
-                sa = new RandomIncreaseSearch(startW, endW, wStep, 200, Double.MAX_VALUE);
+                sa = new RandomIncreaseSearch(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
                 break;
             case "cincrs":
                 System.out.println("Executing Customized Increment Search");
-                sa = new CustomIncreaseSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                sa = new CustomIncreaseSearch(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
                 break;
             case "us":
                 System.out.println("Executing Unmanaged Search");

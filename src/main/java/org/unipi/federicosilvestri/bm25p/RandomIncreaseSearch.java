@@ -66,7 +66,6 @@ public class RandomIncreaseSearch extends IncreaseSearch {
 
             logger.info("Trying with permutation : " + Arrays.toString(p.perm));
             super.search(Arrays.asList(p.perm));
-            super.temporaryResultsWrite();
 
             // add results to container
             this.vectorEvalMap.put(currentW, currentEval);
