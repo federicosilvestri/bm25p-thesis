@@ -117,7 +117,7 @@ public class MainClass {
         }
 
         if (args.length != 3) {
-            throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs,randincrs");
+            throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs,randincrs,us");
         }
 
         int divisions;
@@ -168,9 +168,12 @@ public class MainClass {
                 System.out.println("Executing Customized Increment Search");
                 sa = new CustomIncreaseSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
                 break;
+            case "us":
+                System.out.println("Executing Unmanaged Search");
+                sa = new UnmanagedSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                break;
             default:
                 throw new IllegalArgumentException("Bad search type!");
-
         }
 
         sa.execute();

@@ -32,7 +32,7 @@ public class CustomIncreaseSearch extends IncreaseSearch {
             logger.info("Restarting with another permutation!");
 
             // restarting
-            this.currentW = minW;
+            restart();
         }
 
         computeBestResult();

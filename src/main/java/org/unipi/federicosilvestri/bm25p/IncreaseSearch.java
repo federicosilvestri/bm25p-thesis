@@ -4,7 +4,7 @@ import java.util.*;
 
 public class IncreaseSearch extends SearchAlgorithm {
 
-    private static class TrendTape {
+    protected static class TrendTape {
         /**
          * Default capacity
          */
@@ -66,8 +66,6 @@ public class IncreaseSearch extends SearchAlgorithm {
                 dv[i] = Math.signum(tape.get(i) - tape.get(i - 1));
             }
 
-//            logger.info("DV = " + Arrays.toString(dv));
-
             double totalDv = dv[0];
             for (int i = 1; i < dv.length; i++) {
                 totalDv += dv[i];
@@ -128,6 +126,11 @@ public class IncreaseSearch extends SearchAlgorithm {
      */
     protected final Map<double[], Double> vectorEvalMap;
 
+    /**
+     * The comparator of Queue elements used for permutations.
+     */
+    protected final Comparator<Integer> queueComparator;
+
     public IncreaseSearch(double[] minW, double[] maxW, double wStep, int maxIterations, double maxNDCGToStop) {
         super(minW, maxW, wStep, maxIterations, maxNDCGToStop);
         /*
@@ -138,25 +141,48 @@ public class IncreaseSearch extends SearchAlgorithm {
         L'algoritmo è deterministico, ma non è facile capire cosa faccia a causa del suo dinamismo del trend, cioè
         in base a come NDCG si comporta in funzione dei pesi cercati w.
          */
-        vectorEvalMap = new HashMap<>();
+        this.vectorEvalMap = new HashMap<>();
+        this.queueComparator = buildQueueComparator();
+    }
+
+    /**
+     * Build the comparator for the queue.
+     * It allows you to create a different visit type of permutation tree.
+     * Example: you can create a DFS or BFS visits.
+     *
+     * @return comparator between two integers
+     */
+    protected Comparator<Integer> buildQueueComparator() {
+        return (i1, i2) -> (i1 - i2);
     }
 
     @Override
     public void executeAlgorithm() {
         currentW = new double[minW.length];
-        System.arraycopy(this.minW, 0, this.currentW, 0, this.minW.length);
-        Queue<Integer> q = new LinkedList<>();
+        restart();
+        PriorityQueue<Integer> q = new PriorityQueue<>(this.minW.length, this.queueComparator);
         LinkedList<Integer> l = new LinkedList<>();
 
         // adding all indexes to queue
         for (int i = 0; i < minW.length; i++) {
-            // @todo here we can set the priority for index
+            // here we can set the priority for index
             q.add(i);
         }
 
+        // execute the permutations
         permutation(q, l);
+
+        // now we can compute the best results
+        computeBestResult();
     }
 
+    /**
+     * This function restarts the current
+     * vector to initial vector. Use it to not break data encapsulation.
+     */
+    protected void restart() {
+        System.arraycopy(this.minW, 0, this.currentW, 0, this.minW.length);
+    }
 
     protected void permutation(Queue<Integer> q, List<Integer> l) {
         if (q.isEmpty()) {
@@ -174,20 +200,19 @@ public class IncreaseSearch extends SearchAlgorithm {
             this.vectorEvalMap.put(this.currentW, this.currentEval);
 
             logger.info("Restarting with new permutation");
-            this.currentW = this.minW;
+            restart();
         } else {
             Iterator<Integer> it = q.iterator();
             while (it.hasNext()) {
                 Integer cit = it.next();
-                Queue<Integer> q1 = new LinkedList<>(q);
+                PriorityQueue<Integer> q1 = new PriorityQueue<>(this.minW.length - l.size(), this.queueComparator);
+                q1.addAll(q);
                 q1.remove(cit);
                 LinkedList<Integer> l1 = new LinkedList<>(l);
                 l1.add(cit);
                 permutation(q1, l1);
             }
         }
-
-        computeBestResult();
     }
 
     protected void computeBestResult() {

@@ -72,7 +72,7 @@ public class RandomIncreaseSearch extends IncreaseSearch {
             this.vectorEvalMap.put(currentW, currentEval);
 
             // restart
-            this.currentW = this.minW;
+            restart();
             logger.info("Restarting with new permutation!");
         }
     }
