@@ -96,6 +96,8 @@ public abstract class SearchAlgorithm {
         this.dataCollection = new DataCollection();
         this.minEval = Double.MAX_VALUE;
         this.maxEval = Double.MIN_VALUE;
+        this.minimizedW = new double[minW.length];
+        this.maximizedW = new double[minW.length];
         this.maxIterations = maxIterations;
         this.maxEvalToStop = maxEvalToStop;
 
@@ -178,12 +180,12 @@ public abstract class SearchAlgorithm {
     protected void updateData(double eval, double w[]) {
         if (eval < minEval) {
             minEval = eval;
-            minimizedW = w;
+            System.arraycopy(w, 0, this.minimizedW, 0, this.minimizedW.length);
             temporaryResultsWrite();
         }
         if (eval > maxEval) {
             maxEval = eval;
-            maximizedW = w;
+            System.arraycopy(w, 0, this.maximizedW, 0, this.maximizedW.length);
             temporaryResultsWrite();
         }
     }

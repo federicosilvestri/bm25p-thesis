@@ -202,5 +202,5 @@ dmypy.json
 terrier/bin
 
 terrier/tempResults.txt
-
+terrier/finalResults.txt
 # End of https://www.gitignore.io/api/java,linux,macos,maven,python

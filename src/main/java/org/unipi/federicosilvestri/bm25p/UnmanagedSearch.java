@@ -1,25 +1,10 @@
 package org.unipi.federicosilvestri.bm25p;
 
 import java.util.Arrays;
-import java.util.List;
 
-public class UnmanagedSearch extends IncreaseSearch {
+public class UnmanagedSearch extends CustomIncreaseSearch {
     public UnmanagedSearch(double[] minW, double[] maxW, double wStep, int maxIterations, double maxNDCGToStop) {
         super(minW, maxW, wStep, maxIterations, maxNDCGToStop);
-    }
-
-    @Override
-    protected void search(List<Integer> permutation) {
-        // choose a component to start
-        for (Integer currentComponent : permutation) {
-            logger.debug("-----> Iterating the component " + currentComponent);
-
-            // start by incrementing it
-            linearIncrement(currentComponent, null);
-
-            logger.debug("-----> Component " + currentComponent + " iteration finished!");
-            logger.debug("##### -> Current eval is= [   " + currentEval + "   ]");
-        }
     }
 
     @Override
