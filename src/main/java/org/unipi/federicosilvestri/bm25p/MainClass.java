@@ -131,7 +131,7 @@ public class MainClass {
         }
 
         if (args.length != 3) {
-            throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs,randincrs,us");
+            throw new IllegalArgumentException("You must pass search type, divisions and processNumber! Available search types: lings,nlings,incrs,randincrs,us,lsrs");
         }
 
         int divisions;
@@ -184,7 +184,11 @@ public class MainClass {
                 break;
             case "us":
                 System.out.println("Executing Unmanaged Search");
-                sa = new UnmanagedSearch(startW, endW, wStep, -1, Double.MAX_VALUE);
+                sa = new UnmanagedSearch(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
+                break;
+            case "lsrs":
+                System.out.println("Executing Line Search with Random Restart");
+                sa = new LineSearchRandomRestart(startW, endW, wStep, maxIterations, Double.MAX_VALUE);
                 break;
             default:
                 throw new IllegalArgumentException("Bad search type!");

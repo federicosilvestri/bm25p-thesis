@@ -203,4 +203,6 @@ terrier/bin
 
 terrier/tempResults.txt
 terrier/finalResults.txt
+bm25p-graphs/venv
+bm25p-eval/venv
 # End of https://www.gitignore.io/api/java,linux,macos,maven,python

@@ -27,6 +27,11 @@ public class IncreaseSearch extends SearchAlgorithm {
         private final ArrayList<Double> tape;
 
         /**
+         * The number of elements to store before predict
+         */
+        private int preferredElements;
+
+        /**
          * Minimum elements for trend
          */
         private final int minElementsForTrend;
@@ -36,6 +41,7 @@ public class IncreaseSearch extends SearchAlgorithm {
             this.minElementsForTrend = minElementsForTrend;
             this.values = new ArrayList<>();
             this.tape = new ArrayList<>();
+            this.preferredElements = minElementsForTrend;
         }
 
         TrendTape() {
@@ -55,7 +61,12 @@ public class IncreaseSearch extends SearchAlgorithm {
         }
 
         boolean isTrendReady() {
-            return this.values.size() >= this.minElementsForTrend;
+            return (this.tape.size() % preferredElements) == 0;
+        }
+
+        void setPreferredElements(int preferredElements) {
+            assert (preferredElements > 0);
+            this.preferredElements = preferredElements;
         }
 
         void clear() {
@@ -279,7 +290,7 @@ public class IncreaseSearch extends SearchAlgorithm {
             workingEval = super.dataCollection.getEval();
             tape.add(w_c, workingEval);
 
-            if (tape.isTrendReady()) {
+            if (tape.isTrendReady() || w_c == this.maxW[component] + wStep) {
                 // calculate the trend
                 int trend = tape.calculateTrend();
                 logger.debug("Trend is ready, it's=" + trend);
