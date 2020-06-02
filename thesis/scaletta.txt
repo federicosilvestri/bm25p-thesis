@@ -1,0 +1,65 @@
+1. Introduzione 
+
+In questa parte vorrei introdurre in generale che cos'è un motore di ricerca e di come viene costruito, giusto
+per far capire di cosa si parla. Vorrei scrivere anche di alcune statistiche relative a quanto viene usato Google
+e di cosa sia la memoria transattiva. Questo giusto per dare una visione generale del mondo dell'IR.
+
+- sub-scaletta
+
+a. importanza di IR con statistiche di Google
+   e calcolo della probabilità che una persona in questo momento esegua
+   una query.
+   
+b. dove si usa IR, esempio del web, ricerca file di Mac, ricerca audio
+	di spotify
+ 
+-
+
+[2-3 pagine]
+3. Architettura generale
+
+Invece in questa sezione, parlo dell'architettura che sta dietro e di dove si è orientato principalmente
+il mio lavoro, ovvero nel componente "retriever".
+
+3. Terrier
+Qui entro nel dettaglio tecnico del software che ho usato,  quindi descrivo Terrier, l'ambiente di lavoro
+e i linguaggi utilizzati per calcolare i dati. Faccio particolare attenzione, magari in un paragrafo dedicato,
+alla pipeline di Terrier.
+
+[3-4 pagine]
+4. BM25 e BM25P
+Qui invece parlo  in modo abbastanza tecnico di cosa sia un weighting model
+e di cosa c'è bisogno di sapere sull'indexing. e.g. per usare BM25P c'è bisogno di un Block Indexer,
+altrimenti non si potrebbe calcolare la posizione del termine.
+Il capitolo vorrei concluderlo con la descrizione di BM25 e della sua estensione, BM25P.
+
+[max 6 pagine]
+5. Metriche
+
+In questo capitolo invece vorrei parlare delle metriche che si usano per
+valutare in modo sistematico un sistema di ricerca e di come queste possano
+essere confrontate tra di loro. Non saprei inoltre se citare il paper Quality vs Efficiency,
+facendo una breve digressione.
+[5-6 pagine]
+
+
+6. Ricerca degli iperparametri
+
+Qui invece inizia il mio lavoro, quello cioè di scrivere svariati algoritmi che ricerchino
+gli iperparametri che massimizzino le metriche selezionate. Quindi di Grid Search, del
+perché GridSearch sia infattibile e di Line Search con Random Restart.
+
+[10-12 pagine]
+7. Risultati sperimentali
+
+Qui invece riempirò le pagine con i grafici e con la descrizione dei risultati
+trovati, descrivendo anche il dataset utilizzato.
+[3-4 pagine]
+
+8. Conclusioni
+
+I dati sperimentali ci permettono di rilevare qualche informazione della struttura dei documenti?
+Le informazioni che aumentano l'effettività del motore di ricerca, sono contenute in porzioni di testo
+sempre uguali, oppure variano in base alla collezione?
+
+[10 pagine]
