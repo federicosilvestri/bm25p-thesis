@@ -14,26 +14,61 @@ in realtà un lavoro molto complesso e lungo.
 La fase che l'utente è abituato ad esserne partecipe è la fase finale, ovvero
 il \textit{Retrieving}. Ma prima di poter parlare di ciò è necessario illustrare la fase primaria, l'\textit{Indexing}.
 
+\paragraph{Alcune definizioni}
+Per essere più chiari, conveniamo alcune definizioni di termini tecnici che al giorno d'oggi possono essere attribuiti
+a concetti diversi.
+
+\begin{definizione}\label{def:token}
+	Un token è un'istanza di una sequenza di caratteri, in un documento $d \in \mathcal{D}$, che
+	sono raggruppati tra di loro come un'unità semanticalmente utile.
+\end{definizione}
+
+\begin{esempio}[tokenizzazione]
+	Nella frase "Nulla si crea, nulla si distrugge ma tutto si trasforma" i token sono i seguenti:
+	\tokenbox{nulla} \tokenbox{si} \tokenbox{crea} \tokenbox{nulla} \tokenbox{si} \tokenbox{distrugge}
+	\tokenbox{ma} \tokenbox{tutto} \tokenbox{si} \tokenbox{trasforma}.
+\end{esempio}
+
+Un altro concetto importante è il concetto di tipo.
+\begin{definizione}[tipo]\label{def:tipo}
+	Un tipo è una classe di token con la solita sequenza di caratteri.
+\end{definizione}
+\begin{esempio}
+	Consideriamo la frase dell'esempio precedente. I tipi sono 7, mentre i token sono 10. Abbiamo dunque
+	3 token che si ripetono.
+\end{esempio}
+\begin{definizione}[query]\label{def:query}
+	Una query è un multinsieme di token, che rappresenta l'input che il motore di ricerca
+	riceve dall'utente. 
+\end{definizione}
+Da notare che il concetto di multinsieme deriva dal fatto che si vuole tenere traccia in modo esplicito 
+della molteplicità
+dei termini nella query stessa.
+
+\begin{definizione}[termine]\label{def:temine}
+	Un termine è un tipo di una query.
+\end{definizione}
+
+
+
 \paragraph{Fase di indexing}
-Per poter offrire quella velocità che si richiede durante la fase di retrieving è necessario aver "preparato"
-una struttura dati che sia completa, ovvero che comprenda tutte le informazioni necessarie e 
+Per poter offrire quella velocità che si richiede durante la fase di retrieving è necessario aver ``preparato"
+una struttura dati che sia completa, ovvero che comprenda tutte le informazioni necessarie, e 
 rapida da scorrere, ovvero che le informazioni che si stanno cercando devono poter essere recuperate
 il prima possibile.  Un esempio abbastanza esplicativo è quello dell'addetto alla biblioteca che deve rispondere
-alle richieste degli studenti. Se l'addetto non conoscesse i libri che sono parte della biblioteca per ogni richiesta
-dello studente dovrebbe scorrere tutta la lista e capire se quel dato libro può essere utile oppure no.
+alle richieste degli studenti. Se l'addetto non conoscesse i libri che sono parte della biblioteca, per ogni richiesta
+dovrebbe scorrere tutta la lista e capire se quel dato libro può essere utile oppure no.
 Questo esempio rappresenta il fatto che l'addetto non è in possesso di una struttura in grado
-di accedere solo alle informazioni necessarie per la ricerca.
-
-La costruzione di tale struttura dati, chiamata indice, è la fase più dispendiosa in termini di memoria e tempo di elaborazione.
-Questo perché si devono analizzare tutti i documenti
-che fanno parte della collezione ed estrapolarne le informazioni da inserire nell'indexer.
-Si noti che una modifica alla collezione, come potrebbe essere l'aggiunta di un documento o la rimozione, comporta
-la reindicizzazione.
-Durante la fase di Indexing tutti i documenti che sono contenuti all'interno della collezione vengono analizzati e ne viene costruito l'indice.
-Mentre durante la fase di Retrieving si ha la cosìdetta interrogazione del motore di ricerca da parte degli utenti.
-
-
-
+di accedere solo alle informazioni necessarie ed è dunque inefficiente.
+Se quindi non ci fosse un indice, per un motore di ricerca sarebbe troppo dispendioso elaborare tutti
+i documenti "su richiesta".
+La fase di indexing ha lo scopo di costruire una struttura dati, chiamata indice, che consenta
+di velocizzare la fase successiva, il Retrieving.
+Dal punto di vista delle prestazioni tale fase è quella con il  dispendio computazionale
+più elevato, sia in termini di spazio che di tempo.
+Questo perché si devono analizzare tutti i documenti della collezione ed eseguire una serie di elaborazioni
+su di essi.
+Il seguente algoritmo illustra in modo abbastanza basico ma intuitivo, la funzione eseguita dall'indexer.
 \begin{algorithm}[h]
 	\small
 	\DontPrintSemicolon
@@ -42,10 +77,12 @@ Mentre durante la fase di Retrieving si ha la cosìdetta interrogazione del moto
 	\Input{$\mathcal{D} $ collezione di documenti}
 	\Output{$\mathcal{I}$ indice}
 	\BlankLine
+	$\mathcal{I} = generateEmptyIndex()$\;
 	\ForEach{$d \in \mathcal{D}$}{
 		$tokenizer = getTokenizer(d)$\;
 		\While{$token = tokenizer.nextToken()$}{
-			$updateIndex(token, d)$
+			$n = normalizeToken(token)$\;
+			$updateIndex(\mathcal{I}, n, d)$\;
 		}
 	}
 	\Return{$\mathcal{I}$}
@@ -53,3 +90,27 @@ Mentre durante la fase di Retrieving si ha la cosìdetta interrogazione del moto
 	\label{alg:bray-curtis}
 	
 \end{algorithm}
+L'idea alla base è quella di rappresentare un documento come un flusso di token, il che è sempre possibile
+poiché conveniamo che in questo campo di information retrieval i documenti sono solo di tipo testuale.
+Il token prima di essere passato alla funzione $updateIndex$ viene normalizzato. La normalizzazione è un processo
+che si occupa di risolvere alcuni problemi legati al riconoscere quando due token sintanticamente diversi
+hanno invece la solita semantica\footnote{Potrebbe essere necessario uno step in più per risolvere il problema della codifica, poiché alcune lingue posseggono caratteri che non tutte le codifiche hanno. Per esempio le
+lingue cirillica e cinese.}
+Tale processo può essere schematizzato nel seguente modo, dove a sinistra viene indicato
+il nome della normalizzazione e a destra una breve descrizione.
+\begin{itemize}
+	\item[Casing] le lettere maiuscole vengono convertite in minuscole
+	\item[Accenti] le parole con accenti vengono convertite in parole senza accenti
+	\item[Stemming] i verbi vengono convertiti in una forma normale, per esempio nel tempo infinito.
+	\item[Lemmization] le parole plurali vengono convertite in singolari
+\end{itemize}
+
+\begin{esempio}[normalization]
+	Sia data la seguente frase: ``\textit{Mi piacciono tutte le auto che sono elettriche}".
+	Utilizzando le tecniche elencate in precedenza, i token normalizzati risultano:
+	\tokenbox{Mi} \tokenbox{piacere} \tokenbox{tutte} \tokenbox{le} \tokenbox{auto}
+	\tokenbox{che} \tokenbox{essere} \tokenbox{elettriche}.
+\end{esempio}
+
+Una volta normalizzato si procede all'aggiornamento dell'indice, ovvero nella costruzione
+dell'\textit{indice invertito}. 
