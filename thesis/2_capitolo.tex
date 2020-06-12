@@ -49,8 +49,6 @@ dei termini nella query stessa.
 	Un termine è un tipo di una query.
 \end{definizione}
 
-
-
 \paragraph{Fase di indexing}
 Per poter offrire quella velocità che si richiede durante la fase di retrieving è necessario aver ``preparato"
 una struttura dati che sia completa, ovvero che comprenda tutte le informazioni necessarie, e 
@@ -87,8 +85,7 @@ Il seguente algoritmo illustra in modo abbastanza basico ma intuitivo, la funzio
 	}
 	\Return{$\mathcal{I}$}
 	\caption{\textsc{}}
-	\label{alg:bray-curtis}
-	
+	\label{alg:indexing}
 \end{algorithm}
 L'idea alla base è quella di rappresentare un documento come un flusso di token, il che è sempre possibile
 poiché conveniamo che in questo campo di information retrieval i documenti sono solo di tipo testuale.
@@ -112,5 +109,92 @@ il nome della normalizzazione e a destra una breve descrizione.
 	\tokenbox{che} \tokenbox{essere} \tokenbox{elettriche}.
 \end{esempio}
 
-Una volta normalizzato si procede all'aggiornamento dell'indice, ovvero nella costruzione
-dell'\textit{indice invertito}. 
+\subparagraph{Indice invertito}
+Una volta normalizzato si procede all'aggiornamento dell'indice, ovvero alla costruzione (o aggiornamento)
+dell'indice invertito. Tale struttura è definita come una lista di coppie
+$\langle token, PostingList \rangle$ dove PostingList è una lista di \textit{identificatori di documenti}.
+In questo modo possiamo sapere il token $x$ in quali documenti è contenuto, cercando dentro l'indice
+invertito la posizione di $x$ e accedendo alla sua \textit{postingList}.
+
+\begin{figure}[h]
+	\label{fig:invertedIndex}
+	\centering
+	\includegraphics[scale=0.4]{InvertedIndex.eps}
+\end{figure}
+
+Ritornando all'esempio della biblioteca, se l'addetto avesse a disposizione l'indice invertito potrebbe:
+\begin{enumerate}
+	\item Raccogliere la query $\mathcal{Q}$ dello studente
+	\item Normalizzare $\mathcal{Q}$
+	\item $\forall t.t\in Q$ cercare all'interno dell'indice invertito il termine $t$ e \textit{ritornare} la \textit{postingList} associata
+\end{enumerate}
+
+In questo modo tutti i documenti che contengono almeno una volta un termine della query verrebbero mostrati
+agli studenti, ma ovviamente non tutti possono essere rilevanti per la ricerca. Il problema dunque si ridotto
+a come utilizzare l'indice invertito per capire quanto la query sia associata al documento in questione, ed è per questo
+motivo che viene introdotta la fase di \textit{Retrieve}
+
+\paragraph{Fase di Retrieving}
+Lo scopo della fase di retrieving è quello di utilizzare l'indice invertito e affinare il modo con cui
+i documenti vengono proposti all'utente, comunemente chiamati \textit{risultati}.
+Tale processo prende anche il nome di ranking, poiché l'idea alla base è quella di attribuire
+un punteggio ad ogni risultato e costruire una lista ordinata in senso crescente.
+Ovviamente il primo risultato è quello secondo cui il sistema di ranking è più
+rilevante per la query $q$. Tale processo viene fatto ogni volta che l'utente
+interroga il sistema, per cui deve essere veloce, efficiente ed effettivo.
+L'articolo \cite{10.1016/j.ipm.2016.05.004} mostra una serie di tecniche che possono essere
+utilizzate per valutare il tradeoff tra qualità di un ranker ed efficienza, di cui alcune
+sono state utilizzate nell'ambito di questo tirocinio.\\
+Per essere più precisi possibile, possiamo definire la funzione di score nel seguente modo
+
+\begin{definizione}\label{def:funzione_di_score_ideale}
+	 Una funzione di scoring $f(d,q) : \mathcal{D} \times \mathcal{Q} \rightarrow \mathbb{R}$ è tale
+	 se e solo se:
+	 \begin{itemize}
+	 	\item $f(d_1,q_1) \geq f(d_2, q_2) \implies rel(d_1, q_1) \geq rel(d_2, q_2)$,\\ dove $rel(d,q)$ è la rilevanza del documento $d$ per la query $q$, calcolata a priori.
+	 	\item $f(d,q) \leq 0$ significa che il documento è irrilevante per $q$.
+	 \end{itemize}
+\end{definizione}
+
+Tale definizione definisce una funzione di scoring ideale, per la quale non esiste un algoritmo che
+la calcoli. Possiamo però accontentarci di funzioni che la approssimano, facendo uso di euristiche basate sulla statistica. \footnote{Solo per revisione: questo è quello che grossomodo credo di aver elaborato e penso che abbia anche una corrispondenza a livello teorico. }
+Nei prossimi capitoli verranno descritte le funzioni di scoring che propongono BM25 e BM25P, le quali si basano sul concetto di \textit{Term Frequency} e \textit{Inverse Document Frequency}.
+Prima di concludere la visione generale diamo la definizione di alcuni concetti che sono utilizzati durante il retrieving.
+
+\begin{definizione}[Raw Count]\label{def:raw_count}
+	$rc(q, D) : \mathcal{Q} \times \mathcal{D} \rightarrow \mathbb{N}$ è detto raw count, cioè il numero di volte che
+	il termine q occore nel documento $d$.
+\end{definizione}
+
+\begin{definizione}[Term Frequency]\label{def:}
+	La funzione $tf(q,d)$, acronimo di Term Frequency, è una funzione che calcola la frequenza del
+	termine $q \in \mathcal{Q}$ nel documento $d \in \mathcal{D}$.
+	Tale valore si discosta da quello di $rc$, poiché solitamente è normalizzato o in scala logaritmica
+	oppure in base alla lunghezza del documento.
+	
+	\begin{itemize}
+		\item $tf(q,d) = \log_{k>1}(1+rc(q,d))$
+		\item $tf(q,d) = \frac{rc(q,d)}{|d|}$ dove $|d|$ è il numero totali di token nel documento
+	\end{itemize}
+\end{definizione}
+
+\begin{definizione}[Inverse Document Frequency]\label{def:idf}
+	$$
+	idf(q, \mathcal{D}) = \log_{k>1}{
+		\frac{\#\mathcal{D}}{
+			\#
+			\left\{
+			d \in \mathcal{D} \middle \lvert rc(q,d) > 0
+			\right\} 
+		}
+	}
+	$$
+	
+	Tale misura esprime quanta informazione una parola, o più un generale un token, fornisce.
+	Si può anche pensare come la misura dalla rarità, cioè quanto è comune il termine $q$
+	nella collezione di documenti $\mathcal{D}$.
+\end{definizione}
+
+
+
+
