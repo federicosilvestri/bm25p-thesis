@@ -21,26 +21,26 @@ b. dove si usa IR, esempio del web, ricerca file di Mac, ricerca audio
 Invece in questa sezione, parlo dell'architettura che sta dietro e di dove si è orientato principalmente
 il mio lavoro, ovvero nel componente "retriever".
 
-3. Terrier
-Qui entro nel dettaglio tecnico del software che ho usato,  quindi descrivo Terrier, l'ambiente di lavoro
-e i linguaggi utilizzati per calcolare i dati. Faccio particolare attenzione, magari in un paragrafo dedicato,
-alla pipeline di Terrier.
-
 [3-4 pagine]
-4. BM25 e BM25P
+3. BM25 e BM25P
 Qui invece parlo  in modo abbastanza tecnico di cosa sia un weighting model
 e di cosa c'è bisogno di sapere sull'indexing. e.g. per usare BM25P c'è bisogno di un Block Indexer,
 altrimenti non si potrebbe calcolare la posizione del termine.
 Il capitolo vorrei concluderlo con la descrizione di BM25 e della sua estensione, BM25P.
 
 [max 6 pagine]
-5. Metriche
+4. Metriche
 
 In questo capitolo invece vorrei parlare delle metriche che si usano per
 valutare in modo sistematico un sistema di ricerca e di come queste possano
 essere confrontate tra di loro. Non saprei inoltre se citare il paper Quality vs Efficiency,
 facendo una breve digressione.
 [5-6 pagine]
+
+5. Terrier
+Qui entro nel dettaglio tecnico del software che ho usato,  quindi descrivo Terrier, l'ambiente di lavoro
+e i linguaggi utilizzati per calcolare i dati. Faccio particolare attenzione, magari in un paragrafo dedicato,
+alla pipeline di Terrier.
 
 
 6. Ricerca degli iperparametri

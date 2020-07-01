@@ -8,8 +8,9 @@
 \usepackage{extensions/uniudtesi}
 
 \usepackage[nottoc]{tocbibind}
-
+\usepackage{babel}[italian]
 \usepackage{indentfirst}
+\usepackage{scalerel}
 \usepackage[ruled,vlined,linesnumbered]{algorithm2e}
 
 \graphicspath{{./figure/}}
@@ -22,8 +23,16 @@
 \newcommand{\Z}{\mathbb{Z}}
 \newcommand{\Q}{\mathbb{Q}}
 \newcommand{\R}{\mathbb{R}}
-
 \newcommand{\C}{\mathbb{C}}
+
+% IR functions
+\newcommand{\sco}{\text{score}}
+\newcommand{\tf}{\text{tf}}
+\newcommand{\tfp}{\text{tf}_p}
+\newcommand{\idf}{\text{idf}}
+\newcommand{\rc}{\text{rc}}
+\newcommand{\rel}{\text{rel}}
+
 
 \DeclareMathOperator{\traccia}{tr}
 \DeclareMathOperator{\sen}{sen}
@@ -47,10 +56,9 @@
 \newtheorem{corollario}[teorema]{Corollario}
 
 \theoremstyle{definition}
-%\newtheorem{definizione}[teorema]{Definizione}
-\newtheorem{definizione}[teorema]{Definition}
-\newtheorem{esempio}[teorema]{Example}
-\newtheorem{problema}[teorema]{Problem}
+\newtheorem{definizione}[teorema]{Definizione}
+\newtheorem{esempio}[teorema]{Esempio}
+\newtheorem{problema}[teorema]{Problema}
 
 \theoremstyle{remark}
 \newtheorem{osservazione}[teorema]{Osservazione}
@@ -182,7 +190,6 @@
 
 \input{7_capitolo}
 
-\input{8_capitolo}
 \appendix
 
 %\input{appendici}
