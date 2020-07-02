@@ -135,7 +135,7 @@ essere massimo.
 
 Adesso che abbiamo raccolto tutte le informazioni necessarie possiamo definire
 le unità di misura per la qualità di un motore di ricerca.
-Le misure più semplici sono adottate attualmente sono  la recall e la precision.
+Le misure più semplici che sono adottate attualmente sono  la recall e la precision.
 
 \begin{definizione}\label{def:recall}
 	La recall, indicata con il simbolo $\re$ è definita come il rapporto tra il numero di documenti
@@ -152,6 +152,9 @@ Le misure più semplici sono adottate attualmente sono  la recall e la precision
 	$$
 \end{definizione}
 
+Ovviamente affinchè la recall sia massima, il ranker dovrebbe ritornare la lista di tutti i documenti
+rilevanti, ma questo non sempre risulta possibile, poiché $\left|\mathcal{L}\right| \lll \left|\mathcal{D}\right|$.
+
 \begin{definizione}\label{def:precision}
 	La precision, indicata con il simbolo $\preci$ è uguale alla recall
 	ma con la differenza che il rapporto non ha come denominatore tutti i documenti
@@ -165,7 +168,77 @@ Le misure più semplici sono adottate attualmente sono  la recall e la precision
 	}
 	$$
 \end{definizione}
+Invece per precision, raggiungere il valore massimo è abbastanza facile, specialmente quando $\left|\mathcal{L}\right| \approx 1$.
 
-Un modo per calcolare $\re$ e $\preci$ è quello di creare una sorta di confusion
+\pagebreak
+
+Un modo analogo per calcolare $\re$ e $\preci$ è quello di creare una sorta di confusion
 matrix, nel seguente modo:
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|c|}
+	\hline
+	& $\rel_b = true$ & $\rel_b = false$ \\
+	\hline
+	$d \in \mathcal{L}$ &  vero positivo (tp) & falso positivo (fp) \\
+	\hline
+	$d \notin \mathcal{L}$ &  falso negativo (fn) & vero negativo (tn) \\
+	\hline
+\end{tabular}
+\caption{Matrice di contingenza, o matrice di confusione}
+\end{table}
+
+Una volta avvolarata la matrice, si può calcolare $\preci = \frac{tp}{tp + fp}$ e $\re = \frac{tp}{tp + fn}$.
+
+\paragraph{Il problema delle misure}
+Il problema principale di queste due misure è il fatto che statisticamente il $99.9\%$ dei documenti
+risulta non rilevante per una query $q$. 
+Infatti se la funzione obiettivo da massimizzare fosse recall
+un sistema che marca tutti i documenti come non rilevanti avrebbe
+un valore molto vicino ad un sistema che invece funziona bene. Inoltre
+queste misure sono basate sull'insieme dei documenti restituiti e non tengono
+conto dell'ordine della lista $\mathcal{L}$.
+
+Per esempio un utente che naviga nel web è interessato
+ad avere come primo risultato esattamente il documento che stava cercando,
+e non vorrebbe scorrere i risultati fino a trovare quello che stava cercando.
+Precision e recall quindi sono misure semplici ed effettive, ma non sono
+complete per la valutazione di un motore di ricerca.
+
+\section{NDCG}
+L'unità di misura che andremo a considerare è la Normative Discontinued Cumulative Gain,
+definita come segue:
+
+$$
+NDCG(O, k) = \frac{1}{\left|O\right|} \sum_{q \in O} Z_{k, q} \cdot \sum_{i=1}^{k} \frac{2^{R(d_i, q)} - 1}{\log_2{(i + 1)}} \\
+$$
+
+in cui abbiamo che:
+\begin{table}[h!]
+	\centering
+\begin{tabular}{|c|c|}
+	\hline
+	$ O \subset Q$ & è un sottoinsieme di query \\
+	\hline
+	$Z_{k,q}$ & è il fattore di normalizzazione \\
+	\hline
+	$R(d,q)$ & è il gold standard, possiamo assumerla uguale a $\rel_B$ \\
+	\hline
+\end{tabular}
+\end{table}
+
+
+Come è possibile notare dalla formula, in questo modo andiamo a considerare un sottoinsieme delle query, che chiamiamo $O$,
+e un intero $k>1$ che conta il numero di documenti nella lista $\mathcal{L}$.
+Espandendo la seconda sommatoria $s_2$ è interessante notare che:
+$$
+s_2 = \frac{2^{R(d_1, q) } - 1}{1} + \frac{2^{R(d_2, q)} - 1}{1.58} + \frac{2^{R(d_3, q)} - 1}{2} + \dotsb + \frac{2^{R(d_k, q) } - 1}{\log_2{k + 1}}
+$$
+
+Siccome la funzione $log_2(x)$ è monotona crescente, $s_2$ è costruita in modo tale da
+premiare maggiormente i risultati con $k$ piccolo e dunque penalizzare al crescere di $k$.
+
+In questo modo abbiamo ottenuto una misura di valutazione che è in grado di tenere in considerazione
+sia del problema della quantità di dati inutili, sia dell'ordinamento dei risultati. \footnote{Magari qui posso far vedere qualche grafico oppure parlare meglio del fattore di normalizzazione $Z_{i,j}$}
 
