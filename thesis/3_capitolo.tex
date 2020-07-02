@@ -43,7 +43,7 @@ Diamo dunque la definizione di rilevanza booleana:
 	true o false, in questo modo:
 	\begin{itemize}
 		\item		$\rel_B(d,q) = true$ se e solo se l'utente ritiene che il documento d è rilevante
-							per la query $q$.
+		per la query $q$.
 		\item $\rel_B(d,q) = false$ altrimenti.
 	\end{itemize}
 	
@@ -100,35 +100,35 @@ una illustrazione di come dimostrare questo principio.
 		\item Sia $\mathcal{L}$  la lista ordinata dei documenti ritornati dal motore di ricerca, di lunghezza arbitraria
 		$k$.
 	\end{itemize}
-
-Il valore atteso della rilevanza possiamo calcolarlo come:
-\begin{align*}
-& \mathbb{E}\left[\rel_B\right] = \sum_{i=1}^{k}{
-	1 \cdot P(\rel_B = true  | D = d_i, Q = q ) + \cancelto{0}{0 \cdot  P(\rel_B = false  | D = d_i, Q = q )}
-} \\
-& \mathbb{E}\left[\rel_B\right] = \sum_{i=1}^{k}{P(\rel_B = true  | D = d_i, Q = q )}
-\end{align*}
-
-Ciò che vogliamo dimostrare è che per ogni valore di $k>0$, il valore atteso è massimo quando i documenti
-sono ordinati in senso decrescente.
-Procediamo dunque per assurdo ipotizzando esista un valore $\tilde{k}$ tale che $\mathbb{E}[\rel_B]$ sia
-massimo anche se i documenti non sono ordinati in tal modo.
-Si verifica dunque che esiste almeno un documento $d_l$ che non viene inserito in $\mathcal{L}$ nell'ordinamento
-decrescente e inoltre ciò impone che un altro documento $d_m$ non venga inserito nell'ultima posizione della lista.
-Abbiamo quindi che:
-$$
-P(\rel_B = r | D = d_l, Q=q)  < P(\rel_B = r| D = d_m, Q = q)
-$$
-
-e dunque:
-
-\begin{align*}
-& \mathbb{E}\left[\rel_B\right]_{\tilde{k}} = \sum_{i=1}^{\tilde{k}}{P(\rel_B = true | D = d_i, Q = q)} \\
+	
+	Il valore atteso della rilevanza possiamo calcolarlo come:
+	\begin{align*}
+	& \mathbb{E}\left[\rel_B\right] = \sum_{i=1}^{k}{
+		1 \cdot P(\rel_B = true  | D = d_i, Q = q ) + \cancelto{0}{0 \cdot  P(\rel_B = false  | D = d_i, Q = q )}
+	} \\
+	& \mathbb{E}\left[\rel_B\right] = \sum_{i=1}^{k}{P(\rel_B = true  | D = d_i, Q = q )}
+	\end{align*}
+	
+	Ciò che vogliamo dimostrare è che per ogni valore di $k>0$, il valore atteso è massimo quando i documenti
+	sono ordinati in senso decrescente.
+	Procediamo dunque per assurdo ipotizzando esista un valore $\tilde{k}$ tale che $\mathbb{E}[\rel_B]$ sia
+	massimo anche se i documenti non sono ordinati in tal modo.
+	Si verifica dunque che esiste almeno un documento $d_l$ che non viene inserito in $\mathcal{L}$ nell'ordinamento
+	decrescente e inoltre ciò impone che un altro documento $d_m$ non venga inserito nell'ultima posizione della lista.
+	Abbiamo quindi che:
+	$$
+	P(\rel_B = r | D = d_l, Q=q)  < P(\rel_B = r| D = d_m, Q = q)
+	$$
+	
+	e dunque:
+	
+	\begin{align*}
+	& \mathbb{E}\left[\rel_B\right]_{\tilde{k}} = \sum_{i=1}^{\tilde{k}}{P(\rel_B = true | D = d_i, Q = q)} \\
 	& \mathbb{E}[\rel_B]_{\tilde{k}} \Big|_{d_{\tilde{k}} = d_{l}} < \mathbb{E}[\rel_B]_{\tilde{k}} \Big|_{d_{\tilde{k}} = d_{m}}
-\end{align*}
-
-Ciò però è assurdo, perché per ipotesi $\mathbb{E}\left[\rel_B\right]_{\tilde{k}}$ sostituendo $d_{\tilde{k}}$ con $d_l$ doveva
-essere massimo.
+	\end{align*}
+	
+	Ciò però è assurdo, perché per ipotesi $\mathbb{E}\left[\rel_B\right]_{\tilde{k}}$ sostituendo $d_{\tilde{k}}$ con $d_l$ doveva
+	essere massimo.
 \end{proof}
 
 \section{Recall e Precision}
@@ -145,10 +145,10 @@ Le misure più semplici che sono adottate attualmente sono  la recall e la preci
 	
 	$$
 	\re = P(d \in \mathcal{L} | \rel_B(d,q) = true) = \frac{
-	\#\left\{ d \in \mathcal{L} | \rel_B(d,q) = true\right\}
-}{
-	\#\left\{ d \in \mathcal{D} | \rel_B(d,q) = true\right\}
-}
+		\#\left\{ d \in \mathcal{L} | \rel_B(d,q) = true\right\}
+	}{
+		\#\left\{ d \in \mathcal{D} | \rel_B(d,q) = true\right\}
+	}
 	$$
 \end{definizione}
 
@@ -164,7 +164,7 @@ rilevanti, ma questo non sempre risulta possibile, poiché $\left|\mathcal{L}\ri
 	\re = P(d \in \mathcal{L} | \rel_B(d,q) = true) = \frac{
 		\#\left\{ d \in \mathcal{L} | \rel_B(d,q) = true\right\}
 	}{
-	\left|\mathcal{L}\right|
+		\left|\mathcal{L}\right|
 	}
 	$$
 \end{definizione}
@@ -178,15 +178,15 @@ matrix, nel seguente modo:
 \begin{table}[h!]
 	\centering
 	\begin{tabular}{|c|c|c|}
-	\hline
-	& $\rel_b = true$ & $\rel_b = false$ \\
-	\hline
-	$d \in \mathcal{L}$ &  vero positivo (tp) & falso positivo (fp) \\
-	\hline
-	$d \notin \mathcal{L}$ &  falso negativo (fn) & vero negativo (tn) \\
-	\hline
-\end{tabular}
-\caption{Matrice di contingenza, o matrice di confusione}
+		\hline
+		& $\rel_b = true$ & $\rel_b = false$ \\
+		\hline
+		$d \in \mathcal{L}$ &  vero positivo (tp) & falso positivo (fp) \\
+		\hline
+		$d \notin \mathcal{L}$ &  falso negativo (fn) & vero negativo (tn) \\
+		\hline
+	\end{tabular}
+	\caption{Matrice di contingenza, o matrice di confusione}
 \end{table}
 
 Una volta avvolarata la matrice, si può calcolare $\preci = \frac{tp}{tp + fp}$ e $\re = \frac{tp}{tp + fn}$.
@@ -210,22 +210,22 @@ complete per la valutazione di un motore di ricerca.
 L'unità di misura che andremo a considerare è la Normative Discontinued Cumulative Gain,
 definita come segue:
 
-$$
+$$\label{def:ndcg}
 NDCG(O, k) = \frac{1}{\left|O\right|} \sum_{q \in O} Z_{k, q} \cdot \sum_{i=1}^{k} \frac{2^{R(d_i, q)} - 1}{\log_2{(i + 1)}} \\
 $$
 
 in cui abbiamo che:
 \begin{table}[h!]
 	\centering
-\begin{tabular}{|c|c|}
-	\hline
-	$ O \subset Q$ & è un sottoinsieme di query \\
-	\hline
-	$Z_{k,q}$ & è il fattore di normalizzazione \\
-	\hline
-	$R(d,q)$ & è il gold standard, possiamo assumerla uguale a $\rel_B$ \\
-	\hline
-\end{tabular}
+	\begin{tabular}{|c|c|}
+		\hline
+		$ O \subset Q$ & è un sottoinsieme di query \\
+		\hline
+		$Z_{k,q}$ & è il fattore di normalizzazione \\
+		\hline
+		$R(d,q)$ & è il gold standard, possiamo assumerla uguale a $\rel_B$ \\
+		\hline
+	\end{tabular}
 \end{table}
 
 
@@ -237,8 +237,17 @@ s_2 = \frac{2^{R(d_1, q) } - 1}{1} + \frac{2^{R(d_2, q)} - 1}{1.58} + \frac{2^{R
 $$
 
 Siccome la funzione $log_2(x)$ è monotona crescente, $s_2$ è costruita in modo tale da
-premiare maggiormente i risultati con $k$ piccolo e dunque penalizzare al crescere di $k$.
+premiare maggiormente i risultati con $k$ piccolo e penalizzare quelli con $k$ più grande.
+Parlando anche in termini computazionali, calcolare il valore dell'esponente al numeratore
+non è troppo dispendioso poiché:
+\begin{enumerate}
+	\item La base dell'esponente è 2 e il valore di $R(d,q)$ è intero, dunque si può fare bit shifting.
+	\item La funzione $R(d,q)$ inoltre, se la assumiamo uguale a $\rel_B$ assume solo due valori,
+	o anche se fosse diversa essa assumerà un insieme finito di valori che può essere precomputato.
+\end{enumerate}
 
 In questo modo abbiamo ottenuto una misura di valutazione che è in grado di tenere in considerazione
-sia del problema della quantità di dati inutili, sia dell'ordinamento dei risultati. \footnote{Magari qui posso far vedere qualche grafico oppure parlare meglio del fattore di normalizzazione $Z_{i,j}$}
-
+sia del problema della quantità di dati, sia dell'ordinamento dei risultati.
+\footnote{Magari qui posso far vedere qualche grafico oppure parlare meglio del fattore di normalizzazione $Z_{i,j}$}
+\footnote{Dovrei parlare anche dei tagli di recall e precision?}
+\footnote{Dovrei descrivere con qualche riga i dataset che sono a disposizione? aquaint, RCV, ...?}

@@ -2,7 +2,21 @@
 Terrier (Terabyte Retriever) è una piattaforma di IR sviluppata dall'università di Glasgow, per permettere ai ricercatori di sperimentare su
 grosse quantità di dati ed avere anche un modo per poter testare il sistema in tempo reale.
 Tale piattaforma è scritta interamente in Java ed è open source, il cui codice sorgente è disponibile
-interamente su GitHub.
-Terrier è stato utilizzato come mezzo di sperimentazione anche nel caso del tirocinio. Infatti
-una parte del tirocinio è stata quella di estendere le funzionalità di Terrier stesso per poter eseguire
-una GridSearch.
+interamente su \href{https://github.com/terrier-org/terrier-core}{GitHub}.
+\\
+Terrier è stato utilizzato come mezzo di sperimentazione, infatti
+una parte del tirocinio è stata quella di estendere le sue funzionalità per poter eseguire un processo
+di \textit{model selection}.
+
+La sua struttura modulare consente agli sviluppatori di estendere qualsiasi tipo di funzionalità con una
+più evoluta.
+Principalmente Terrier riprende l'architettura base di un sistema di IR, ovvero la suddivisione in
+\textit{Indexing} e \textit{Retrieving}. La parte di \textit{Indexing} non è stata modificata, poichè
+BM25P richiede un tipo di indexer a blocchi, il quale è già implementato nella libreria di sistema.
+La parte che invece è stata estesa è la parte di \textit{Retrieving} e di \textit{Evaluation}. \'E stata
+cioè implementato un meccanismo per fare model selection utilizzando svariati algoritmi, di cui
+ne parleremo in seguito. 
+
+
+\section{Pipeline}
+\footnote{spiegare come funziona la fase di indexing, retrieving, evaluation, magari anche con i comandi}

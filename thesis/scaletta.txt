@@ -41,6 +41,7 @@ facendo una breve digressione.
 Qui entro nel dettaglio tecnico del software che ho usato,  quindi descrivo Terrier, l'ambiente di lavoro
 e i linguaggi utilizzati per calcolare i dati. Faccio particolare attenzione, magari in un paragrafo dedicato,
 alla pipeline di Terrier.
+[3-4 pagine]
 
 
 6. Ricerca degli iperparametri

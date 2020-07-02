@@ -1,1 +1,115 @@
 \chapter{Ricerca degli iperparametri}
+
+\paragraph{Introduzione}
+In questa sezione della relazione verrà illustrato il problema principale su cui si è basato il tirocinio:
+\textit{l'ottimizzazione della funzione di ranking di BM25P}.
+Come illustrato nel capitolo 2, quasi ogni funzione di ranking possiede degli iperparametri, i quali
+devono essere calibrati a seconda del tipo di dati e dalla natura dei dati stessi.
+Per esempio se si dovesse calibrare BM25 per una collezione
+di documenti scientifici medici, esso potrebbe avere degli iperparametri
+differenti da quelli adatti per una collezione di documenti esclusivamente matematici.
+Questo aspetto rende molto simile il mondo dell'Information Retrieval a quello del Machine Learning,
+infatti alcuni termini e concetti sono di comune utilizzo.
+
+
+Ricapitolando, gli iperparametri di BM25P sono:
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|c|}
+		\hline
+		Parametro & Vincoli & Descrizione \\
+		\hline
+		$p$ & $p>1$ & numero di passages \\
+		\hline
+		$\alpha$ & $\alpha > 0$ & costante di amplificazione del term frequency \\
+		\hline
+		$\boldsymbol{w}$ & $\forall{i.1 \leq i \leq \left|\boldsymbol{w}\right|}\implies \boldsymbol{w}_i \geq 0$ & vettore dei pesi dei passaggi \\
+		\hline
+	\end{tabular}
+\caption{Iperparametri di BM25P}
+\end{table}
+
+Per questioni pratiche, la scelta che si è deciso di prendere è quella di cercare
+nello spazio dei valori di $\boldsymbol{w}$, poiché esso rappresenta l'iperparametro
+che agisce sui passages, cioè la particolarità introdotta da BM25P stesso, e lasciare
+$p$ e $\alpha$ costanti.\footnote{Si potrebbe anche far vedere come variano i risultati usando un $p<10$}
+
+\paragraph{La funzione obiettivo}
+
+Come in qualsiasi ambito di ricerca in spazio di stati, anche in questo contesto
+si deve scegliere una funzione da massimizzare, che però come vedremo presenterà dei problemi ben
+noti, che limiteranno la scelta dei possibili algoritmi applicabili.
+Una delle misure che meglio esprimono l'effettività di un motore di ricerca è NDCG \ref{def:ndcg}, la quale è
+stata illustrata e commentata nel capitolo 3.
+Massimizzando questa funzione siamo dunque in grado di ottenere una funzione di ranking che
+è ottima per BM25P.
+
+\paragraph{Obiettivo}
+L'obiettivo che dunque bisogna porsi è quello di rispondere alla seguenti domande, ipotizzando
+di avere scelto una collezione di documenti $\mathcal{D}$:
+
+\begin{enumerate}
+	\item Quali sono gli iperparametri da impostare all'algoritmo per massimizzarne la qualità?
+	\item Quali sono gli algoritmi per il calcolo di tali iperparametri?
+	\item Di quanto possiamo aumentare l'efficienza di BM25 utilizzando l'estensione dei passages?
+\end{enumerate}
+
+Nei seguenti paragrafi verranno illustrati i meccanismi che sono stati
+trovati, implementati e testati e ne verranno forniti anche alcuni risultati
+sperimentali.
+
+\section{Setup sperimentale}
+
+Una volta concluso lo studio di come Terrier è stato costruito e di come la sua pipeline è stata implementata,
+il tirocinio si è rivolto nella ricerca di algoritmi adatti a fare \textit{model selection}.
+
+\paragraph{Dataset}
+Il dataset fornito insieme a Terrier, chiamato \textit{Vaswani}, è un dataset abbastanza piccolo,
+contenente soltanto 10.000 titoli di documenti. Per poter avere dei risultati più
+reali è stato utilizzato il dataset \textit{Aquaint}, acquistato con licenza dal C.N.R.,
+il quale contiene circa un milione di documenti e i relativi file di test, quali
+un \textit{topic file} di 50 query e un \textit{qrels file} associato.
+Aquaint è un dataset prodotto da David Graff nel 2002, il quale
+contiene un elenco di news proveniente da tre fonti principali:
+lo Xinhua News Service, il New York Times e l'Associated Press WorldStream News Service.
+Pertanto la collezione $\mathcal{D}$ usata, in qualsiasi fase è stata \textit{Aquaint}.
+
+\paragraph{Macchine a disposizione}
+Per poter accedere a tale dataset, di dimensioni notevoli, è stato necessario utilizzare
+delle macchine specifiche fornite dall'ente stesso, poiché sia per ragioni di sicurezza
+che per ragioni pratiche, i dati non potevano essere resi pubblici.
+Mi è stata dunque fornito dunque l'accesso ad una macchina 
+all'interno della rete del C.N.R., in grado di sostenere il carico
+di lavoro che gli algoritmi di ricerca avrebbero potuto richiedere.
+
+\section{La pipeline di ricerca}
+Per poter eseguire la massimizzazione della funzione obiettivo,
+è necessario eseguire una serie di operazioni, che configurano il sistema Terrier
+in modo da poter lavorare con i dati impostati.
+Diamo di seguente una lista ordinata delle operazioni da eseguire:
+
+\begin{enumerate}
+	\item Inizializzare gli iperparametri scelti ad un valore iniziale
+	\item Eseguire la fase di retrieve, producendo dunque una serie di risultati
+	\item Eseguire la fase di evaluation, calcolando dunque il valore della funzione obiettivo
+	\item Confrontare il valore attuale della funzione obiettivo con quello in memoria
+	\item Aggiornare gli iperparametri e tornare al punto 2.
+\end{enumerate}
+
+Nel caso in questione l'iperparametro da variare è il vettore $\boldsymbol{w}$, la
+quale lunghezza è uguale al numero dei passaggi, che abbiamo posto uguale a 10.
+Pertanto gli algoritmi seguenti dovranno cercare all'interno di uno spazio di dimensione
+10 il valore di $\boldsymbol{w}$ per cui NDCG è massima.
+
+\paragraph{Il vettore dei pesi}
+Il vettore dei pesi può 
+
+\section{Algoritmi completi}
+
+
+\subsection{Grid Search}
+\subsection{Analisi spazio}
+\section{Algoritmi randomizzati}
+\subsection{Increase Search}
+\subsection{Line search with Random Restart}
+
