@@ -54,21 +54,23 @@ sono i seguenti:
 \begin{table}[h!]
 	\centering
 	\begin{tabular}{|c|c|}
+		\hline 
+		recall@100  &  0.1932  \\
 		\hline
-		$NDCG@10$ & $ 0.3188 $ \\
+		recall@200   & 0.2786 \\
 		\hline
-		      \multicolumn{2}{|l|}{$w=[1.40, 1.14, 1.39, 1.39, 1.14, 1.14, 1.39, 1.39, 1.39, 1.14]$} \tabularnewline
+		NDCG    & 0.3845 \\
 		\hline
-				$NDCG@5$ & $ 0.2939 $ \\
+		NDCG@5  & 0.3246 \\
 		\hline
-		\multicolumn{2}{|l|}{$w=[1.07, 0.82, 0.82, 0.82, 0.82, 0.82, 1.07, 0.82, 0.82, 1.07]$} \tabularnewline
+		NDCG@10  & 0.2952 \\
 		\hline
+		\multicolumn{2}{|c|}{$w = [1.531, 0.843, 0.863, 0.861, 0.856 , 0.912, 0.874, 0.856, 0.865, 1.534]$}
 	\end{tabular}
 	\caption{Risultati di GridSearch}
 \end{table}
 
 Grid Search dopo svariate ore di lavoro non è riuscito a produrre risultati soddisfacenti.
-
 
 \section{Line Search with Random Restart}
 
@@ -86,11 +88,12 @@ Grid Search dopo svariate ore di lavoro non è riuscito a produrre risultati sod
 		\hline
 		NDCG@10 & 0.2901 \\
 		\hline
+		\multicolumn{2}{|c|}{
+			$w = [1.071, 0.821, 0.821, 0.821, 0.821, 0.821, 1.071, 0.821, 1.0714, 1.071]$
+		}
 	\end{tabular}
 	\caption{Risultati di Line Search with Random Restart}
 \end{table}
-
-% w = [1.0714285714285714, 0.8214285714285714, 0.8214285714285714, 0.8214285714285714, 0.8214285714285714, 0.8214285714285714, 1.0714285714285714, 0.8214285714285714, 1.0714285714285714, 1.0714285714285714]
 
 \section{Increase Search}
 
@@ -98,26 +101,31 @@ Grid Search dopo svariate ore di lavoro non è riuscito a produrre risultati sod
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline
-		recall@100 &  0.1988 \\
+		recall@100 &  0.1971  \\
 		\hline
-		recall@200 & 0.2793  \\
+		recall@200 & 0.2954  \\
 		\hline
-		NDCG & 0.3814 \\
+		NDCG & 0.4119 \\
 		\hline
-		NDCG@5 & 0.3188 \\
+		NDCG@5 & 0.3542 \\
 		\hline
-		NDCG@10 & 0.2901 \\
+		NDCG@10 & 0.3007 \\
 		\hline
+		\multicolumn{2}{|c|}{$w = [0.1981, 0.1012, 0.07532, 0.075321, 0.15023, 0.12532, 0.12512, 0.103, 0.0521, 0.2534]$}
 	\end{tabular}
-	\caption{Risultati di Line Search with Random Restart}
+	\caption{Risultati di Increment Search}
 \end{table}
 
-|recall@100   | 0.1971 |
-|recall@200   | 0.2954 |
-|NDCG         | 0.4119 |
-|NDCG@5       | 0.3542 |
-|NDCG@10      | 0.3007 |
-
-% [0.1981, 0.1012, 0.07532, 0.075321, 0.15023, 0.12532, 0.12512, 0.103, 0.0521, 0.2534]
-
 \section{Test di significatività statistico}
+Per ogni query del topic file, è stata eseguita la pipeline (retrieve->eval) per BM25 e BM25P. Le misure di valutazione per query scelte sono state NDCG, NDCG@5 e NDCG@10.
+
+
+|Measure|$p_1$     | $p_2$    |
+|:-----:|-------|-------|
+|NDCG   |0.13218|0.26347|
+|NDCG@5 |0.00082|0.00145|
+|NDCG@10|0.03454|0.06835|
+
+
+Considerando che solitamente viene scelto un $\alpha$ < 0.05, oppure per essere più restrittivi $\alpha$ < 0.01, la *null-hypothesis* (BM25P $\equiv$ BM25) può essere considerata falsa.
+Questo perché, dato che l'ottimizzazione di BM25P è stata basata sui tagli più piccoli, il test di significatività statistico su NDCG@5 e NDCG@10 deve avere più peso rispetto a NDCG. Questo risultato inoltre ci mostra che i due modelli, su tagli più grandi, potrebbero essere simili, in quanto $p_2$ > $p_1$ > 0.05.
