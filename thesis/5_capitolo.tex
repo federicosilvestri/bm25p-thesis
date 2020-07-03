@@ -291,7 +291,11 @@ Siccome $\tau > 0$, questo meccanismo di ricerca risulta poco efficiente, e quin
 
 \subsection{Euristica del gradiente}
 Per poter massimizzare NDCG, si potrebbe pensare di utilizzare il metodo di salita del gradiente,
-ma quest'ultimo risulta di difficile da derivare, riporto di seguente alcuni dettagli tecnici.\footnote{Work in progress}
+ma quest'ultimo risulta di difficile implementazione, poiché la funzione vettoriale
+da derivare risulta essere ardua. Non è stato escluso però che utilizzando tecniche
+sofisticate si possa essere in grado di tener conto anche dell'informazione
+che il gradiente potrebbe dare.
+Tale argomento potrebbe essere sviluppato in una ricerca futura.
 
 \subsection{Increase Search}
 L'ultimo algoritmo informato che ho deciso di esporre è un algoritmo che ho
@@ -300,6 +304,8 @@ sia del metodo di salita del gradiente,
 sia della ricerca esaustiva. Esso consiste in un meccanismo di calcolo del trend della funzione obiettivo,
 ovvero di un surrogato della derivata di NDCG, che dà una minima informazione su come
 muoversi nello spazio $\Omega$.
+
+L'algoritmo verrà illustrato per passi nei seguenti paragrafi.
 
 \paragraph{Calcolo del trend}
 Per calcolare il trend è sufficiente raccogliere una serie di dati formati
@@ -320,7 +326,7 @@ $$
 \text{trend}(e) = \sum_{i=1}^{p-1} \text{sign}(dE_i)
 $$
 
-Per avere a disposizione di un dato binario del tipo cresce/decresce/instabile,
+Per avere a disposizione un informazione del tipo crescita/decrescita/instabilità,
 si può considerare la funzione
 
 $$
@@ -460,9 +466,9 @@ degli algoritmi che hanno un meccanismo di randomizzazione che consente di evita
 il problema dei massimi locali, poiché vengono utilizzati algoritmi di salita rapida.
 
 \subsection{Line search with Random Restart}
-L'algoritmo di Line Search è un algoritmo di salita rapida che consiste nell'eseguire
-una ricerca su griglia, ma con un random restart
-L'idea dell'algoritmo è la seguente:
+L'algoritmo di Line Search è un algoritmo di hill-climbing che consiste nell'eseguire
+una ricerca su griglia, ma con un random restart per ogni iterazione.
+L'idea alla base è la seguente:
 
 \begin{enumerate}
 	\item Si inizializza $w$ con dei valori casuali $c_i \in W_i$.
@@ -547,5 +553,8 @@ dall'algoritmo 5. L'algoritmo 5 tiene conto del budget temporale e mantiene in m
 il massimo valore ritornato, in modo da restituire alla fine dell'esecuzione
 il valore dei pesi che rende massima la funzione obiettivo.
 
-
 \paragraph{Svantaggi}
+Gli svantaggi utilizzando questi metodi sono essenzialmente tutti dovuti al budget temporale,
+poiché per essere sicuri di trovare la soluzione ottima $\mathcal{B} \to +\infty$.
+
+
