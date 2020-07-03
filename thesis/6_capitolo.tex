@@ -2,3 +2,122 @@
 
 In questo capitolo verranno esposti i risultati che sono stati trovati
 utilizzando il dataset \textit{Aquaint} e il relativo test set.
+
+\section{Valori di riferimento}
+Come prima cosa è necessario capire sul dataset in questione
+quali sono le prestazioni ottenibili utilizzando l'algoritmo rivale di BM25P,
+BM25. I seguenti risultati sono stati calcolati con gli iperparametri standard
+di BM25.
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		recall@100 & 0.2071 \\
+		\hline
+		recall@200 & 0.3069 \\
+		\hline
+		NDCG & 0.4161 \\
+		\hline
+		NDCG@5 & 0.2800 \\
+		\hline
+		NDCG@10 & 0.2707 \\
+		\hline
+	\end{tabular}
+\caption{Valutazione di BM25}
+\end{table}
+
+Con la notazione $misura@k$ si intende che
+la misura è stata effettuata sui primi $k$ risultati, in gergo tecnico
+è chiamato taglio.
+
+\section{Algoritmo Grid Search}
+Utilizzando l'agoritmo Grid Search con i seguenti valori:
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		$w_{start}$ & $[0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5]$ \\
+		\hline
+		$w_{end}$ & $[5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]$ \\		
+		\hline
+		$w_{step}$ & 0.25 \\
+		\hline
+	\end{tabular}
+\caption{Configurazione di GridSearch}
+\end{table}
+
+I valore massimi delle funzioni di valutazione trovati
+sono i seguenti:
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		$NDCG@10$ & $ 0.3188 $ \\
+		\hline
+		      \multicolumn{2}{|l|}{$w=[1.40, 1.14, 1.39, 1.39, 1.14, 1.14, 1.39, 1.39, 1.39, 1.14]$} \tabularnewline
+		\hline
+				$NDCG@5$ & $ 0.2939 $ \\
+		\hline
+		\multicolumn{2}{|l|}{$w=[1.07, 0.82, 0.82, 0.82, 0.82, 0.82, 1.07, 0.82, 0.82, 1.07]$} \tabularnewline
+		\hline
+	\end{tabular}
+	\caption{Risultati di GridSearch}
+\end{table}
+
+Grid Search dopo svariate ore di lavoro non è riuscito a produrre risultati soddisfacenti.
+
+
+\section{Line Search with Random Restart}
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		recall@100 &  0.1988 \\
+		\hline
+		recall@200 & 0.2793  \\
+		\hline
+		NDCG & 0.3814 \\
+		\hline
+		NDCG@5 & 0.3188 \\
+		\hline
+		NDCG@10 & 0.2901 \\
+		\hline
+	\end{tabular}
+	\caption{Risultati di Line Search with Random Restart}
+\end{table}
+
+% w = [1.0714285714285714, 0.8214285714285714, 0.8214285714285714, 0.8214285714285714, 0.8214285714285714, 0.8214285714285714, 1.0714285714285714, 0.8214285714285714, 1.0714285714285714, 1.0714285714285714]
+
+\section{Increase Search}
+
+\begin{table}[h!]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		recall@100 &  0.1988 \\
+		\hline
+		recall@200 & 0.2793  \\
+		\hline
+		NDCG & 0.3814 \\
+		\hline
+		NDCG@5 & 0.3188 \\
+		\hline
+		NDCG@10 & 0.2901 \\
+		\hline
+	\end{tabular}
+	\caption{Risultati di Line Search with Random Restart}
+\end{table}
+
+|recall@100   | 0.1971 |
+|recall@200   | 0.2954 |
+|NDCG         | 0.4119 |
+|NDCG@5       | 0.3542 |
+|NDCG@10      | 0.3007 |
+
+% [0.1981, 0.1012, 0.07532, 0.075321, 0.15023, 0.12532, 0.12512, 0.103, 0.0521, 0.2534]
+
+\section{Test di significatività statistico}
