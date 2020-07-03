@@ -461,8 +461,91 @@ il problema dei massimi locali, poiché vengono utilizzati algoritmi di salita r
 
 \subsection{Line search with Random Restart}
 L'algoritmo di Line Search è un algoritmo di salita rapida che consiste nell'eseguire
-una ricerca su griglia ma con dei valori casuali.
+una ricerca su griglia, ma con un random restart
 L'idea dell'algoritmo è la seguente:
 
-scegliere una componente del vettore $w$ e inizia
+\begin{enumerate}
+	\item Si inizializza $w$ con dei valori casuali $c_i \in W_i$.
+	\item Si sceglie una componente e si inizia ad incrementare, fino ad arrivare al massimo
+	\item Si sceglie la componente successiva e si esegue il punto 2.
+	\item Quando le componenti sono state iterate tutte, si ritorna al punto 1.
+\end{enumerate}
 
+Tale operazioni possono essere eseguite fino a che o non si è trovato un valore
+soddisfacente della funzione obiettivo o fino all'esaurirsi del tempo a disposizione.
+
+\pagebreak
+
+Lo pseudocodice dell'algoritmo è il seguente:
+\begin{algorithm}[h!]
+	\SetAlgorithmName{Algoritmo}{}
+	\small
+	\DontPrintSemicolon
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\Input{$w_{start} $ vettore minimo, di partenza}
+	\Input{$w_{end}$ vettore massimo, di arrivo}
+	\Input{$w_{step}$ incremento}
+	\Output{$w_{opt}$ vettore dei pesi ottimo}
+	\BlankLine
+
+	$w_{opt} = w_{start}$\;
+	$max_{eval} = -\infty$\;
+	$w$ = randomW()\;
+		
+	\BlankLine
+	
+	\For{$i =1 $ to $i=p$}{
+		\While{$w_i \le w_{end_i}$}{
+		terrierSetup($w$)\;
+		terrierRetrieve()\;
+		$ev$ = terrierEval()\;
+		\BlankLine
+		\If{$ev \ge max_{eval}$}{
+			$max_{eval} = ev$\;
+			$w_{opt} = w$\;
+		}
+		$w_i = w_i + w_{step}$\;
+	}
+	}
+	
+	\Return{$w_{opt}, max_{eval}$}
+	\caption{\textsc{}}
+	\label{alg:lsrs}
+\end{algorithm}
+
+
+
+\begin{algorithm}[h!]
+	\SetAlgorithmName{Algoritmo}{}
+	\small
+	\DontPrintSemicolon
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\Input{$\mathcal{B} $ budget temporale}
+	\Input{$\mathcal{M} $ massimo numero di iterazioni}
+	\Output{$w_{opt}$ vettore dei pesi ottimo}
+	\BlankLine
+	
+	$max_{eval} = -\infty$\;
+	$w_{opt} = \emptyset $\;
+	\While{budgetAvailable($\mathcal{B}$) $\wedge \quad i<\mathcal{M}$}{
+				$w, ev$ = LineSearchRandomRestart($\dots$)\;
+					\If{$ev \ge max_{eval}$}{
+					$max_{eval} = ev$\;
+					$w_{opt} = w$\;
+		}
+	}
+	
+	\Return{$w_{opt}$}
+	\caption{\textsc{}}
+	\label{alg:lsrsm}
+\end{algorithm}
+
+Da notare che la chiamata dell'algoritmo 4, è gestita
+dall'algoritmo 5. L'algoritmo 5 tiene conto del budget temporale e mantiene in memoria
+il massimo valore ritornato, in modo da restituire alla fine dell'esecuzione
+il valore dei pesi che rende massima la funzione obiettivo.
+
+
+\paragraph{Svantaggi}
