@@ -23,7 +23,7 @@ Ricapitolando, gli iperparametri di BM25P sono:
 		\hline
 		$\alpha$ & $\alpha > 0$ & costante di amplificazione del term frequency \\
 		\hline
-		$\boldsymbol{w}$ & $\forall{i.1 \leq i \leq \left|\boldsymbol{w}\right|}\implies \boldsymbol{w}_i \geq 0$ & vettore dei pesi dei passaggi \\
+		$\boldsymbol{w}$ & $\forall{i.1 \leq i \leq p}\implies \boldsymbol{w}_i \geq 0$ & vettore dei pesi dei passaggi \\
 		\hline
 	\end{tabular}
 \caption{Iperparametri di BM25P}
@@ -32,7 +32,7 @@ Ricapitolando, gli iperparametri di BM25P sono:
 Per questioni pratiche, la scelta che si è deciso di prendere è quella di cercare
 nello spazio dei valori di $\boldsymbol{w}$, poiché esso rappresenta l'iperparametro
 che agisce sui passages, cioè la particolarità introdotta da BM25P stesso, e lasciare
-$p$ e $\alpha$ costanti.\footnote{Si potrebbe anche far vedere come variano i risultati usando un $p<10$}
+$p$ e $\alpha$ costanti.\footnote{Si potrebbe anche far vedere come variano i risultati usando un $p<10$, questo è da inserire nei lavori futuri}
 
 \paragraph{La funzione obiettivo}
 
@@ -42,21 +42,23 @@ noti, che limiteranno la scelta dei possibili algoritmi applicabili.
 Una delle misure che meglio esprimono l'effettività di un motore di ricerca è NDCG \ref{def:ndcg}, la quale è
 stata illustrata e commentata nel capitolo 3.
 Massimizzando questa funzione siamo dunque in grado di ottenere una funzione di ranking che
-è ottima per BM25P.
+è ottima per un certo dataset $\mathcal{D}$.
 
 \paragraph{Obiettivo}
-L'obiettivo che dunque bisogna porsi è quello di rispondere alla seguenti domande, ipotizzando
-di avere scelto una collezione di documenti $\mathcal{D}$:
+L'obiettivo che dunque bisogna porsi è quello di rispondere alle seguenti domande, ipotizzando
+di avere $\mathcal{D}$:
 
 \begin{enumerate}
 	\item Quali sono gli iperparametri da impostare all'algoritmo per massimizzarne la qualità?
 	\item Quali sono gli algoritmi per il calcolo di tali iperparametri?
 	\item Di quanto possiamo aumentare l'efficienza di BM25 utilizzando l'estensione dei passages?
+	\item Qual è la natura del vettore $\boldsymbol{w}$?
 \end{enumerate}
 
 Nei seguenti paragrafi verranno illustrati i meccanismi che sono stati
 trovati, implementati e testati e ne verranno forniti anche alcuni risultati
-sperimentali.
+sperimentali, alla fine della realazione inoltre è presente anche alcune
+parti del codice Java.
 
 \section{Setup sperimentale}
 
@@ -66,16 +68,16 @@ il tirocinio si è rivolto nella ricerca di algoritmi adatti a fare \textit{mode
 \paragraph{Dataset}
 Il dataset fornito insieme a Terrier, chiamato \textit{Vaswani}, è un dataset abbastanza piccolo,
 contenente soltanto 10.000 titoli di documenti. Per poter avere dei risultati più
-reali è stato utilizzato il dataset \textit{Aquaint}, acquistato con licenza dal C.N.R.,
-il quale contiene circa un milione di documenti e i relativi file di test, quali
-un \textit{topic file} di 50 query e un \textit{qrels file} associato.
-Aquaint è un dataset prodotto da David Graff nel 2002, il quale
-contiene un elenco di news proveniente da tre fonti principali:
+reali è stato utilizzato \textit{Aquaint}, acquistato con licenza dal C.N.R.
+Esso contiene circa un milione di documenti e i relativi file di test, quali
+un \textit{topic file} di 50 query e il \textit{qrels file} associato.
+\textit{Aquaint} è un dataset prodotto da David Graff nel 2002,
+contenente un elenco di news provenienti da tre fonti principali:
 lo Xinhua News Service, il New York Times e l'Associated Press WorldStream News Service.
-Pertanto la collezione $\mathcal{D}$ usata, in qualsiasi fase è stata \textit{Aquaint}.
+
 
 \paragraph{Macchine a disposizione}
-Per poter accedere a tale dataset, di dimensioni notevoli, è stato necessario utilizzare
+Per poter accedere a tali dati, di dimensioni notevoli, è stato necessario utilizzare
 delle macchine specifiche fornite dall'ente stesso, poiché sia per ragioni di sicurezza
 che per ragioni pratiche, i dati non potevano essere resi pubblici.
 Mi è stata dunque fornito dunque l'accesso ad una macchina 
@@ -85,7 +87,7 @@ di lavoro che gli algoritmi di ricerca avrebbero potuto richiedere.
 \section{La pipeline di ricerca}
 Per poter eseguire la massimizzazione della funzione obiettivo,
 è necessario eseguire una serie di operazioni, che configurano il sistema Terrier
-in modo da poter lavorare con i dati impostati.
+in modo da poter processare i dati con i parametri impostati.
 Diamo di seguente una lista ordinata delle operazioni da eseguire:
 
 \begin{enumerate}
@@ -101,15 +103,366 @@ quale lunghezza è uguale al numero dei passaggi, che abbiamo posto uguale a 10.
 Pertanto gli algoritmi seguenti dovranno cercare all'interno di uno spazio di dimensione
 10 il valore di $\boldsymbol{w}$ per cui NDCG è massima.
 
-\paragraph{Il vettore dei pesi}
-Il vettore dei pesi può 
+\paragraph{Alcune definizioni}
+Il vettore dei pesi di BM25P è tale per cui ogni componente è un valore
+positivo o nullo in $\mathbb{R}$. La ricerca dunque deve concentrarsi
+in un intervallo chiuso che chiameremo $W_i$, dove l'indice $i$
+indica l'indice della componente di $\boldsymbol{w}$.
+Definiamo inoltre $w_{step}$ l'incremento da dare ad una o più
+componenti ad ogni iterazione.
+C'è anche la necessità di limitare inferiormente e superiormente
+il valore che ogni componente di $\boldsymbol{w}$ può assumere,
+poiché altrimenti lo spazio sarebbe infinito. Definiamo quindi
+due vettori, $w_{start}$ e $w_{end}$ i quali rappresentano
+i valore minimo e il valore massimo che $\boldsymbol{w}$
+può assumere.
 
 \section{Algoritmi completi}
-
+Come primo tentantivo è stato pensato di usare una tipologia di algoritmi completi,
+i quali provano tutti i valori possibili attribuibili e restituiscono quello ottimo. Un algoritmo
+conosciuto per la sua semplicità è Grid Search, ovvero una ricerca esaustiva
+su una griglia di valori, in questo caso una griglia $\Omega = W_1 \times W_2 \times \cdots \times W_{10}$.
 
 \subsection{Grid Search}
+
+Riporto per completezza lo pseudocodice di Grid Search:
+
+\begin{algorithm}[h]
+	\SetAlgorithmName{Algoritmo}{}
+	\small
+	\DontPrintSemicolon
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\Input{$w_{start} $ vettore minimo, di partenza}
+	\Input{$w_{end}$ vettore massimo, di arrivo}
+	\Input{$w_{step}$ incremento}
+	\Output{$w_{opt}$ vettore dei pesi ottimo}
+	\BlankLine
+	$w_{opt} = w_{start}$\;
+	$max_{eval} = -\infty$\;
+	$w = w_{start}$\;
+	\BlankLine
+	\While{$w  \le w_{end}$}{
+		terrierSetup($w$)\;
+		terrierRetrieve()\;
+		$ev$ = terrierEval()\;
+		
+		\If{$ev \ge max_{eval}$}{
+			$max_{eval} = ev$\;
+			$w_{opt} = w$\;
+		}
+		
+		$w = w + w_{step}$\;
+	}
+	\Return{$\mathcal{I}$}
+	\caption{\textsc{}}
+	\label{alg:gs}
+\end{algorithm}
+
+Una precisione da tenere in considerazione è che il confronto
+eseguito alla linea 4 è un confronto vettoriale, vale a dire che
+viene confrontata ogni componente di $w$ con $w_{end}$ e se
+è falso almeno un confronto, allora è falso anche il risultato.
+L'incremento che viene fatto alla linea 11, inoltre, è un incremento
+combinatorio. Ciò significa che si parte nel variare
+l'ultima componente, quando si è raggiunto il massimo si
+riporta al valore iniziale l'ultima e si incrementa la penultima,
+e si esegue questo procedimento fino ad arrivare alla prima.
+
+\begin{esempio}
+Un esempio di incremento combinatorio, abbastanza banale, è il seguente.
+Supponiamo di avere $w_{start} = \boldsymbol{0}$, $w_{end} = \boldsymbol{1}$
+e $w_{step} = 0.5$ e $\left|w\right| = 4$.
+
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		Iterazione 1 & $w = \left[0, 0, 0, 0\right]$ \\
+		\hline
+		Iterazione 2 & $w = \left[0, 0, 0, 0.5\right]$ \\
+		\hline
+		Iterazione 3 & $w = \left[0, 0, 0, 1\right]$ \\
+		\hline
+		Iterazione 4 & $w = \left[0, 0, 0.5, 0\right]$ \\
+		\hline
+		$\cdots$ & $\cdots$ \\
+		\hline
+		Iterazione 16 & $w = \left[1,1,1,1\right]$ \\
+		\hline
+	\end{tabular}
+	\caption{Esempio incremento combinatorio}
+\end{table}
+\end{esempio}
+
+Utilizzando questo tipo di incremento è possibile scorrere
+tutto lo spazio dei valori, dunque la ricerca è completa e anche ottima
+su $\Omega$.
+Il problema principale di questo tipo di algoritmo è che
+per poter rendere l'algoritmo eseguibile in un tempo finito
+è necessario che $\Omega$ sia finito.
+
+\begin{definizione}
+	Le condizioni di completezza e ottimalità ideale per l'algoritmo Grid Search sono:
+	\begin{enumerate}
+		\item $w_{start} = \boldsymbol{-\infty}$ illimitato inferiormente
+		\item $w_{end} = \boldsymbol{+\infty}$ illimitato superiormente
+		\item $\lim\limits_{h \to 0} \left(w_{step} - h\right) = 0$ continuo
+	\end{enumerate}
+\end{definizione}
+
+Com'è possibile notare un algoritmo che soddisfi tali condizioni è
+ineseguibile, sia per questioni di tempo che per questioni di spazio.
+Ciò che però è possibile fare è applicare una restrizione ad $\Omega$, attraverso
+una limitazione degli estremi e una discretizzazione (il cui ruolo è giocato da $w_{step}$).
+
 \subsection{Analisi spazio}
-\section{Algoritmi randomizzati}
+
+Prima di imbatterci in una ricerca che non terminerebbe nei tempi previsti è necessario
+eseguire un'analisi dettagliata dello spazio di ricerca, considerando anche il budget temporale.
+Chiamiamo con $\mathcal{B}$ tale budget a disposizione, che esso
+può variare in base alle esigenze dell''amministratore
+del motore di ricerca.
+
+Si ha anche che il tempo di esecuzione della Pipeline (Retrieve, Eval) è quantificato
+da $\tau$, che possiamo considerarlo costante una volta fissati la collezione dei dati e gli insiemi di test.
+
+A questo punto diremo che la dimensione dello spazio da analizzare
+è dato da:
+
+\begin{align*}\label{eq:gsdim}
+& \Omega = \bigtimes_{i=1}^{p} W_i \\
+& \text{Dim}(\Omega) = \prod\limits_{i=1}^{p} \frac{w_{end_i} - w_{start_i}}{w_{step}} \\
+\end{align*}
+
+\'E immediato specializzare tale equazione nel caso in cui i vettori $w_{start}$ e $w_{end}$
+siano esprimibili come $w_{start|end} = \vec{r}$ dove $r \in \mathbb{R}$. \footnote{
+	Si intendono tutti i vettori le quali componenti sono identiche le une alle altre, per esempi o il vettore $v = \left[0, 0, 0\right]$.
+	Una variante potrebbe essere quella di scrivere che $\forall{i,j.1 \leq i,j \leq p} \implies x_i = x_j$.
+}
+
+
+Si ottiene che:
+
+$$
+\text{Dim}(\Omega) = \left(\frac{w_{end} - w_{start}}{w_{step}}\right)^{p}
+$$\footnote{Con Dim di solito si intende la dimensione dello spazio quindi sarebbe $p$, in questo caso però intendo la grandezza, cioè quanti elementi ci sono, forse è meglio definirlo come $\#\Omega$?}
+
+Dunque lo spazio risulta esponenzialmente grande quanto lo sono il numero
+dei passaggi $p$, e questo è uno dei problemi che portano Grid Search ad essere
+un algoritmo troppo pesante per poter essere eseguito, poichè:
+
+$$
+\mathcal{B} \geq \tau \cdot \text{Dim}(\Omega)
+$$
+
+Siccome $\tau > 0$, questo meccanismo di ricerca risulta poco efficiente, e quindi non è consigliato.
+
+\begin{esempio}\label{ex:gsspace}
+	Sia $\tau = 5s$ il tempo che Terrier impiega per eseguire tutta la pipeline, e sia $p=10, w_{start} = \vec{0}, w_{end} = \vec{3}, w_{step} = 5 \cdot 10^{-3}$.
+	Allora si ha che
+	$$
+	\mathcal{B} \geq \left(\frac{3}{5 \cdot 10^{-3}}\right)^{10} \approx 6 \cdot 10^{27}s \approx 10^{20} \text{anni}
+	$$
+\end{esempio}
+
+
+\begin{esempio}
+	Si può anche tenere di conto della formula inversa, cioè avere a disposizione $\mathcal{B}$ e voler
+	calcolare $w_{step}$. Per scopi puramente sperimentali possiamo eseguire questo calcolo.
+	
+	Riprendiamo i soliti dati dell'esempio precedente, e teniamo come incognita $w_{step}$, ipotizzando
+	invece $\mathcal{B} = 24$ ore.
+	Si ha che:
+	$$
+	24 \cdot 3600 = \left(\frac{3}{w_{step}}\right)^{10}
+	$$
+	e quindi
+	$$
+	w_{step} \approx 0.9
+	$$
+	
+	Ma in questo modo la discretizzazione dello spazio sarebbe troppo evidente e dunque la ricerca è poco
+	probabile che trovi l'ottimo.
+\end{esempio}
+
+\section{Algoritmi informati}
+
+\subsection{Euristica del gradiente}
+Per poter massimizzare NDCG, si potrebbe pensare di utilizzare il metodo di salita del gradiente,
+ma quest'ultimo risulta di difficile da derivare, riporto di seguente alcuni dettagli tecnici.\footnote{Work in progress}
+
 \subsection{Increase Search}
+L'ultimo algoritmo informato che ho deciso di esporre è un algoritmo che ho
+progettato personalmente, tenendo in considerazione sia del metodo di salita rapida,
+sia del metodo di salita del gradiente,
+sia della ricerca esaustiva. Esso consiste in un meccanismo di calcolo del trend della funzione obiettivo,
+ovvero di un surrogato della derivata di NDCG, che dà una minima informazione su come
+muoversi nello spazio $\Omega$.
+
+\paragraph{Calcolo del trend}
+Per calcolare il trend è sufficiente raccogliere una serie di dati formati
+da coppie $\langle w, e\rangle$, dove $e$ è il valore di NDCG calcolato
+utilizzando $w$. Successivamente l'idea è quella di capire
+l'andamento della successione dei valori di $e$ mediante
+la sottrazione dell'elemento $i$-esimo con l'elemento ($i-1$)-esimo.
+Si calcola dunque il vettore delle \textit{differenze} $dE$, di lunghezza $p-1$, nel seguente modo:
+$$
+\forall{i.2 \leq i \leq p} \quad dE_{i-1} = e_{i} - e_{i-1}
+$$
+
+Attraverso $dE$ è possibile dare un'informazione del tutto
+\textit{osservativa} dell'andamento di $e$, per esempio
+con una somma discreta:
+
+$$
+\text{trend}(e) = \sum_{i=1}^{p-1} \text{sign}(dE_i)
+$$
+
+Per avere a disposizione di un dato binario del tipo cresce/decresce/instabile,
+si può considerare la funzione
+
+$$
+\text{trend}(e) = \text{sign}\left(\sum_{i=1}^{p-1} \text{sign}(dE_i)\right)
+$$
+
+ed in questo modo:
+$$
+\text{trend}(e) =
+\begin{cases}
+-1 & \text{se la funzione è definitivamente decrescente} \\
+0 & \text{se la funzione è instabile} \\
++1 & \text{se la funzione è definitivamente crescente} \\
+\end{cases}
+$$
+
+\subparagraph{Trend pesato}
+Una versione più sofisticata del trend (ma che non è stata utilizzata)
+è la versione pesata, che favorisce le salite ``più vicine"".
+
+$$
+\text{trend}_p(e) = \text{sign}\left(\sum_{i=1}^{p-1} \text{sign}\left(dE_i \cdot (p-i-1)\right)\right)
+$$
+
+
+\paragraph{Ricerca}
+La ricerca di Increase Search procede scegliendo in ordine da
+un insieme di indici $\mathcal{I}$ una componente su cui eseguire
+l'incremento, fino a che non si decide o di abbandonare
+l'opportunità oppure di proseguire, scegliendo quindi la componente successiva.
+Sia dunque $\mathcal{P}$ l'insieme delle permutazioni della stringa
+composta da tutti gli indici di $w$, quindi:
+
+$$
+\mathcal{P} = \text{Perm}(\langle1,\cdots, p\rangle)
+$$
+
+Scegliendo un elemento $p \in \mathcal{P}$, l'algoritmo
+inizia incrementando la componente $p_1, p_2, \cdots$ una alla volta, fino a che
+non è in grado di ``prendere una decisione".
+Una volta completata l'iterazione sull'insieme $p$, si passa all'insieme all'insieme successivo.
+
+\paragraph{Valutazione}
+Nel paragrafo precedente si è parlato imprecisamente di
+``prendere una decisione", ma cosa si intende, e come si può
+implementare?
+Prendere una decisione alla fine dell'iterazione significa essenzialmente
+calcolare il trend e decidere se proseguire con l'incremento oppure
+fermarsi. L'algoritmo implementato prevede un meccanismo di bonus,
+vale a dire un meccanismo che consente alla funzione di avere un andamento
+decrescente ma dopo svariati incrementi iniziare a crescere.
+Viene dunque richiesto un parametro $b_{max} \geq 0$, il quale rappresenta
+il numero massimo di bonus, il quale viene confrontanto continuamente con il
+numero di bonus attuali.
+
+\paragraph{Algoritmo completo}
+Di seguente illustro lo pseudocodice dell'algoritmo completo:
+
+\begin{algorithm}[h!]
+	\SetAlgorithmName{Algoritmo}{}
+	\small
+	\DontPrintSemicolon
+	\SetKwInOut{Input}{Input}
+	\SetKwInOut{Output}{Output}
+	\Input{$w_{start} $ vettore minimo, di partenza}
+	\Input{$w_{end}$ vettore massimo, di arrivo}
+	\Input{$w_{step}$ incremento}
+	\Input{$p \in \mathcal{B}$ permutazione degli indici}
+	\Input{$et_{min}$ numero di elementi minimi per calcolare il trend}
+	\Output{$w_{opt}$ vettore dei pesi ottimo}
+	\BlankLine
+	$w_{opt} = w_{start}$\;
+	$max_{eval} = -\infty$\;
+	$w = w_{start}$\;
+	
+	\BlankLine
+	\ForEach{$i \in p$}{	
+		$b = 0$\;
+		\While{$w_i \le w_{end_i}$} {
+		terrierSetup($w$)\;
+		terrierRetrieve()\;
+		$ev$ = terrierEval()\;
+		\BlankLine
+		\If{$ev \ge max_{eval}$}{
+			$max_{eval} = ev$\;
+			$w_{opt} = w$\;
+		}
+		updateTrend($ev$)\;
+		\BlankLine		
+		\If{trendReady()}{
+			$t = $ getTrend()\;
+			
+			\If{$t = 0 \vee t = -1$}{
+				$b = b +1$\;
+			}
+			
+			\If{$b \ge b_{max}$}{
+				rollBack()\;
+				break\;
+		}
+		}
+		\BlankLine
+		$w_i = w_i + w_{step}$\;
+		}
+	}
+	
+	\Return{$\mathcal{I}$}
+	\caption{\textsc{}}
+	\label{alg:gs}
+\end{algorithm}
+
+La funzione \textit{isTrendReady()} è un funzione booleana
+che consente di far sapere all'algoritmo se i dati che sono stati memorizzati
+sono sufficienti a produrre un trend oppure no. Ciò è regolato da un
+parametro impostato prima della computazione, il cui valore
+suggerito, in accordo con la grandezza dello spazio, è circa 10.
+
+Anche la funzione \textit{getTrend()} gioca un ruolo fondamentale,
+perché oltre a calcolare il trend cancella la lista delle coppie
+$\langle w, e\rangle$.
+
+Da notare che è presente anche un meccansimo di backtracking,
+alla linea \textit{19}, il quale non fa altro che ripristinare
+i valori per la quale la funzione obiettivo era massima.
+
+\paragraph{Problemi di Increase Search}
+Il problema principale di questo algoritmo è che esso si limita a ricercare
+in uno spazio discreto, come Grid Search, e la sua complessità è dell'ordine
+del fattoriale, poiché esso per avvicinarsi all'ottimalità dovrebbe
+provare tutte le permutazioni degli indici, che sono esattamente $p!$.
+Inoltre l'euristica del trend è limitata, in quanto si limita
+ad osservare un andamento del tutto empirico della funzione obiettivo.
+
+\section{Algoritmi randomizzati}
+Un modo alternativo per fare model selection è quello di utilizzare degli algoritmi randomizzati, cioè
+degli algoritmi che hanno un meccanismo di randomizzazione che consente di evitare
+il problema dei massimi locali, poiché vengono utilizzati algoritmi di salita rapida.
+
 \subsection{Line search with Random Restart}
+L'algoritmo di Line Search è un algoritmo di salita rapida che consiste nell'eseguire
+una ricerca su griglia ma con dei valori casuali.
+L'idea dell'algoritmo è la seguente:
+
+scegliere una componente del vettore $w$ e inizia
 
