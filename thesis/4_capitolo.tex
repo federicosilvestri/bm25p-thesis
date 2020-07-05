@@ -5,18 +5,141 @@ Tale piattaforma è scritta interamente in Java ed è open source, il cui codice
 interamente su \href{https://github.com/terrier-org/terrier-core}{GitHub}.
 \\
 Terrier è stato utilizzato come mezzo di sperimentazione, infatti
-una parte del tirocinio è stata quella di estendere le sue funzionalità per poter eseguire un processo
+una parte del tirocinio è stata quella di estenderlo, per poter eseguire un processo
 di \textit{model selection}.
 
-La sua struttura modulare consente agli sviluppatori di estendere qualsiasi tipo di funzionalità con una
+La sua struttura modulare consente agli sviluppatori di aggiungere qualsiasi tipo di funzionalità con una
 più evoluta.
 Principalmente la piattaforma riprende l'architettura base di un sistema di IR, ovvero la suddivisione in
 \textit{Indexing} e \textit{Retrieving}. La parte di \textit{Indexing} non è stata modificata, poichè
 BM25P richiede un tipo di indexer a blocchi, il quale è già implementato nella libreria di sistema.
-La parte che invece è stata estesa è la parte di \textit{Retrieving} e di \textit{Evaluation}. \'E stata
-cioè implementato un meccanismo per fare model selection utilizzando svariati algoritmi, di cui
+La parte che invece è stata estesa è la parte di \textit{Retrieving} e \textit{Evaluation}. 
+\'E stato cioè implementato un meccanismo per fare model selection utilizzando svariati algoritmi, di cui
 ne parleremo in seguito. 
 
+\section{Struttura della piattaforma}
+Al fine di garantire all'utente più modi per lavorare con Terrier, gli sviluppatori
+permettono di scaricare una versione precompilata e una versione da compilare con
+Maven. Entrambe le versioni però suggeriscono la costruzione
+di una cartella di progetto con la seguente struttura:
+
+\pagebreak
+
+\begin{table}[h]
+	\centering
+	\begin{tabular}{|c|c|}
+		\hline
+		\textbf{Nome directory} & \textbf{Descrizione} \\
+		\hline
+		bin & contiene tutti i file binari per l'avvio \\
+		\hline
+		src & contiene i file sorgente \\
+		\hline
+		etc & destinata a contenere i file di configurazione \\
+		\hline
+		var & destinata ai file generati in output \\
+		\hline
+		share & contiene i file del dataset \\
+		\hline
+	\end{tabular}
+\end{table}
+
+Se si decide di compilare Terrier in autonomia è possibile farlo, poichè con il comando \textit{mvn package},
+verrà costruito il file \textit{.jar} al quale gli script di avvio nella cartella \textit{bin} fanno riferimento.
+
+\paragraph{Configurazione}
+Tutta la configurazione del motore di ricerca è collocata nel file \textit{etc/terrier.properties}, il quale
+è in formato \textit{Properties} di Java.
 
 \section{Pipeline}
-\footnote{spiegare come funziona la fase di indexing, retrieving, evaluation, magari anche con i comandi}
+\subparagraph{Indicizzazione} Affinchè il motore di ricerca sia pronto per eseguire una ricerca,
+Terrier deve costruire l'indice, partendo
+da una collezione di documenti. Essa è rappresentata con un file con l'estensione \textit{trec},
+il quale acronimo sta per Text Retrieval Conference.
+La sintassi è simile a quella di XML e il file è strutturato nel seguente modo:
+
+\begin{lstlisting}
+<DOC>
+<DOCNUM>docNum</DOCNUM>
+Corpo del documento
+</DOC>
+...
+<DOC>
+...
+</DOC>
+\end{lstlisting}
+
+Trec è un formato standard, pertanto tutti gli enti incaricati
+nella loro realizzazione distribuiscono i dataset anche in questo
+modo, garantendo a tutti gli utenti la compatibilità tra motori
+di ricerca sperimentali.
+
+Il comando per avviare l'indicizzazione è:
+
+\begin{lstlisting}{bash}
+user@terrier: bin/terrier batchindexing
+\end{lstlisting}
+
+\pagebreak
+
+\subparagraph{Retrieving}
+La fase di retrieve è la fase in cui Terrier, in modalità batch, esegue le query
+e scrive i risultati su un file di output.
+Le query sono tutte situate in un file chiamato \textit{topic file}, il quale
+è in un formato speciale, così composto:
+\begin{lstlisting}
+<queryID_1>:<token_1> ... <token_k>
+<queryID_2>:<token_1> ... <token_k>
+...
+<queryID_n>:<token_1> ... <token_k>
+\end{lstlisting}
+
+L'output prodotto dai risultati della query, viene
+nel file \textit{results.txt} nella cartella \textit{var/output}. Il formato è testuale
+ed ogni riga contiene una quadrupla di informazioni quali
+$\langle idQuery, idDocumento, indiceRisultato, rank \rangle$.
+Da notare che solitamente Terrier richiede un limite superiore
+al numero di documenti da mettere in lista, ed esso è identificato
+con $r_n$. Per essere più chiari di seguente riportiamo un esempio
+di output file.
+
+Il comando per eseguire la fase di retrieve è il seguente:
+\begin{lstlisting}{bash}
+user@terrier: bin/terrier batchretrieve
+\end{lstlisting}
+
+\begin{esempio}
+	Assumiamo che $r_n=3$, pertanto l'output sarà della forma:
+	
+	\begin{lstlisting}
+	<query_0> <doc_ID> 0 <rank>
+	<query_0> <doc_ID> 1 <rank>
+	<query_0> <doc_ID> 2 <rank>
+	<query_1> <doc_ID> 0 <rank>
+	...
+	<query_1> <doc_ID> 2 <rank>
+	...
+	<query_n> <doc_ID> 3 <rank>
+	\end{lstlisting}
+\end{esempio}
+
+\subparagraph{Valutazione} La fase di valutazione, che chiameremo in gergo tecnico evaluation,
+è l'ultima della pipeline di Terrier, la quale si basa sul valutare la qualità dei risultati.
+Ogni dataset per information retrieval contiene un file chiamato \textit{qrels}, il cui
+acronimo è quello di query relevance, cioè ``rilevanze delle query".
+Come illustrato nel capito precedente, per valutare un motore di ricerca bisogna
+avere sia i risultati del modello, sia le rilevanze stabilite dagli esseri umani.
+Questa fase impiega dunque due sorgenti di file, i risultati e le rilevanze e produce
+la valutazione richiesta (per esempio recall, NDCG o altre).
+Terrier nelle ultime versioni ha implementato anche tale fase,
+che inizialmente era un applicativo a parte chiamato \textit{trec\_eval}.\footnote{\'E disponibile il sorgente in liguaggio C su Github all'indirizzo \href{https://github.com/usnistgov/trec_eval}{https://github.com/usnistgov/trec\_eval}}
+
+Il file qrels è un file con un formato uguale a quello dei risultati,
+con l'unica differenza che esso contiene la rilevanza espressa dall'utente invece che il rank.
+
+Per valutazione il comando è il seguente
+\begin{lstlisting}{bash}
+user@terrier: bin/terrier trec_eval <qrels_filepath> <results_filepath> -m <measures>
+\end{lstlisting}
+
+dove mesaures indica un elenco di misure.
