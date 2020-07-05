@@ -1,7 +1,7 @@
 \chapter{Metriche}
 
-In questo capitolo verranno illustrate delle tecniche 
-per valutare un weighting model e dunque poterlo confrontare con gli altri.
+In questo capitolo si  illustreranno alcune tecniche 
+per valutare un modello di pesi e dunque poterlo confrontare con gli altri.
 \'E di necessaria importanza poterlo fare perché nel capitolo sull'ottimizzazione di BM25P dovremo avere un modo per eseguire
 la cosidetta fase di \textit{model selection}. Dovremo cioè valutare se un modello con un iperparametro $\lambda$ è
 migliore rispetto a un modello con un iperparametro $\lambda' \neq \lambda$.
@@ -12,7 +12,7 @@ Ma in generale per valutare le prestazioni di un motore di ricerca possiamo usar
 	\item La \textbf{qualità}, intesa come l'effettività, cioè quanto il motore di ricerca
 	è in grado di mostrare all'utente documenti che siano rilevanti con la query $q$.
 	\item L'\textbf{efficienza}, cioè quanto tempo viene impiegato nel calcolo dei risultati, quindi in questo caso
-	quanto tempo impiega la fase di retrieval.
+	quanto tempo impiega la fase di \textit{retrieval}.
 \end{itemize}
 
 L'obiettivo di questo tirocinio è stato quello di massimizzare la qualità di BM25P, pertanto
@@ -20,23 +20,23 @@ la seconda unità di misura non è rilevante, anche perché variando il valore d
 non si hanno ripercussioni notevoli sull'efficienza, ma solo sulla qualità.
 
 Per poter valutare l'effettività è necessario riprendere il concetto di rilevanza  che era stato
-accennato nel capitolo 1. La rilevanza purtroppo è una misura che non è del tutto oggettiva,
+accennato nel capitolo 1. Essa purtroppo è una misura non del tutto oggettiva,
 poiché un utente potrebbe decidere che la query $q$ e il documento $d$ siano
-in qualche modo collegati tra loro oppure no.
+in qualche modo collegati tra loro o meno.
 
 \begin{esempio}
 	Sia $q$ la query \textit{``python"}. L'utente potrebbe intendere sia il linguaggio di programmazione Python
 	che l'animale stesso. Dunque se questa query fosse sottomessa a un motore di ricerca
-	esso potrebbe ritornare all'utente entrambi i risultati, che a seconda della necessità
-	l'utente potrebbe valutarli come rilevanti oppure no.
+	esso potrebbe ritornare al fruitore entrambi i risultati, che a seconda della necessità
+	potrebbe valutarli come rilevanti oppure no.
 \end{esempio}
 
 Ciò che l'utente intende è chiamata \textit{Information Need}, cioè la richiesta di informazione
 che si tenta di esprimere sottomettendo una query al sistema di ricerca.
 
 La soggettività di questa valutazione è uno dei punti cruciali dell'Information Retrieval, per cui non esistono
-metodi matematici per calcolarla, ed è necessario l'intervento di un essere umano.
-Diamo dunque la definizione di rilevanza booleana:
+metodi matematici per calcolarla ed è necessario l'intervento umano.
+Viene enunciata dunque la definizione di rilevanza booleana:
 
 \begin{definizione}\label{def:relb}
 	La rilevanza booleana $\rel_B(d,q): \mathcal{D} \times \mathcal{Q} \rightarrow \mathbb{B}$
@@ -53,10 +53,10 @@ Diamo dunque la definizione di rilevanza booleana:
 	di \textit{ground truth} oppure \textit{gold standard}.
 \end{definizione}
 
-Il valore di tale funzione deve sempre esser calcolato da un essere umano, poiché
-deve essere, come da definizione, deve rappresentare una verità soggettiva.
+Il valore di tale funzione deve sempre esser calcolato da un essere umano, poiché come da definizione, 
+deve rappresentare una verità soggettiva.
 
-Ma ciò potrebbe sembrare però un po' limitante, poiché quando si parla di scoring,
+Ciò potrebbe sembrare però un po' limitante, poiché quando si parla di scoring,
 $\sco(q,d)$ restituisce valori continui in $\mathbb{R}$ e dunque come può
 approssimare $\rel_B$?
 La risposta sta nel fatto che un ranker $\mathcal{R}$ si limita ad ordinare i documenti utilizzando come peso
@@ -68,14 +68,14 @@ i primi $k$ elementi dalla lista $\mathcal{L}$, restituita dal motore di ricerca
 	\item Se $d \notin \mathcal{L}$ allora $\rel_{\mathcal{R}}(d,q) = false$
 \end{itemize}
 
-Attraverso questa definizione siamo in grado dunque di definire le modalità di valutazione di
+Attraverso questa definizione siamo in grado dunque di stabilire le modalità di valutazione di
 un motore di ricerca, poiché possiamo paragonare i risultati di $\rel_B$ con quelli di $\rel_{\mathcal{R}}$,
-ottenendo dunque un meccanismo di comparazione tra i risultati attesi e i risultati calcolati.
+ottenendo dunque un meccanismo di comparazione tra i risultati attesi e quelli calcolati.
 
 \subsection{Il principio PRP}
 
-Introduciamo in questo paragrafo il \textit{Probability Ranking Principle}, ovvero un risultato
-teorico che ci consente di avere una base matematica per valutare l'ottimalità di un ranker.
+In questo paragrafo viene introdotto il \textit{Probability Ranking Principle}, ovvero un risultato
+teorico che ci consenta di avere una base matematica per valutare l'ottimalità di un ranker.
 Tale principio afferma che:
 
 \begin{definizione}\label{def:prp}
@@ -85,10 +85,10 @@ Tale principio afferma che:
 \end{definizione}
 
 Questo principio rappresenta l'unico metodo formale per verificare l'effettività di un sistema
-di ricerca, poichè migliore è la stima che possiamo calcolare della rilevanza, migliori sono
-le prestazioni.
-Per completezza della trattazione dell'argomento diamo
-una illustrazione di come dimostrare questo principio.
+di ricerca, poichè migliore è la stima della rilevanza, migliori saranno le prestazioni.
+
+Per completezza della trattazione dell'argomento verrà data di seguito
+un'illustrazione di come dimostrare questo principio.
 
 \begin{proof}
 	Iniziamo la dimostrazione procedendo per punti:
@@ -135,12 +135,12 @@ una illustrazione di come dimostrare questo principio.
 \section{Recall e Precision}
 
 Adesso che abbiamo raccolto tutte le informazioni necessarie possiamo definire
-le unità di misura per la qualità di un motore di ricerca.
-Le misure più semplici che sono adottate attualmente sono  la recall e la precision.
+le unità di misura che descrivono la qualità di un motore di ricerca.
+Le misure più semplici che sono adottate attualmente sono  la \textit{recall} e la \textit{precision}.
 
 \begin{definizione}\label{def:recall}
-	La recall, indicata con il simbolo $\re$ è definita come il rapporto tra il numero di documenti
-	messi in lista da $\mathcal{R}$, per cui $\rel_B(d,q) = true$,
+	La recall, indicata con il simbolo $\re$, è definita come il rapporto tra il numero di documenti
+	messi in lista da  un ranker $\mathcal{R}$, per cui $\rel_B(d,q) = true$,
 	e il numero di elementi totali giudicati rilevanti.
 	In simboli si ha:
 	
@@ -157,7 +157,7 @@ Ovviamente affinchè la recall sia massima, il ranker dovrebbe ritornare la list
 rilevanti, ma questo non sempre risulta possibile, poiché $\left|\mathcal{L}\right| \lll \left|\mathcal{D}\right|$.
 
 \begin{definizione}\label{def:precision}
-	La precision, indicata con il simbolo $\preci$ è uguale alla recall
+	La precision, indicata con il simbolo $\preci$, è uguale alla recall
 	ma con la differenza che il rapporto non ha come denominatore tutti i documenti
 	rilevanti, ma solo quelli in lista.
 	
@@ -173,8 +173,7 @@ Invece per precision, raggiungere il valore massimo è abbastanza facile, specia
 
 \pagebreak
 
-Un modo analogo per calcolare $\re$ e $\preci$ è quello di creare una sorta di confusion
-matrix, nel seguente modo:
+Un modo analogo per calcolare $\re$ e $\preci$ è quello di creare una sorta di matrice di contingenza, nel seguente modo:
 
 \begin{table}[h!]
 	\centering
@@ -190,21 +189,21 @@ matrix, nel seguente modo:
 	\caption{Matrice di contingenza, o matrice di confusione}
 \end{table}
 
-Una volta avvolarata la matrice, si può calcolare $\preci = \frac{tp}{tp + fp}$ e $\re = \frac{tp}{tp + fn}$.
+Una volta avvalorata la matrice, si può calcolare $\preci = \frac{tp}{tp + fp}$ e $\re = \frac{tp}{tp + fn}$.
 
 \paragraph{Il problema delle misure}
-Il problema principale di queste due misure è il fatto che statisticamente il $99.9\%$ dei documenti
+Il problema principale di queste due misure è il fatto che statisticamente il $99.9\%$\cite{irbook} dei documenti
 risulta non rilevante per una query $q$. 
-Infatti se la funzione obiettivo da massimizzare fosse recall
+Infatti se la funzione obiettivo da massimizzare fosse recall,
 un sistema che marca tutti i documenti come non rilevanti avrebbe
 un valore molto vicino ad un sistema che invece funziona bene. Inoltre
 queste misure sono basate sull'insieme dei documenti restituiti e non tengono
 conto dell'ordine della lista $\mathcal{L}$.
 
 Per esempio un utente che naviga nel web è interessato
-ad avere come primo risultato esattamente il documento che stava cercando,
-e non vorrebbe scorrere i risultati fino a trovare quello che stava cercando.
-Precision e recall quindi sono misure semplici ed effettive, ma non sono
+ad avere come primo risultato esattamente il documento che stava cercando
+e non vorrebbe scorrere i risultati fino a trovare quello che gli interessava.
+Precision e recall quindi sono misure semplici ed effettive, ma non
 complete per la valutazione di un motore di ricerca.
 
 \section{NDCG}
@@ -242,13 +241,10 @@ premiare maggiormente i risultati con $k$ piccolo e penalizzare quelli con $k$ p
 Parlando anche in termini computazionali, calcolare il valore dell'esponente al numeratore
 non è troppo dispendioso poiché:
 \begin{enumerate}
-	\item La base dell'esponente è 2 e il valore di $R(d,q)$ è intero, dunque si può fare bit shifting.
-	\item La funzione $R(d,q)$ inoltre, se la assumiamo uguale a $\rel_B$ assume solo due valori,
-	o anche se fosse diversa essa assumerà un insieme finito di valori che può essere precomputato.
+	\item la base dell'esponente è 2 e il valore di $R(d,q)$ è intero, dunque si può fare bit shifting;
+	\item la funzione $R(d,q)$ inoltre, se la ipotizziamo uguale a $\rel_B$ assume solo due valori,
+	o anche se fosse diversa essa assumerebbe un insieme finito di valori che può essere precomputato.
 \end{enumerate}
 
 In questo modo abbiamo ottenuto una misura di valutazione che è in grado di tenere in considerazione
-sia del problema della quantità di dati, sia dell'ordinamento dei risultati.
-\footnote{Magari qui posso far vedere qualche grafico oppure parlare meglio del fattore di normalizzazione $Z_{i,j}$}
-\footnote{Dovrei parlare anche dei tagli di recall e precision?}
-\footnote{Dovrei descrivere con qualche riga i dataset che sono a disposizione? aquaint, RCV, ...?}
+sia il problema della quantità di dati, sia quello dell'ordinamento dei risultati.

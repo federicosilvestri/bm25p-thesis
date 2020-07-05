@@ -38,50 +38,53 @@ nel seguente modo:
 \end{definizione}
 
 
-L'iperparametro $k_1$ regola il contributo del term frequency, ovvero impostando $k_1 = 0$ avremo
-che il modello sarà di tipo binario, poiché avremo $\forall i . 1 < i < \left|q\right| \implies r_i = 1$.
-Mentre impostandolo ad un valore elevato avremo esattamente un modello di tipo raw count, poiché
-si terrà molto in considerazione delle singole frequenze.
-Il parametro $k_2$ invece regola la normalizzazione della lunghezza del documento, più è grande,
+L'iperparametro $k_1$ regola il contributo della frequenza del termine, ovvero impostando $k_1 = 0$ avremo
+che il modello sarà di tipo binario, poiché $\forall i . 1 < i < \left|q\right| \implies r_i = 1$.
+
+Impostando invece $k_1$ ad un valore elevato avremo esattamente un modello di tipo \textit{raw count}, poiché
+si terranno molto in considerazione le singole frequenze.
+Il parametro $k_2$ invece regola la normalizzazione della lunghezza del documento: più è grande,
 più il documento tende ad esser normalizzato.
-Da notare che il parametro $\mathcal{D}$ è implicito nella funzione, infatti si dà per scontato che
+Da notare che il parametro $\mathcal{D}$ è implicito: infatti si dà per scontato che
 la funzione di scoring venga
-eseguita una volta effettuato l'indexing, in modo da avere noto anche $\text{avgdl}$.
+eseguita una volta effettuato l'indexing, in modo da avere noto anche \textit{avgdl}.
 Per comprendere al meglio tale funzione, si consideri la formula come una combinazione
 lineare dei rapporti $r_i$. Espandendo la sommatoria, si ha quindi
 $$
 \idf(q_1, \mathcal{D}) \cdot r_1 + \dots + \idf(q_n, \mathcal{D}) \cdot r_n
 $$
-La caratteristica di questi modelli infatti è proprio il fatto di esprimere lo score come una somma pesata
-di fattori, nel caso di BM25 dei vari $r_i$,  cioè del rapporto tra le frequenze. \footnote{Qui forse dovrei spiegare che i rapporti sono i pesi $w_i$, ma non volevo fare confusione con il vettore dei pesi $\vec{w}$ di BM25P}
+La caratteristica di questi modelli infatti è proprio basata sulla possibilità di esprimere lo score come una somma pesata
+di fattori, nel caso di BM25 dei vari $r_i$,  cioè dei rapporti tra le frequenze.
 
 \subsection{Limitazioni di BM25}
 
 Il problema di questa funzione è che essa non considera la struttura dei documenti, cioè ipotizza
 la non strutturazione.
-Ma a seconda del tipo di collezione, i documenti possono essere strutturati, infatti
+A seconda del tipo di collezione, i documenti possono essere strutturati; infatti
 se consideriamo una collezione di articoli scientifici avremo che un singolo documento è composto da un titolo, 
 un'introduzione, alcuni paragrafi e una conclusione.
 Oppure possiamo considerare le pagine del web: tutte le pagine sono composte da un titolo e da un corpo.
-Per questo motivo è stato pensato di aggiungere una meccanismo per suddividere un documento in
+Per questo motivo si è pensato di aggiungere un meccanismo per suddividere un documento in
 più parti ed associare ad ogni parte un peso specifico.
 
-Questa è stata l'idea di BM25F, cioè BM25 con l'aggiunta dei "fields", ovvero dei campi che caratterizzano ogni documento in collezione.
-Sotto l'assunzione forte che i documenti abbiamo tutti la solita struttura, quindi i soliti campi,
-possiamo attribuire ad ogni campo un peso  $w_i$.
+Questa è stata l'idea di BM25F, cioè BM25 con l'aggiunta dei ``fields", ovvero dei campi che caratterizzano ogni documento in collezione.
+Assumendo che tutti documenti abbiano la solita struttura, quindi i soliti campi,
+possiamo attribuire ad ogni campo un peso  $w_i$, anche se questa è una forte assunzione.
 Per esempio $w_{titolo} = 2.5, w_{corpo} = 1.0$, in modo da aumentare il contributo del titolo.
 
+\pagebreak
+
 \section{BM25P}
-Il problema risolto da BM25F ha come ipotesi il fatto che tutti i documenti siano strutturati con una struttura comune.
-In realtà non sempre si ha a che fare che questi tipi di documenti e la memorizzazione dei campi comporterebbe, durante
+Il problema risolto da BM25F ha come ipotesi il fatto che tutti i documenti abbiano una struttura comune.
+In realtà non sempre si ha a che fare con questo tipo di documenti e la memorizzazione dei campi comporterebbe, durante
 la fase di indexing, una complessità addizionale sia in spazio che in tempo.
-Possiamo però tenere di conto che se ogni documento è rappresentato come \textit{raw text}, ovvero come una sequenza
-di token, allora è possibile inferire la sua struttura in base alla posizione dei token.
-Questo significa che se la posizione del token $t$ è vicina allo zero allora esso sarà contenuto nel titolo, così come
-se $t \approx \left|d\right|$, allora $t$ farà parte dell'ultimo paragrafo del documento.
-L'idea alla base è quella dunque di suddividere un documento in $p$ \textit{passages}, con $p>1$, e
-considerare ogni passage come un campo. A questo punto possiamo riprendere l'idea di BM25F
-ed estendere la formula utilizzando al posto dei campi i passages.
+Possiamo però tenere conto che se ogni documento è rappresentato come \textit{raw text}, ovvero come una sequenza
+di token, allora è possibile inferire la sua struttura in base alla posizione di essi.
+Questo significa che se la posizione del token $t$ è vicina allo zero, allora esso sarà contenuto nel titolo, così come
+se $t \approx \left|d\right|$, $t$ farà parte dell'ultimo paragrafo del documento.
+L'idea alla base è quella dunque di suddividere un documento in $p$ parti (passages), con $p>1$, e
+considerare ogni parte come un campo. A questo punto possiamo riprendere l'idea di BM25F
+ed estendere la formula utilizzando al posto dei campi i \textit{passages}.
 
 \begin{definizione}[BM25 Passages]\label{def:bm25p}
 		$$
@@ -107,7 +110,7 @@ ed estendere la formula utilizzando al posto dei campi i passages.
 	Dove $\alpha$ è un iperparametro precomputato per scalare la frequenza del termine, solitamente impostato $\alpha = 10$.
 	Da notare anche l'introduzione del vettore $\boldsymbol{w}$, che gioca il ruolo di amplificare il valore delle frequenze
 	in base al passage in questione.
-	Tale vettore ha tante componenti quanti sono i passaggi, e possiamo anche stabilire una proporzionalità
+	Tale vettore ha tante componenti quante sono le parti, e possiamo anche stabilire una proporzionalità
 	diretta tra $\boldsymbol{w}_i$ e la distrubuzione di probabilità del termine $t$ nel passage $i$.
 	
 	Si noti infine che impostando $\alpha=1$ e $\boldsymbol{w} = \boldsymbol{1}$, BM25P è uguale a BM25.
@@ -115,17 +118,17 @@ ed estendere la formula utilizzando al posto dei campi i passages.
 
 \section{I weighting models a confronto}
  
- Abbiamo visto abbastanza in dettaglio entrambe le funzioni di scoring e in questo paragrafo possiamo metterle a confronto.
+ Si sono viste in dettaglio entrambe le funzioni di scoring e in questo paragrafo possiamo metterle a confronto.
  BM25 è un meccanismo che tiene in considerazione documenti non strutturati (possiamo anche chiamarli fluidi),
- mentre BM25F tiene in considerazione di documenti strutturati tutti nel solito modo.
- Sfruttando la troppa vincolatività di BM25F e la troppa flessibilità di BM25, l'idea di BM25P è quella che meglio
+ mentre BM25F tiene in considerazione documenti strutturati tutti nel solito modo.
+ Sfruttando le troppe restrizioni di BM25F e la troppa flessibilità di BM25, il vantaggio di BM25P è che meglio
  si adatta per documenti che sono fluidi, ma hanno nella loro natura una suddivisione implicita.
 Questo perché la funzione $\mathcal{P}(d)$ di  BM25P suddivide in modo semiautomatico
- i documenti in passaggi, inferendo dunque una struttura a \textit{sezioni} o passages.
+ i documenti in parti, inferendo dunque una struttura a \textit{sezioni} o passages.
  Se ipotizzassimo di porre $p=3$,
  avremmo che ogni documento in collezione verrà suddiviso in 3 parti, che possono corrispondere
  a introduzione, paragrafo centrale e conclusioni. Naturalmente questa approssimazione deve essere
- gestita in base alla lunghezza media dei documenti, perché più un documento è grande più passaggi possono
- essere richieste per avere una buona efficienza di BM25P. Un modo per calcolare il numero di passaggi è
+ gestita in base alla lunghezza media dei documenti perché più un documento è grande più passaggi possono
+ essere richiesti per avere una buona efficienza di BM25P. Un modo per calcolare il numero di passaggi è
  stato inoltre illustrato nelle prime sezioni dell'articolo di BM25P\cite{10.1145/3331184.3331373}.
  
