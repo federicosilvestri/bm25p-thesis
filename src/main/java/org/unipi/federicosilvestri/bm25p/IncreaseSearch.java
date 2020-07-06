@@ -344,6 +344,8 @@ public class IncreaseSearch extends SearchAlgorithm {
         this.currentW = workingW;
         this.currentEval = workingEval;
 
+        updateData(workingEval, workingW);
+
         // clear the tape!
         tape.clear();
     }
