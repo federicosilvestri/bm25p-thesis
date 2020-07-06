@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Arrays;
@@ -89,6 +90,8 @@ public abstract class SearchAlgorithm {
      */
     private long endTime;
 
+    protected boolean writeResults;
+
     public SearchAlgorithm(double minW[], double maxW[], double wStep, long maxIterations, double maxEvalToStop) {
         this.minW = minW;
         this.maxW = maxW;
@@ -100,6 +103,7 @@ public abstract class SearchAlgorithm {
         this.maximizedW = new double[minW.length];
         this.maxIterations = maxIterations;
         this.maxEvalToStop = maxEvalToStop;
+        this.writeResults = true;
 
         if (minW.length != maxW.length) {
             throw new IllegalArgumentException("The length of minW vector must be the same of maxW vector!");
@@ -175,6 +179,16 @@ public abstract class SearchAlgorithm {
             maxEval = eval;
             System.arraycopy(w, 0, this.maximizedW, 0, this.maximizedW.length);
             temporaryResultsWrite();
+        }
+
+        if (writeResults) {
+            try {
+                FileWriter resultsWriter = new FileWriter(new File("searchTempResults.txt"), true);
+                resultsWriter.write(Arrays.toString(w) + "," + eval + "\n");
+                resultsWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
