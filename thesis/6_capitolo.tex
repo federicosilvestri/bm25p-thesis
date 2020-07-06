@@ -1,13 +1,15 @@
 \chapter{Risultati sperimentali}
 
 In questo capitolo verranno esposti i risultati che sono stati trovati
-utilizzando il dataset \textit{Aquaint} e il relativo test set.
+utilizzando il dataset \textit{Aquaint} e il relativo test set, composto
+da un totale di 50 query.
 
 \section{Valori di riferimento}
 Come prima cosa è necessario capire sul dataset in questione
-quali sono le prestazioni ottenibili utilizzando l'algoritmo rivale di BM25P,
-BM25. I seguenti risultati sono stati calcolati con gli iperparametri standard
-di BM25.
+quali sono le prestazioni ottenibili utilizzando l'algoritmo rivale di BM25P, cioè BM25.
+
+La tabella seguente mostra i valori di riferimento che sono stati calcolati utilizzando come modello di pesi
+BM25, configurato con gli iperparametri standard.
 
 \begin{table}[h!]
 	\centering
@@ -24,15 +26,33 @@ di BM25.
 		NDCG@10 & 0.2707 \\
 		\hline
 	\end{tabular}
-\caption{Valutazione di BM25}
+\caption{Valutazione di BM25 su Aquaint}
 \end{table}
 
 Con la notazione $misura@k$ si intende che
 la misura è stata effettuata sui primi $k$ risultati, in gergo tecnico
 è chiamato taglio.
 
+\paragraph{Budget temporale} Consideriamo che per ogni algoritmo
+eseguito il budget temporale è stato circa $\mathcal{B} \approx 24h$,
+e il tempo di esecuzione della pipeline di Terrier su Aquaint $\tau = 6s$.
+
+Per problemi dovuti alla grandezza dell'indice, $\tau$ è nell'ordine dei secondi.
+Questo ci comporta l'impossibilità di eseguire l'algoritmo GridSearch
+in modo molto denso (con $w_{step}$ piccolo) e dunque si ha la necessità
+di ridurre lo spazio di $w$, impostando i limiti superiori e inferiori
+in modo adeguato.
+
+\paragraph{Parallelismo}
+Per far fronte al problema del non parallelismo di Terrier, è stato implementato uno
+script in bash che consente di creare delle copie della piattaforma indipendenti tra di loro.
+In questo modo è possibiel distribuire la ricerca su più processori e dunque paralellizzarla,
+anche se ciò è considerato come un metodo ``brutale". L'accelerazione risultante però
+è del tutto lineare, e dunque non introduce un vantaggio notevole.
+
+
 \section{Algoritmo Grid Search}
-Utilizzando l'agoritmo Grid Search con i seguenti valori:
+Utilizzando l'agoritmo Grid Search con i seguenti parametri:
 
 \begin{table}[h!]
 	\centering
@@ -48,56 +68,70 @@ Utilizzando l'agoritmo Grid Search con i seguenti valori:
 \caption{Configurazione di GridSearch}
 \end{table}
 
-I valore massimi delle funzioni di valutazione trovati
-sono i seguenti:
+i valori massimi delle funzioni di valutazione trovati sono i seguenti:
 
 \begin{table}[h!]
 	\centering
-	\begin{tabular}{|c|c|}
-		\hline 
-		recall@100  &  0.1932  \\
+	\begin{tabular}{|c|c|c|c|}
 		\hline
-		recall@200   & 0.2786 \\
+		\textbf{Misura} & \textbf{Valore} & \multicolumn{2}{|c|}{\textbf{Incremento} $\left[\%\right]$} \\
 		\hline
-		NDCG    & 0.3845 \\
+		recall@100  &  0.1932 &   $\downarrow$ & $-6.71$ \\
 		\hline
-		NDCG@5  & 0.3246 \\
+		recall@200   & 0.2786 & $\downarrow$ & $-9.22$ \\
 		\hline
-		NDCG@10  & 0.2952 \\
+		NDCG    & 0.3845 &  $\downarrow$ & $-7.59$ \\
 		\hline
-		\multicolumn{2}{|c|}{$w = [1.531, 0.843, 0.863, 0.861, 0.856 , 0.912, 0.874, 0.856, 0.865, 1.534]$} \\
+		NDCG@5  & 0.3246 & $\uparrow$ & $+15.92$ \\
+		\hline
+		NDCG@10  & 0.2952 & $\uparrow$  & $+9.05$ \\
+		\hline
+		\multicolumn{4}{|c|}{$w = [1.531, 0.843, 0.863, 0.861, 0.856 , 0.912, 0.874, 0.856, 0.865, 1.534]$} \\
 		\hline
 	\end{tabular}
 	\caption{Risultati di GridSearch}
 \end{table}
 
+Grid Search dunque non è riuscito a produrre dei risultati soddisfacenti.
+\pagebreak
+
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\linewidth]{figure/gs_search}
-	\caption[Andamento della funzione obiettivo utilizzando GridSearch]{}
+	\caption[Andamento della funzione obiettivo utilizzando GridSearch]{Andamento della funzione obiettivo in base al numero di iterazioni di GridSearch.}
 	\label{fig:gssearch}
 \end{figure}
 
+La figura \ref{fig:gssearch} illustra in funzione del numero di iterazioni, dunque in qualche modo anche del tempo, l'andamento
+della funzione obiettivo. Si noti che il picco quando l'asse delle $x \approx 30$ corrisponde alla valutazione con il vettore $w$ variato
+poco dal vettore iniziale.
 
-Grid Search dopo svariate ore di lavoro non è riuscito a produrre risultati soddisfacenti.
+\newpage
 
 \section{Line Search with Random Restart}
 
+Anche tale algoritmo è stato eseguito con i soliti parametri di GridSearch e parallelizzato
+su circa 16 processori differenti.
+
+I risultati trovati sono i seguenti:
+
 \begin{table}[h!]
 	\centering
-	\begin{tabular}{|c|c|}
+	\begin{tabular}{|c|c|c|c|}
 		\hline
-		recall@100 &  0.1988 \\
+		\textbf{Misura} & \textbf{Valore} & \multicolumn{2}{|c|}{\textbf{Incremento} $\left[\%\right]$} \\
 		\hline
-		recall@200 & 0.2793  \\
+		recall@100 &  0.1988 & $\downarrow$ & $-4.00$   \\
 		\hline
-		NDCG & 0.3814 \\
+		recall@200 & 0.2793  & $\downarrow$ & $-8.99$ \\
 		\hline
-		NDCG@5 & 0.3188 \\
+		NDCG & 0.3814 & $\downarrow$ & $-8.33$\\
 		\hline
-		NDCG@10 & 0.2901 \\
+		NDCG@5 & 0.3188 & $\uparrow$ & $+13.85$ \\
 		\hline
-		\multicolumn{2}{|c|}{
+		NDCG@10 & 0.2901 & $\uparrow$ & $+7.166$ \\
+		\hline
+		\multicolumn{4}{|c|}{
 			$w = [1.071, 0.821, 0.821, 0.821, 0.821, 0.821, 1.071, 0.821, 1.0714, 1.071]$ 
 		} \\
 	\hline
@@ -105,36 +139,51 @@ Grid Search dopo svariate ore di lavoro non è riuscito a produrre risultati sod
 	\caption{Risultati di Line Search with Random Restart}
 \end{table}
 
+Anche questo questo algoritmo non porta a risultati soddisfacenti, principalmente  per il motivo
+della grandezza di $\tau$ e della restrizione di $\mathcal{B}$.
+
 \section{Increase Search}
+
+L'ultimo risultato che verrà esposto è quello dell'algoritmo Increase Search, il quale
+esito è più apprezzabile rispetto agli altri. Anche in questo in caso l'esperimento
+si è avvalso dei soliti parametri di configurazione e del solito budget temporale.
 
 \begin{table}[h!]
 	\centering
-	\begin{tabular}{|c|c|}
+	\begin{tabular}{|c|c|c|c|}
 		\hline
-		recall@100 &  0.1971  \\
+		\textbf{Misura} & \textbf{Valore} & \multicolumn{2}{|c|}{\textbf{Incremento} $\left[\%\right]$} \\
 		\hline
-		recall@200 & 0.2954  \\
+		recall@100 &  0.1971 & $\downarrow$ & $-4.83$  \\
 		\hline
-		NDCG & 0.4119 \\
+		recall@200 & 0.2954 & $\downarrow$ & $-3.88$  \\
 		\hline
-		NDCG@5 & 0.3542 \\
+		NDCG & 0.4119 & $\downarrow$ & $-1.01$ \\
 		\hline
-		NDCG@10 & 0.3007 \\
+		NDCG@5 & 0.3542 & $\uparrow$ & $\mathbf{+26.5}$ \\
 		\hline
-		\multicolumn{2}{|c|}{$w = [0.1981, 0.1012, 0.07532, 0.075321, 0.15023, 0.12532, 0.12512, 0.103, 0.0521, 0.2534]$} \\
+		NDCG@10 & 0.3007 & $\uparrow$ & $\mathbf{+11.08}$ \\
+		\hline
+		\multicolumn{4}{|c|}{$w = [0.1981, 0.1012, 0.07532, 0.075321, 0.15023, 0.12532, 0.12512, 0.103, 0.0521, 0.2534]$} \\
 		\hline
 	\end{tabular}
 	\caption{Risultati di Increase Search}
 \end{table}
 
+\pagebreak
+
 \section{Risultati}
 
 Com'è possibile notare il vettore dei pesi migliore è quello che è stato trovato
-dall'algoritmo Increase Search, producendo un incremento del $7\%$  rispetto all'orginale BM25.
-Pertanto tale algoritmo, avendo a disposizione di un budget di tempo $\mathcal{B}$ nell'ordine
-delle ore, performa maggiormente rispetto agli altri.
-Ovviamente aumentando $\mathcal{B}$ diventa possibile utilizzare anche gli altri
-tipi di algoritmi, quali Grid Search o Line Search with Random Restart.
+dall'algoritmo Increase Search, producendo un incremento del $26.5\%$ su NDCG@5
+e del $11.08\%$ su NDCG@10, rispetto all'orginale BM25.
+
+Pertanto, avendo a disposizione di un budget di tempo $\mathcal{B}$ nell'ordine
+delle ore, Increase Search è risultato il più performante rispetto agli altri.
+
+Ovviamente aumentando $\mathcal{B}$ diventa possibile utilizzare altri
+tipi di algoritmi, quali Grid Search o Line Search with Random Restart, che
+forse potrebbero battere anche i record di Increase Search.
 
 \section{Test di significatività statistico}
 
@@ -142,7 +191,7 @@ Prima di poter concludere che BM25P con il $w$ ottimo è migliore di BM25, è ne
 fare un test statistico, il cui obiettivo è quello di capire se $\text{BM25P}_w$ $\equiv$ BM25
 cioè se essi sono uguali.
 
-Il test è chiamato test di significatività statistico, il quale obiettivo
+Il test è chiamato test di significatività statistico, il quale scopo
 è quello di capire se due medie provengono da distribuzioni diverse oppure no.
 Inannzitutto si deve formulare la \textit{null-hypothesis}, cioè l'ipotesi
 della quale vogliamo provarne la falsità.
