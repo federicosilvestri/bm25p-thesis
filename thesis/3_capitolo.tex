@@ -228,9 +228,9 @@ in cui abbiamo che:
 	\end{tabular}
 \end{table}
 
-
 Come è possibile notare dalla formula, in questo modo andiamo a considerare un sottoinsieme delle query, che chiamiamo $O$,
 e un intero $k>1$ che conta il numero di documenti nella lista $\mathcal{L}$.
+
 Espandendo la seconda sommatoria $s_2$ è interessante notare che:
 $$
 s_2 = \frac{2^{R(d_1, q) } - 1}{1} + \frac{2^{R(d_2, q)} - 1}{1.58} + \frac{2^{R(d_3, q)} - 1}{2} + \dotsb + \frac{2^{R(d_k, q) } - 1}{\log_2{k + 1}}
@@ -240,11 +240,54 @@ Siccome la funzione $log_2(x)$ è monotona crescente, $s_2$ è costruita in modo
 premiare maggiormente i risultati con $k$ piccolo e penalizzare quelli con $k$ più grande.
 Parlando anche in termini computazionali, calcolare il valore dell'esponente al numeratore
 non è troppo dispendioso poiché:
+
 \begin{enumerate}
 	\item la base dell'esponente è 2 e il valore di $R(d,q)$ è intero, dunque si può fare bit shifting;
 	\item la funzione $R(d,q)$ inoltre, se la ipotizziamo uguale a $\rel_B$ assume solo due valori,
 	o anche se fosse diversa essa assumerebbe un insieme finito di valori che può essere precomputato.
 \end{enumerate}
 
-In questo modo abbiamo ottenuto una misura di valutazione che è in grado di tenere in considerazione
-sia il problema della quantità di dati, sia quello dell'ordinamento dei risultati.
+La prima parte della formula invece non fa altro che calcolare una media aritmetica
+dei singoli valori ottenuti valutando una query. Infatti è possibile semplificarla
+nel caso in cui si voglia calcolare la valutazione rimuovendo la prima parte, come verrà fatto
+negli esempi successivi.
+
+\begin{esempio}[Calcolo di DCG]\label{eg:dcg}
+	Ipotizziamo di calcolare il valore di DCG (NDCG non normalizzata) avendo a disposizione:
+	\begin{itemize}
+		\item i risultati $\mathcal{L} = \left\{r_1, r_2, r_3, r_4\right\}$, ordinati per rank,
+		\item le rilevanze associate ai risultati, cioè $\rel_B\left(\mathcal{L}\right) = \left\{1, 0, 0, 1\right\}$
+	\end{itemize}
+
+$$
+DCG = \frac{2^{1} - 1}{1} + \frac{2^{0} - 1}{1.58} + \frac{2^{0} - 1}{2} + \frac{2^{1} - 1}{2.32} = 1.43
+$$
+\end{esempio}
+
+\paragraph{Fattore di normalizzazione}
+Al fine di rendere DCG normalizzata, ovvero a valori in $\left[0, 1\right]$, si introduce il fattore di
+normalizzazione, chiamato  $Z_{k, q}$. Il pedice $k,q$ indica che esso può dipendere dalla lunghezza
+della lista e dalla query.
+Un esempio di normalizzazione potrebbe essere quello di usare l'$i$DCG (la $i$ sta per ideale),
+cioè il valore di DCG se i risultati fossero ordinati correttamente.
+
+\begin{esempio}\label{eg:ndcg}
+	 Per rendere la funzione dell'esempio \ref{eg:dcg}  normalizzata, si può calcolare
+	 il fattore $Z_{k,q}$ come segue.
+	 L'ordinamento ideale per i documenti potrebbe essere $\mathcal{L}_i = \left\{r_1, r_4, r_3, r_2\right\}$,
+	 oppure tutte le permutazioni di esso per cui $\rel_B(\mathcal{L}_i)= \left\{1,1,0,0\right\}$.
+	 $$
+	 Z_{k,q} = iDCG = \frac{2^{1} - 1}{1} + \frac{2^{1} - 1}{1.58} + \frac{2^{0} - 1}{2} + \frac{2^{0} - 1}{2.32} = 1.63
+	 $$
+	 
+	 dunque NDCG è pari a:
+	 $$
+	 NDCG = \frac{1.43}{1.63} = 0.88
+	 $$
+\end{esempio}
+
+Attraverso questa misura abbiamo ottenuto un meccanismo di valutazione che è in grado di tenere in considerazione
+sia il problema della quantità di dati, sia quello dell'ordinamento; inoltre  non viene
+usato direttamente il valore della funzione di ranking, ma l'ordinamento dei risultati.
+Ciò ci consente dunque di essere in grado di valutare qualsiasi motore di ricerca,
+senza fare restrizioni sulla funzione di ranking.
