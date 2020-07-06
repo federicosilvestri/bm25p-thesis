@@ -1,13 +1,13 @@
 \chapter{Conclusioni}
-Com'è stato possibile notare dal capitolo precedente,
-l'algoritmo che con un budget di tempo $\mathcal{B}$ limitato è riuscito a trovare
-il risultato migliore, è stato Increase Search.
-Di seguente riportiamo alcune considerazioni maturate
+L'algoritmo che è riuscito a trovare il risultato migliore, seppur con un budget di tempo $\mathcal{B}$ limitato,
+è stato Increase Search come è possibile notare nel capitolo precedente.
+Di seguito verranno riportate alcune considerazioni maturate
 dallo studio del modello di ranking e del caso sperimentale.
 
 \subsection{Andamento dei valori}
 Il grafico sottostante illustra sull'asse delle ordinate il valore assunto
-dalla componente $i$-esima del vettore dei pesi.
+dalla componente $i$-esima del vettore dei pesi e sull'asse delle ascisse
+l'indice $i$.
 
 \begin{figure}[h!]
 	\centering
@@ -24,17 +24,17 @@ fa solitamente quando cerca di capire se una notizia è ciò che sta cercando o 
 legge il titolo, poi scorre velocemente il corpo soffermandosi circa al centro e
 infine passa alla conclusioni. Ciò è giustificato
 dal fatto che se ci sono delle parole chiave,
-essere saranno contenute all'inizio, alla fine e in parte a metà del documento.
+esse saranno contenute principalmente all'inizio, alla fine e, in parte, a metà del documento.
 Questo tipo di comportamento umano è dunque
 verificato anche nel modello BM25P.
 
-\section{Lavori futuri}
+\section{Lavori futuri}\label{chapter:fuwork}
 Per rendere migliori gli algoritmi di ricerca nello spazio degli iperparametri, si
-potrbbe pensare di renderli più sofisticati.
+potrebbe pensare di renderli più sofisticati.
 
 Uno dei possibili modi è quello di sviluppare il metodo
 di discesa del gradiente, anche se in questo caso la funzione
-deve essere massimizzata e dunque si dovrebbe cerca la salita.
+deve essere massimizzata e dunque si dovrebbe cercare la salita.
 Il metodo iterativo proposto è quello nella forma
 $\boldsymbol{w}_{i+1} = \boldsymbol{w}_{i} + \alpha \nabla e\left(\boldsymbol{w}\right)$,
 dove $\boldsymbol{w}_0$ è inizializzato casualmente.
@@ -45,10 +45,10 @@ fatta in precedenza sulla forma di w, e utilizzare come guida di ricerca delle f
 con il solito andamento. Quindi funzioni del tipo $y=k_0 x^{2k_1}, y=k_0e^{\cos x}, k_0e^{\sin x}$.
 \\
 \\
-L'ultima idea dal punto di vista matematico è quella di considerare di variare anche il numero di passaggi, e dunque
-aggiungere una dimensione in più allo spazio.
+L'ultima idea dal punto di vista matematico è quella di considerare anche una variazione nel numero di passaggi
+e questo comporterebbe l'aggiunta di una dimensione nello spazio di ricerca.
 \\
 \\
-L'ultimo spunto invece è quello di implementare il parallelismo durante la fase di model selection. Al momento
-del tirocinio non è stato possibile farlo poiché la versione di Terrier(5.2) , non supporta il multithreading durante
-la fase di retrieve ed evaluation.
+L'ultimo spunto invece è quello di implementare il parallelismo durante la fase di \textit{model selection}.
+Al momento del tirocinio non è stato possibile farlo poiché la versione di Terrier (5.2), 
+non supporta il multithreading durante la fase di \textit{retrieval} ed \textit{evaluation}.

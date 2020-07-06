@@ -31,14 +31,14 @@ BM25, configurato con gli iperparametri standard.
 
 Con la notazione $misura@k$ si intende che
 la misura è stata effettuata sui primi $k$ risultati, in gergo tecnico
-è chiamato taglio.
+è chiamato ``taglio".
 
-\paragraph{Budget temporale} Consideriamo che per ogni algoritmo
-eseguito il budget temporale è stato circa $\mathcal{B} \approx 24h$,
+\paragraph{Budget temporale} Si tenga in considerazione che per ogni algoritmo
+eseguito il budget temporale è stato circa $\mathcal{B} \approx 24h$
 e il tempo di esecuzione della pipeline di Terrier su Aquaint $\tau = 6s$.
 
 Per problemi dovuti alla grandezza dell'indice, $\tau$ è nell'ordine dei secondi.
-Questo ci comporta l'impossibilità di eseguire l'algoritmo GridSearch
+Questo comporta l'impossibilità di eseguire l'algoritmo GridSearch
 in modo molto denso (con $w_{step}$ piccolo) e dunque si ha la necessità
 di ridurre lo spazio di $w$, impostando i limiti superiori e inferiori
 in modo adeguato.
@@ -46,9 +46,9 @@ in modo adeguato.
 \paragraph{Parallelismo}
 Per far fronte al problema del non parallelismo di Terrier, è stato implementato uno
 script in bash che consente di creare delle copie della piattaforma indipendenti tra di loro.
-In questo modo è possibiel distribuire la ricerca su più processori e dunque paralellizzarla,
-anche se ciò è considerato come un metodo ``brutale". L'accelerazione risultante però
-è del tutto lineare, e dunque non introduce un vantaggio notevole.
+In questo modo è possibile distribuire la ricerca su più processori e dunque parallelizzarla,
+anche se ciò è considerato un metodo ``estremo". L'accelerazione risultante però
+è del tutto lineare e dunque non introduce un vantaggio notevole.
 
 
 \section{Algoritmo Grid Search}
@@ -102,15 +102,16 @@ Grid Search dunque non è riuscito a produrre dei risultati soddisfacenti.
 	\label{fig:gssearch}
 \end{figure}
 
-La figura \ref{fig:gssearch} illustra in funzione del numero di iterazioni, dunque in qualche modo anche del tempo, l'andamento
-della funzione obiettivo. Si noti che il picco quando l'asse delle $x \approx 30$ corrisponde alla valutazione con il vettore $w$ variato
+La figura \ref{fig:gssearch} rappresenta il valore delle valutazioni in funzione del numero di iterazioni.
+
+Si noti che il picco quando l'asse delle $x \approx 30$ corrisponde alla valutazione quando il vettore $w$ è variato
 poco dal vettore iniziale.
 
 \newpage
 
 \section{Line Search with Random Restart}
 
-Anche tale algoritmo è stato eseguito con i soliti parametri di GridSearch e parallelizzato
+Tale algoritmo è stato eseguito con gli stessi parametri di GridSearch e parallelizzato
 su circa 16 processori differenti.
 
 I risultati trovati sono i seguenti:
@@ -139,14 +140,14 @@ I risultati trovati sono i seguenti:
 	\caption{Risultati di Line Search with Random Restart}
 \end{table}
 
-Anche questo questo algoritmo non porta a risultati soddisfacenti, principalmente  per il motivo
+Anche questo algoritmo non porta a risultati soddisfacenti, principalmente  per il motivo
 della grandezza di $\tau$ e della restrizione di $\mathcal{B}$.
 
 \section{Increase Search}
 
 L'ultimo risultato che verrà esposto è quello dell'algoritmo Increase Search, il quale
-esito è più apprezzabile rispetto agli altri. Anche in questo in caso l'esperimento
-si è avvalso dei soliti parametri di configurazione e del solito budget temporale.
+esito è più apprezzabile rispetto agli altri. Anche in questo caso l'esperimento
+si è avvalso degli stessi parametri di configurazione e dello stesso budget temporale.
 
 \begin{table}[h!]
 	\centering
@@ -178,7 +179,7 @@ Com'è possibile notare il vettore dei pesi migliore è quello che è stato trov
 dall'algoritmo Increase Search, producendo un incremento del $26.5\%$ su NDCG@5
 e del $11.08\%$ su NDCG@10, rispetto all'orginale BM25.
 
-Pertanto, avendo a disposizione di un budget di tempo $\mathcal{B}$ nell'ordine
+Pertanto, avendo a disposizione un budget di tempo $\mathcal{B}$ nell'ordine
 delle ore, Increase Search è risultato il più performante rispetto agli altri.
 
 Ovviamente aumentando $\mathcal{B}$ diventa possibile utilizzare altri
@@ -191,33 +192,33 @@ Prima di poter concludere che BM25P con il $w$ ottimo è migliore di BM25, è ne
 fare un test statistico, il cui obiettivo è quello di capire se $\text{BM25P}_w$ $\equiv$ BM25
 cioè se essi sono uguali.
 
-Il test è chiamato test di significatività statistico, il quale scopo
-è quello di capire se due medie provengono da distribuzioni diverse oppure no.
+Il test di significatività statistica ha come scopo
+quello di capire se due medie provengono da distribuzioni diverse oppure no.
 Inannzitutto si deve formulare la \textit{null-hypothesis}, cioè l'ipotesi
 della quale vogliamo provarne la falsità.
 
 \begin{esempio}
-	Si lancia un dado 10 volte e si calcola la media $\bar{X}_2$. Dopo un giorno si ripete l'esperimento
+	Si lancia un dado 10 volte e si calcola la media $\bar{X}_1$. Dopo un giorno si ripete l'esperimento
 	e si ricalcola la media $\bar{X}_2$. Molto probabilmente si noterà che $\bar{X}_1 \neq \bar{X}_2$,
 	ma tali valori provengono da distrubuzioni diverse?
-	Ovviamente no, poiché i dadi sono gli stessi, dunque se la null-hypothesis fosse
+	Ovviamente no, poiché i dadi sono gli stessi, dunque se la \textit{null-hypothesis} fosse
 	stata $X_1 \equiv X_2$, allora avremmo potuto renderla vera.
 \end{esempio}
 
-Dunque in questo caso siamo in grado accetare l'ipotesi perché
+Dunque in questo caso siamo in grado di accettare l'ipotesi perché
 sapevamo già a priori che le due distribuzioni erano uguali, ma nel caso
 in cui non lo sapessimo?
-Uno dei modi più veloci di giudicare la null-hypothesis è quello di eseguire un test statistico.
-Accordandoci con l'articolo\cite{10.1145/1321440.1321528}, il miglior test per valutare
+Uno dei modi più veloci di giudicare la \textit{null-hypothesis} è quello di eseguire un test statistico.
+Accordandoci con l'articolo\cite{10.1145/1321440.1321528}, il migliore per valutare
 due ranker è quello chiamato \textit{Fisher's Randomization Test}.
 
 \subsection{Il test Randomizzato di Fisher}
-Tale test si basa sull'ipotizzare che due ranker $\mathcal{R}_1 $ e $\mathcal{R}_2$ siano identici
+Tale test si basa sull'ipotesi che due ranker $\mathcal{R}_1 $ e $\mathcal{R}_2$ siano identici
 e che un altro ranker $\mathcal{R}_F$ si impossessi dei risultati di entrambi e
 ritorni casualmente o quello di uno o quello di un altro.
-Il ruolo giocato da $\mathcal{R}_F$ è di fondamentale importanza, poiché esso produce un risultato
-casuale tra i due, pertanto, se essi fossero identici la distrubuzione non cambierebbe.
-Ma l'obiettivo principale è quello di calcolare la probabilità che la differenza
+Il ruolo giocato da $\mathcal{R}_F$ è di fondamentale importanza poiché esso produce un risultato
+casuale tra i due; pertanto se essi fossero identici la distrubuzione non cambierebbe.
+L'obiettivo principale però è quello di calcolare la probabilità che la differenza
 di performance tra i due è soltanto dovuta al fatto che $\mathcal{R}_3$ sceglie casualmente
 il risultato tra i due ranker.
 
@@ -275,43 +276,44 @@ Definiamo le seguenti quantità:
 \end{algorithm}
 
 A questo punto si procede scegliendo un numero massimo $k$ di permutazioni
-da eseguire, poichè  senza limitazioni  il test avrebbe complessità $\mathcal{O}(2^N)$
+da eseguire poichè  senza limitazioni  il test avrebbe complessità $\mathcal{O}(2^N)$
 e dunque per valori di $N$ elevati ci vorrebbe troppo tempo per eseguirlo.
 \\
 \\
 Successivamente l'algoritmo esegue un ciclo, scorrendo un indice fino ad arrivare a $k$.
-Nel corpo del ciclo, essoo prende a caso un elemento della lista di $e_A$ o di $e_B$ e
+Nel corpo del ciclo, esso prende a caso un elemento della lista di $e_A$ o di $e_B$ e
 calcola la differenza di qualità ottenuta.
-A seconda dei risultati vengono incrementi i valori $p_1$ o $p_2$, che costituiscono
+A seconda dei risultati vengono incrementati i valori $p_1$ o $p_2$, che costituiscono
 l'output dell'algoritmo stesso.
 
 Riassumendo, ciò che $\mathcal{R}_3$ esegue è un assegnamento casuale di etichette e
-possiamo considerare Il test valido se la scelta è casuale (anche se in questo caso
+possiamo considerare il test valido se la scelta è casuale (anche se in questo caso
 dobbiamo accontentarci della pseudocasualità).
 
 \paragraph{Il risultato del test}
 I valori calcolati dall'algoritmo, cioè $p_1$ e $p_2$, sono due rapporti:
 
 \begin{itemize}
-	\item $p_1$ è detto anche ``one-sided-p-value", ovvero il rapporto tra il numero di volte che la differenza
-	della valutazione è più grande di quella ipotizzata e il numero di permutazioni
-	\item $p_2$ è detto invece ``two-sided-p-value", overo il solito significato di $p_1$ ma utilizzando
+	\item $p_1$ è detto anche ``one-sided-p-value", ovvero il rapporto tra il numero di volte in cui la differenza
+	della valutazione è più grande di quella ipotizzata e il numero di permutazioni;
+	\item $p_2$ è detto invece ``two-sided-p-value", ovvero il solito significato di $p_1$, ma utilizzando
 	come metrica di differenza il valore assoluto.
 \end{itemize}
 
 
 Per poter valutare dunque la veridicità della \textit{null-hypothesis} si usano tali valori,
-cioè $p_1$ e $p_2$ costituiscono un'approssimazione della probabilità che che i due ranker
+cioè $p_1$ e $p_2$ costituiscono un'approssimazione della probabilità che i due ranker
 siano uguali. Solitamente si sceglie un valore $\alpha < 0.05$ per cui si valuta che
 se $p_1$ e $p_2$ sono maggiori di $\alpha$ allora l'ipotesi non può essere rifiutata,
-mentre se sono minori l'ipotesi è falsa, e dunque i due ranker sono diversi.
+mentre se sono minori l'ipotesi è falsa e dunque i due ranker sono diversi.
 
+\pagebreak
 
 \subsection{Esecuzione nel caso di BM25P}
-L'esperimento è stato condotto sul solito dataset, isolando le query tal topic file e calcolando la NDCG
-per ogni ogni query, sia con BM25P che con BM25P.
+L'esperimento è stato condotto sul solito dataset, isolando le query dal\textit{ topic file} e calcolando NDCG
+per ogni ogni query, sia con BM25 che con BM25P.
 
-Il test ha riportato i seguenti valori
+Il test ha riportato i seguenti valori:
 
 \begin{table}[h!]
 	\centering
@@ -330,6 +332,9 @@ Il test ha riportato i seguenti valori
 \end{table}
 
 Considerando i valori standard di $\alpha$, la \textit{null-hypothesis} (BM25P $\equiv$ BM25) può essere considerata falsa.
-Questo perché, dato che l'ottimizzazione di BM25P è stata basata sui tagli più piccoli, il test di significatività statistico su NDCG@5 e NDCG@10 
+Questo perché, dato che l'ottimizzazione di BM25P è stata basata su tagli più piccoli, il test di significatività statistico su NDCG@5 e NDCG@10 
 deve avere più peso rispetto a NDCG senza tagli.
-Questo risultato inoltre ci mostra che i due ranker, su tagli più grandi, potrebbero essere simili, in quanto $p_2 > p_1 > \alpha$. \footnote{Potrei aggiungere all'appendice anche lo snippet in python?}
+Questo risultato inoltre ci mostra che i due ranker, su tagli più grandi, potrebbero essere simili, in quanto $p_2 > p_1 > \alpha$.
+
+All'interno dell'appendice è stato inserito anche una parte di codice in Python che implementa
+l'algoritmo.
