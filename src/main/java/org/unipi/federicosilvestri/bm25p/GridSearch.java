@@ -1,5 +1,8 @@
 package org.unipi.federicosilvestri.bm25p;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -33,6 +36,8 @@ public class GridSearch extends SearchAlgorithm {
      */
     protected double[][] maxEvalsw;
 
+    protected boolean writeResults;
+
     public GridSearch(double[] minW, double[] maxW, double wStep, int maxIterations, double maxNDCGToStop) {
         super(minW, maxW, wStep, maxIterations, maxNDCGToStop);
         minEvals = new double[NDCG_CUTS.length];
@@ -45,6 +50,7 @@ public class GridSearch extends SearchAlgorithm {
 
         minEvalsw = new double[NDCG_CUTS.length][];
         maxEvalsw = new double[NDCG_CUTS.length][];
+        writeResults = true;
     }
 
     @Override
@@ -150,6 +156,16 @@ public class GridSearch extends SearchAlgorithm {
             if (ndcg[i] > this.maxEvals[i]) {
                 this.maxEvals[i] = ndcg[i];
                 this.maxEvalsw[i] = w;
+            }
+        }
+
+        if (writeResults) {
+            try {
+                FileWriter resultsWriter = new FileWriter(new File("searchTempResults.txt"), true);
+                resultsWriter.write(Arrays.toString(w) + "," + Arrays.toString(ndcg) + "\n");
+                resultsWriter.close();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
