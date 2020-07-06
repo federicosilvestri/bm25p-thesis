@@ -34,27 +34,3 @@ def fisher_test(metric_scores_a, metric_scores_b, n_perm=100000):
     p2 /= n_perm
 
     return p1, p2
-
-
-bm25_scores = []
-bm25p_scores = []
-
-# reading data from file
-with open("data_out/NDCG_10.txt", "r") as fp:
-    line = fp.readline()
-
-    while line != "":
-        (bm25_score, bm25p_score) = line.split(',')
-
-        bm25_scores.append(float(bm25_score))
-        bm25p_scores.append(float(bm25p_score))
-        line = fp.readline()
-
-bm25p_scores = np.array(bm25p_scores)
-bm25_scores = np.array(bm25_scores)
-
-assert len(bm25_scores) > 0
-assert len(bm25p_scores) > 0
-
-p1, p2 = fisher_test(bm25p_scores, bm25_scores, 100000)
-print("p1 = %s and p2 = %s" % (p1, p2))
