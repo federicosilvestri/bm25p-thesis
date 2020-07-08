@@ -68,11 +68,14 @@ i primi $k$ elementi dalla lista $\mathcal{L}$, restituita dal motore di ricerca
 	\item Se $d \notin \mathcal{L}$ allora $\rel_{\mathcal{R}}(d,q) = false$
 \end{itemize}
 
+Dove $\rel_{\mathcal{R}}$ è la rilevanza inferita dal ranker $\mathcal{R}$.
+\\
+
 Attraverso questa definizione siamo in grado dunque di stabilire le modalità di valutazione di
 un motore di ricerca, poiché possiamo paragonare i risultati di $\rel_B$ con quelli di $\rel_{\mathcal{R}}$,
 ottenendo dunque un meccanismo di comparazione tra i risultati attesi e quelli calcolati.
 
-\subsection{Il principio PRP}
+\section{Il principio PRP}
 
 In questo paragrafo viene introdotto il \textit{Probability Ranking Principle}, ovvero un risultato
 teorico che ci consenta di avere una base matematica per valutare l'ottimalità di un ranker.
@@ -114,8 +117,8 @@ un'illustrazione di come dimostrare questo principio.
 	sono ordinati in senso decrescente.
 	Procediamo dunque per assurdo ipotizzando esista un valore $\tilde{k}$ tale che $\mathbb{E}[\rel_B]$ sia
 	massimo anche se i documenti non sono ordinati in tal modo.
-	Si verifica dunque che esiste almeno un documento $d_l$ che non viene inserito in $\mathcal{L}$ nell'ordinamento
-	decrescente e inoltre ciò impone che un altro documento $d_m$ non venga inserito nell'ultima posizione della lista.
+	Si verifica dunque che esiste almeno un documento $d_l$ che non viene inserito in $\mathcal{L}$ e
+ ciò impone che un altro documento $d_m$ non venga inserito nell'ultima posizione della lista.
 	Abbiamo quindi che:
 	$$
 	P(\rel_B = r | D = d_l, Q=q)  < P(\rel_B = r| D = d_m, Q = q)
@@ -162,7 +165,7 @@ rilevanti, ma questo non sempre risulta possibile, poiché $\left|\mathcal{L}\ri
 	rilevanti, ma solo quelli in lista.
 	
 	$$
-	\re = P(d \in \mathcal{L} | \rel_B(d,q) = true) = \frac{
+	\preci = P(d \in \mathcal{L} | \rel_B(d,q) = true) = \frac{
 		\#\left\{ d \in \mathcal{L} | \rel_B(d,q) = true\right\}
 	}{
 		\left|\mathcal{L}\right|
@@ -211,7 +214,7 @@ L'unità di misura che andremo a considerare è la Normative Discontinued Cumula
 definita come segue:
 
 $$\label{def:ndcg}
-NDCG(O, k) = \frac{1}{\left|O\right|} \sum_{q \in O} Z_{k, q} \cdot \sum_{i=1}^{k} \frac{2^{R(d_i, q)} - 1}{\log_2{(i + 1)}} \\
+NDCG(O, k) = \frac{1}{\#O} \sum_{q \in O} Z_{k, q} \cdot \sum_{i=1}^{k} \frac{2^{R(d_i, q)} - 1}{\log_2{(i + 1)}} \\
 $$
 
 in cui abbiamo che:

@@ -52,7 +52,7 @@ di avere $\mathcal{D}$:
 \begin{enumerate}
 	\item Quali sono gli iperparametri da impostare all'algoritmo per massimizzarne la qualità?
 	\item Quali sono gli algoritmi per il calcolo di tali iperparametri?
-	\item Di quanto possiamo aumentare l'efficienza di BM25 utilizzando l'estensione dei passages?
+	\item Di quanto possiamo aumentare l'efficacia di BM25 utilizzando l'estensione dei passages?
 	\item Qual è la natura del vettore $\boldsymbol{w}$?
 \end{enumerate}
 
@@ -89,12 +89,12 @@ di lavoro che gli algoritmi di ricerca avrebbero potuto richiedere.
 Per poter eseguire la massimizzazione della funzione obiettivo,
 è necessario eseguire una serie di operazioni, che configurano il sistema Terrier
 in modo da poter elaborare i dati con i parametri impostati.
-Verrà dato di seguito una lista ordinata delle operazioni da eseguire:
+Verrà data di seguito una lista ordinata delle operazioni da eseguire:
 
 \begin{enumerate}
 	\item \textbf{Inizializzare} gli iperparametri scelti ad un valore iniziale.
 	\item \textbf{Eseguire} la fase di \textit{recupero}, producendo dunque una serie di risultati.
-	\item \textbf{Eseguire} la fase di \textit{evaluation}, calcolando dunque il valore della funzione obiettivo.
+	\item \textbf{Eseguire} la fase di \textit{valutazione}, calcolando dunque il valore della funzione obiettivo.
 	\item \textbf{Confrontare} il valore attuale della funzione obiettivo con quello in memoria.
 	\item \textbf{Aggiornare} gli iperparametri e tornare al punto 2.
 \end{enumerate}
@@ -118,7 +118,8 @@ poiché altrimenti lo spazio sarebbe infinito.
 Introduciamo quindi
 due vettori, $w_{start}$ e $w_{end}$ i quali rappresentano
 i valore minimo e il valore massimo che $\boldsymbol{w}$
-può assumere.
+può assumere. Da notare dunque che $W_i = \left[w_{start}, w_{end}\right]$
+per ogni $i$.
 
 \section{Algoritmi completi}
 Come primo tentantivo si è pensato di usare una tipologia di algoritmi completi,
@@ -128,7 +129,7 @@ su una griglia di valori: in questo caso una griglia $\Omega = W_1 \times W_2 \t
 
 \subsection{Grid Search}
 
-Riporto per completezza lo pseudocodice di Grid Search:
+Si riporta per completezza lo pseudocodice di Grid Search:
 
 \begin{algorithm}[h]
 	\SetAlgorithmName{Algoritmo}{}
@@ -145,7 +146,7 @@ Riporto per completezza lo pseudocodice di Grid Search:
 	$max_{eval} = -\infty$\;
 	$w = w_{start}$\;
 	\BlankLine
-	\While{$w  \le w_{end}$}{
+	\While{$w  \le_v w_{end}$}{
 		terrierSetup($\boldsymbol{w}$)\;
 		terrierRetrieve()\;
 		$ev$ = terrierEval()\;
@@ -155,7 +156,7 @@ Riporto per completezza lo pseudocodice di Grid Search:
 			$w_{opt} = w$\;
 		}
 		
-		$w = w + w_{step}$\;
+		$w = w +_c w_{step}$\;
 	}
 		\Return{$w_{opt}$}
 	\caption{\textsc{}}
@@ -164,7 +165,7 @@ Riporto per completezza lo pseudocodice di Grid Search:
 
 Una precisazione da fare è che il confronto
 eseguito alla linea 4 è di tipo vettoriale, vale a dire che
-viene comparata ogni componente di $\boldsymbol{w}$ con $w_{end}$ e se
+viene comparata ogni componente di $w$ con $w_{end}$ e se
 è falso almeno un confronto, allora è falso anche il risultato.
 
 L'incremento che viene fatto alla linea 11 inoltre, è un incremento
@@ -202,7 +203,7 @@ e $w_{step} = 0.5$ e $\left|w\right| = 4$.
 \end{esempio}
 
 Utilizzando questo tipo di incremento è possibile scorrere
-tutto lo spazio dei valori, dunque la ricerca è completa e anche ottima
+tutto lo spazio dei valori, dunque la ricerca è completa e anche ottimale
 su $\Omega$.
 Il problema principale di questo tipo di algoritmo è che
 per poterlo rendere eseguibile in un tempo finito
@@ -221,6 +222,7 @@ Com'è possibile notare, un algoritmo che soddisfi tali condizioni è
 ineseguibile, sia per questioni di tempo che per questioni di spazio.
 Ciò che però è possibile fare è applicare una restrizione ad $\Omega$, attraverso
 una limitazione degli estremi e una discretizzazione (il cui ruolo è giocato da $w_{step}$).
+Diremo infatti che più $w_{step}$ è grande, più la spazio è discretizzato.
 
 \subsection{Analisi spazio}
 
@@ -233,32 +235,33 @@ del motore di ricerca.
 Si ha anche che il tempo di esecuzione della Pipeline (Retrieve, Eval) è quantificato
 da $\tau$ che possiamo considerare costante una volta fissati la collezione dei dati e gli insiemi di test.
 
-A questo punto è possibile esprimere la dimensione dello spazio da analizzare come:
+A questo punto è possibile esprimere la grandezza dello spazio (espressa come la cardinalità) da analizzare come:
 
 \begin{align*}\label{eq:gsdim}
 & \Omega = \bigtimes_{i=1}^{p} W_i \\
-& \text{Dim}(\Omega) = \prod\limits_{i=1}^{p} \frac{w_{end_i} - w_{start_i}}{w_{step}} \\
+& \#\Omega = \prod\limits_{i=1}^{p} \frac{w_{end_i} - w_{start_i}}{w_{step}} \\
 \end{align*}
 
 \`E immediato specializzare tale equazione nel caso in cui i vettori $w_{start}$ e $w_{end}$
 siano esprimibili come $w_{start|end} = \vec{r}$ dove $r \in \mathbb{R}$. \footnote{
-	Si intendono tutti i vettori le quali componenti sono identiche le une alle altre, per esempi o il vettore $v = \left[0, 0, 0\right]$.
+	Si intendono tutti i vettori le quali componenti sono identiche le une alle altre, per esempio il vettore $v = \left[0, 0, 0\right]$.
 	Una variante potrebbe essere quella di scrivere che $\forall{i,j.1 \leq i,j \leq p} \implies x_i = x_j$.
 }
 
 
 Si ottiene che:
 
-$$
-\text{Dim}(\Omega) = \left(\frac{w_{end} - w_{start}}{w_{step}}\right)^{p}
-$$\footnote{Con Dim di solito si intende la dimensione dello spazio quindi sarebbe $p$, in questo caso però intendo la grandezza, cioè quanti elementi ci sono, forse è meglio definirlo come $\#\Omega$?}
+\begin{align*}
+& \#\Omega = \left(\frac{w_{end} - w_{start}}{w_{step}}\right)^{p} \\
+& \text{Dim}\left( \Omega\right) = p
+\end{align*}
 
 Dunque lo spazio risulta crescere esponenzialmente in funzione del numero
 dei passaggi $p$, e questo è uno dei problemi che portano Grid Search ad essere
 un algoritmo troppo pesante per poter essere eseguito, poichè:
 
 $$
-\mathcal{B} \geq \tau \cdot \text{Dim}(\Omega)
+\mathcal{B} \geq \tau \cdot \#\Omega
 $$
 
 Siccome $\tau > 0$, questo meccanismo di ricerca risulta poco efficiente e quindi non è consigliato.
@@ -280,11 +283,11 @@ Siccome $\tau > 0$, questo meccanismo di ricerca risulta poco efficiente e quind
 	invece $\mathcal{B} = 24$ ore.
 	Si ha che:
 	$$
-	24 \cdot 3600 = \left(\frac{3}{w_{step}}\right)^{10}
+	24 \cdot 3600 = 5 \cdot \left(\frac{3}{w_{step}}\right)^{10}
 	$$
 	e quindi
 	$$
-	w_{step} \approx 0.9
+	w_{step} \approx 1.131
 	$$
 	
 	In questo modo però la discretizzazione dello spazio sarebbe troppo evidente e quindi è poco
@@ -295,7 +298,7 @@ Siccome $\tau > 0$, questo meccanismo di ricerca risulta poco efficiente e quind
 
 \subsection{Euristica del gradiente}
 Per poter massimizzare NDCG, si potrebbe pensare di utilizzare una versione
-modifica del metodo di discesa del gradiente,
+modificata del metodo di discesa del gradiente,
 ma quest'ultimo risulta di difficile implementazione, poiché la funzione vettoriale
 risulta ardua da derivare. Non è stato escluso però che utilizzando tecniche
 sofisticate si possa essere in grado di tener conto anche dell'informazione
@@ -420,7 +423,7 @@ Di seguito verrà illustrato lo pseudocodice dell'algoritmo completo:
 	\BlankLine
 	\ForEach{$i \in p$}{	
 		$b = 0$\;
-		\While{$w_i \le w_{end_i}$} {
+		\While{$w_i \le_v w_{end_i}$} {
 		terrierSetup($\boldsymbol{w}$)\;
 		terrierRetrieve()\;
 		$ev$ = terrierEval()\;
@@ -435,7 +438,7 @@ Di seguito verrà illustrato lo pseudocodice dell'algoritmo completo:
 			$t = $ getTrend()\;
 			
 			\If{$t = 0 \vee t = -1$}{
-				$b = b +1$\;
+				$b = b + 1$\;
 			}
 			
 			\If{$b \ge b_{max}$}{
@@ -444,7 +447,7 @@ Di seguito verrà illustrato lo pseudocodice dell'algoritmo completo:
 		}
 		}
 		\BlankLine
-		$w_i = w_i + w_{step}$\;
+		$w_i = w_i +_p w_{step}$\;
 		}
 	}
 	
@@ -482,7 +485,7 @@ così chiamati perchè hanno un meccanismo casuale che consente di evitare
 il problema dei massimi locali. Ciò risolve il problema che hanno gli algoritmi di salita rapida.
 
 \subsection{Line search with Random Restart}
-L'algoritmo di Line Search è di tipo \textit{greedy} e consiste nell'eseguire
+L'algoritmo di Line Search with Random Restart è di tipo \textit{greedy} e consiste nell'eseguire
 una ricerca su griglia, ma con un random restart per ogni iterazione.
 L'idea alla base è la seguente:
 
@@ -518,7 +521,7 @@ Lo pseudocodice dell'algoritmo è il seguente:
 	\BlankLine
 	
 	\For{$i =1 $ to $i=p$}{
-		\While{$w_i \le w_{end_i}$}{
+		\While{$w_i \le_v w_{end_i}$}{
 		terrierSetup($\boldsymbol{w}$)\;
 		terrierRetrieve()\;
 		$ev$ = terrierEval()\;
@@ -527,7 +530,7 @@ Lo pseudocodice dell'algoritmo è il seguente:
 			$max_{eval} = ev$\;
 			$w_{opt} = w$\;
 		}
-		$w_i = w_i + w_{step}$\;
+		$w_i = w_i +_p w_{step}$\;
 	}
 	}
 	

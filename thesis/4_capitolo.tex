@@ -5,7 +5,7 @@ Tale piattaforma è scritta interamente in Java ed è open source, il cui codice
 interamente su \href{https://github.com/terrier-org/terrier-core}{GitHub}.
 \\
 Terrier è stato utilizzato come mezzo di sperimentazione: infatti
-una parte delle ore tirocinio sono state impiegate per estenderlo e poter eseguire un processo
+una parte delle ore del tirocinio sono state impiegate per estenderlo e poter eseguire un processo
 di \textit{model selection}.
 
 La sua struttura modulare consente agli sviluppatori di aggiungere qualsiasi tipo di funzionalità con una
@@ -69,7 +69,7 @@ Corpo del documento
 </DOC>
 \end{lstlisting}
 
-Il formato del file standardizzato da \textit{TREC} è standard, pertanto tutti gli enti incaricati
+Il formato del file ideato da \textit{TREC} è standard, pertanto tutti gli enti incaricati
 nella loro realizzazione distribuiscono i dataset anche in questo
 modo, garantendo a tutti gli utenti la compatibilità tra motori
 di ricerca sperimentali.
@@ -130,7 +130,7 @@ acronimo è quello di query relevances, cioè ``rilevanze delle query".
 Come illustrato nel capito precedente, per valutare un motore di ricerca bisogna
 avere sia i risultati del modello, sia le rilevanze stabilite dalla componente umana.
 Questa fase impiega dunque due sorgenti di file, i risultati e le rilevanze e produce
-la valutazione richiesta (per esempio recall, NDCG o altre).
+la valutazione richiesta (per esempio \textit{richiamo}, \textit{NDCG} o altre).
 Terrier nelle ultime versioni ha implementato anche tale fase,
 che inizialmente era un applicativo a parte chiamato \textit{trec\_eval}.\footnote{\`E disponibile il sorgente in liguaggio C su Github all'indirizzo \href{https://github.com/usnistgov/trec_eval}{https://github.com/usnistgov/trec\_eval}}
 

@@ -191,7 +191,7 @@ forse potrebbero anche battere il record di Increase Search.
 
 \section{Test di significatività statistico}
 
-Prima di poter concludere che BM25P con il $w$ ottimo è migliore di BM25, è necessario
+Prima di poter concludere che BM25P con il $\boldsymbol{w}$ ottimo è migliore di BM25, è necessario
 fare un test statistico, il cui obiettivo è quello di capire se $\text{BM25P}_w$ $\equiv$ BM25
 cioè se essi sono uguali.
 
@@ -203,7 +203,7 @@ della quale vogliamo provarne la falsità.
 \begin{esempio}
 	Si lancia un dado 10 volte e si calcola la media $\bar{X}_1$. Dopo un giorno si ripete l'esperimento
 	e si ricalcola la media $\bar{X}_2$. Molto probabilmente si noterà che $\bar{X}_1 \neq \bar{X}_2$,
-	ma tali valori provengono da distrubuzioni diverse?
+	ma tali valori provengono da distribuzioni diverse?
 	Ovviamente no, poiché i dadi sono gli stessi, dunque se la \textit{null-hypothesis} fosse
 	stata $X_1 \equiv X_2$, allora avremmo potuto renderla vera.
 \end{esempio}
@@ -279,7 +279,7 @@ Definiamo le seguenti quantità:
 \end{algorithm}
 
 A questo punto si procede scegliendo un numero massimo $k$ di permutazioni
-da eseguire poichè  senza limitazioni  il test avrebbe complessità $\mathcal{O}(2^N)$
+da eseguire, poichè  se volessimo soddisfare l'esaustività il test avrebbe complessità $\mathcal{O}(2^N)$
 e dunque per valori di $N$ elevati ci vorrebbe troppo tempo per eseguirlo.
 \\
 \\
@@ -322,7 +322,7 @@ Il test ha riportato i seguenti valori:
 	\centering
 	\begin{tabular}{|c|c|c|}
 		\hline
-		\textbf{Misura} & $p_1$ & $p_2$ \\
+		\textbf{Misura} & $\mathbf{p_1}$ & $\mathbf{p_2}$ \\
 		\hline
 		NDCG  & 0.13218 & 0.26347 \\
 		\hline

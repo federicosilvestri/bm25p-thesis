@@ -6,6 +6,7 @@ giornaliero di \textit{3,5 miliardi}.
 Siamo arrivati persino a parlare di memoria \textit{transattiva}, ovvero di una memoria condivisa tra tutti gli utenti e disponibile attraverso il web.
 Ogni essere umano che possiede un qualunque mezzo tecnologico è in grado di accedervi in svariati modi, per esempio facendo una ricerca tramite Siri, Google oppure Alexa.
 Tale memoria non consiste nel memorizzare l'informazione stessa, ma in come giungere ad essa.
+
 Non è solo all'interno del web che c'è la necessità di un sistema di ricerca. Si pensi per esempio a Spotlight di Mac OS che
 viene utilizzato per reperire informazioni da file di testo, audio, immagini e anche news dalla rete.
 
@@ -18,7 +19,7 @@ sugli algoritmi di ranking, dei quali sarà utilizzato BM25P, una versione di BM
 Verranno illustrati una serie di algoritmi il cui scopo è quello di ricercare, all'interno di uno spazio multidimensionale,
 gli \textit{iperparametri} di BM25P, incrementando dunque le prestazioni rispetto a BM25 stesso.
 
-Attraverso dei test statistici si dimostrarà infine che i due modelli di ranking sono decisamente diversi ed è possibile
+Attraverso dei test statistici si dimostrerà infine che i due modelli di ranking sono decisamente diversi ed è possibile
 inferire in quali parti (\textit{passages}) del documento sono contenute le informazioni più \textit{rilevanti}
 e questo varierà in base al tipo di collezione di testi.
 
@@ -35,7 +36,7 @@ rilevanti secondo la query.
 all'interno del  form e dopo qualche secondo gli vengono restituiti tutti i link a pagine web, che
 sono in qualche modo collegate a ciò che l'utente stava realmente cercando.
 Quello che sta dietro a tutto questo processo, che sembra essere quasi immediato nell'esempio di Google, è
-in realtà un lavoro molto complesso e lungo.
+in realtà un lavoro molto complesso e richiede molto tempo.
 La fase in cui l'utente è abituato ad essere partecipe è quella finale, ovvero
 il \textit{recupero}; ma prima di poter parlare di ciò è necessario illustrare la fase primaria, l'\textit{indicizzazione}.
 
@@ -146,7 +147,7 @@ il nome della normalizzazione e a destra una breve descrizione.
 \subparagraph{Indice invertito}
 Una volta che il token è stato normalizzato si procede all'aggiornamento dell'indice, ovvero alla costruzione (o aggiornamento)
 dell'indice invertito. Tale struttura è definita come una lista di coppie
-$\langle token, postingList \rangle$ dove postingList è una lista di \textit{identificatori di documenti}.
+$\langle token, postingList \rangle$ dove \textit{postingList} è una lista di \textit{identificatori di documenti}.
 In questo modo possiamo capire il token $x$ in quali documenti è contenuto, cercando dentro l'indice
 invertito la posizione di $x$ e accedendo alla sua \textit{postingList}.
 
@@ -175,8 +176,9 @@ Lo scopo della fase di \textit{recupero} è quello di utilizzare l'indice invert
 i documenti vengono proposti all'utente. Tali documenti sono comunemente chiamati \textit{risultati}.
 Il processo prende anche il nome di \textit{ranking}, poiché l'idea alla base è quella di attribuire
 un punteggio ad ogni risultato e costruire una lista ordinata in senso crescente.
-Ovviamente il primo risultato è quello nel quale il sistema di ranking è più
-rilevante per la query $q$. Tale processo viene fatto ogni volta che l'utente
+Ovviamente il primo risultato è quello per il quale il sistema di ranking attribuisce
+il  punteggio più alto e dunque il risultato è rilevante per la query $q$. 
+Tale processo viene fatto ogni volta che l'utente
 interroga il sistema, per cui deve essere veloce, efficiente ed efficace.
 
 L'articolo \cite{10.1016/j.ipm.2016.05.004} mostra una serie di tecniche che possono essere
@@ -188,32 +190,32 @@ Per essere più precisi possibile, possiamo definire la funzione di \textit{scor
 	Una funzione di scoring ideale $f(d,q) : \mathcal{D} \times \mathcal{Q} \rightarrow \mathbb{R}$ è tale
 	se e solo se
 	$$
-	f(d_1,q_1) \geq f(d_2, q_2) \implies \rel_B(d_1, q_1) \geq \rel_B(d_2, q_2)
+	f(d_1,q_1) \geq f(d_2, q_2) \implies \rel(d_1, q_1) \geq \rel(d_2, q_2)
 	$$
-dove $\rel_B(d,q)$ è la rilevanza del documento $d$ per la query $q$, calcolata a priori.	
+dove $\rel(d,q)$ è la rilevanza del documento $d$ per la query $q$, calcolata a priori.	
 \end{definizione}
 
 Tale definizione delinea una funzione di scoring ideale, per la quale non esiste un algoritmo che
 la calcoli. Possiamo però accontentarci di funzioni che la approssimino, facendo uso di euristiche basate sulla statistica.
 
 Lo scopo di $f$ può esser visto anche come quello di produrre un elenco ordinato il più possibile uguale a quello
-che produrrebbe la funzione $\rel_B$. Ciò comporta che anche se i valori di $f$ sono scalati rispetto a quelli di $\rel_B$,
+che produrrebbe la funzione $\rel$. Ciò comporta che anche se i valori di $f$ fossero scalati rispetto a quelli di $\rel$,
 $f$ rappresenterebbe comunque una buona approssimazione.
 
 \begin{esempio}
 	Sia $\mathcal{L}= \left\{d_1, d_3, d_5, d_6, d_8 \right\}$ l'elenco ordinato prodotto
-	dalla funzione ideale di scoring secondo una query $q$. Applicando $\rel_B$ ad esso si ottiene dunque la seguente catena
-	di disuguaglianze: \footnote{La funzione $\rel_B$, nell'esempio in questione, non è stata provvista del parametro $q$ per semplicità di trattazione.}
+	dalla funzione ideale di scoring secondo una query $q$. Applicando $\rel$ ad esso si ottiene dunque la seguente catena
+	di disuguaglianze: \footnote{La funzione $\rel$, nell'esempio in questione, non è stata provvista del parametro $q$ per semplicità di trattazione.}
 	
 	$$
-	\rel_B(d_1) \geq \rel_B(d_3) \geq \rel_B(d_5) \geq \rel_B(d_6) \geq  \rel_B(d_8)
+	\rel(d_1) \geq \rel(d_3) \geq \rel(d_5) \geq \rel(d_6) \geq  \rel(d_8)
 	$$
 	
-	\`E possibile trovare adesso una funzione che assuma valori diversi da $\rel_B$, ma che produca il solito ordine,
+	\`E possibile trovare adesso una funzione che assuma valori diversi da $\rel$, ma che produca il solito ordine,
 	ad esempio:
 	
 	\begin{align*}
-	\rel_B(\mathcal{L}) = \left\{1, 1, 1, 0, 0\right\} \\
+	\rel(\mathcal{L}) = \left\{1, 1, 1, 0, 0\right\} \\
 	f(\mathcal{L}) = \left\{8, 8, 7, 3, 1\right\}
 	\end{align*}
 	
@@ -226,13 +228,13 @@ Prima di concludere la visione generale diamo la definizione di alcuni concetti 
 
 \begin{definizione}[Raw Count]\label{def:raw_count}
 	$\rc(q, d) : \mathcal{Q} \times \mathcal{D} \rightarrow \mathbb{N}$ è detto raw count, cioè il numero di volte che
-	il termine q occorre nel documento $d$.
+	il termine $q$ occorre nel documento $d$.
 \end{definizione}
 
 \begin{definizione}[Term Frequency]\label{def:}
 	La funzione $\tf(q,d)$, acronimo di Term Frequency, è una funzione che calcola la frequenza del
 	termine $q \in \mathcal{Q}$ nel documento $d \in \mathcal{D}$.
-	Tale valore si discosta da quello di $rc$, poiché solitamente è normalizzato o in scala logaritmica
+	Tale valore si discosta da quello di $\rc$, poiché solitamente è normalizzato o in scala logaritmica
 	oppure in base alla lunghezza del documento.
 	
 	\begin{itemize}
@@ -247,7 +249,7 @@ Prima di concludere la visione generale diamo la definizione di alcuni concetti 
 		\frac{\#\mathcal{D}}{
 			\#
 			\left\{
-			d \in \mathcal{D} \middle \lvert rc(q,d) > 0
+			d \in \mathcal{D} \middle \lvert \rc(q,d) > 0
 			\right\} 
 		}
 	}
