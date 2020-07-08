@@ -14,7 +14,7 @@ Principalmente la piattaforma riprende l'architettura base di un sistema di IR, 
 \textit{Indexing} e \textit{Retrieving}. La parte di \textit{Indexing} non è stata modificata, poichè
 BM25P richiede un tipo di indexer a blocchi che è già implementato nella libreria di sistema.
 Le parti che invece sono state estese sono quelle di \textit{Retrieving} ed \textit{Evaluation}. 
-\'E stato cioè implementato un meccanismo per fare model selection utilizzando svariati algoritmi
+\`E stato cioè implementato un meccanismo per fare model selection utilizzando svariati algoritmi
 che verranno discussi in seguito.
 
 \section{Struttura della piattaforma}
@@ -53,9 +53,9 @@ Tutta la configurazione del motore di ricerca è collocata nel file \textit{etc/
 
 \section{Pipeline}
 \subparagraph{Indicizzazione} Affinchè il motore di ricerca sia pronto per ricevere le richieste,
-Terrier deve costruire l'indice partendo
-da una collezione di documenti. Essa è rappresentata con un file con l'estensione \textit{trec},
-il quale acronimo sta per Text Retrieval Conference.
+Terrier deve costruire l'indice partendo da una collezione di documenti.
+Essa è rappresentata attraverso un file con l'estensione \textit{trec},
+che è stato ideato dalla Text Retrieval Conference.
 La sintassi è simile a quella di XML e il file è strutturato nel seguente modo:
 
 \begin{lstlisting}
@@ -69,7 +69,7 @@ Corpo del documento
 </DOC>
 \end{lstlisting}
 
-Trec è un formato standard, pertanto tutti gli enti incaricati
+Il formato del file standardizzato da \textit{TREC} è standard, pertanto tutti gli enti incaricati
 nella loro realizzazione distribuiscono i dataset anche in questo
 modo, garantendo a tutti gli utenti la compatibilità tra motori
 di ricerca sperimentali.
@@ -82,8 +82,8 @@ user@terrier: bin/terrier batchindexing
 
 \pagebreak
 
-\subparagraph{Retrieval}
-La fase di retrieval è quella in cui Terrier, in modalità batch, esegue le query
+\subparagraph{Recupero}
+La fase di recupero è quella in cui Terrier, in modalità batch, esegue le query
 e scrive i risultati su un file di output.
 Le query sono tutte situate in un file chiamato \textit{topic file}, il quale
 è in un formato speciale, così composto:
@@ -123,16 +123,16 @@ user@terrier: bin/terrier batchretrieve
 	\end{lstlisting}
 \end{esempio}
 
-\subparagraph{Valutazione} La fase di valutazione, che chiameremo in gergo tecnico evaluation,
+\subparagraph{Valutazione} La fase di valutazione
 è l'ultima della pipeline di Terrier, la quale si basa sul valutare la qualità dei risultati.
-Ogni dataset per information retrieval contiene un file chiamato \textit{qrels}, il cui
-acronimo è quello di query relevance, cioè ``rilevanze delle query".
+Ogni dataset per Information Retrieval contiene un file chiamato \textit{qrels}, il cui
+acronimo è quello di query relevances, cioè ``rilevanze delle query".
 Come illustrato nel capito precedente, per valutare un motore di ricerca bisogna
 avere sia i risultati del modello, sia le rilevanze stabilite dalla componente umana.
 Questa fase impiega dunque due sorgenti di file, i risultati e le rilevanze e produce
 la valutazione richiesta (per esempio recall, NDCG o altre).
 Terrier nelle ultime versioni ha implementato anche tale fase,
-che inizialmente era un applicativo a parte chiamato \textit{trec\_eval}.\footnote{\'E disponibile il sorgente in liguaggio C su Github all'indirizzo \href{https://github.com/usnistgov/trec_eval}{https://github.com/usnistgov/trec\_eval}}
+che inizialmente era un applicativo a parte chiamato \textit{trec\_eval}.\footnote{\`E disponibile il sorgente in liguaggio C su Github all'indirizzo \href{https://github.com/usnistgov/trec_eval}{https://github.com/usnistgov/trec\_eval}}
 
 Il file qrels è un file con un formato uguale a quello dei risultati,
 con l'unica differenza che esso contiene la rilevanza espressa dall'utente invece che il rank.

@@ -5,7 +5,7 @@ dello studio.
 
 \section{BM25}
 Okapi BM25 è una funzione di scoring basata sul framework probabilistico sviluppato tra il 1970 e il 1980
-da Stephen E. Robertson e Karen Jones. La sua prima applicazione fu nel sistema di ricerca Okapi, il quale
+da Stephen E. Robertson e Karen Jones \cite{10.1561/1500000019}. La sua prima applicazione fu nel sistema di ricerca Okapi, il quale
 fu implementato dalla London's City University. La funzione soddisfa i requisiti illustrati nel capitolo 1, ed è definita
 nel seguente modo:
 
@@ -19,7 +19,7 @@ nel seguente modo:
 	r_i = \frac{
 		\tf(q_i, d) \cdot (k_1 +1)
 	}{
-		\tf(q_i, d) + k_1 \cdot \left(1-k_2 + k_2 \cdot \frac{\left|d\right|}{\text{avgdl}}\right)
+		\tf(q_i, d) + k_1 \cdot \left(1-b + b \cdot \frac{\left|d\right|}{\text{avgdl}}\right)
 	}
 	$$
 	
@@ -29,7 +29,7 @@ nel seguente modo:
 	\begin{table}[h]
 	\begin{tabular}{|l|p{110mm}|}
 		\hline
-		$k_1, k_2$ &  sono iperparametri, \newline tipicamente $k_1 \in\left[1.2, 2.0\right]$ e $k_2 \approx 0.75$  \\
+		$k_1, b$ &  sono iperparametri, \newline tipicamente $k_1 \in\left[1.2, 2.0\right]$ e $b \approx 0.75$  \\
 		\hline
 		$\text{avgdl}$ &  è la media aritmetica della lunghezza dei documenti nella collezione $\mathcal{D}$  \\
 		\hline
@@ -43,7 +43,7 @@ che il modello sarà di tipo binario, poiché $\forall i . 1 < i < \left|q\right
 
 Impostando invece $k_1$ ad un valore elevato avremo esattamente un modello di tipo \textit{raw count}, poiché
 si terranno molto in considerazione le singole frequenze.
-Il parametro $k_2$ invece regola la normalizzazione della lunghezza del documento: più è grande,
+Il parametro $b$ invece regola la normalizzazione della lunghezza del documento: più è grande,
 più il documento tende ad esser normalizzato.
 Da notare che il parametro $\mathcal{D}$ è implicito: infatti si dà per scontato che
 la funzione di scoring venga
@@ -58,8 +58,8 @@ di fattori, nel caso di BM25 dei vari $r_i$,  cioè dei rapporti tra le frequenz
 
 \subsection{Limitazioni di BM25}
 
-Il problema di questa funzione è che essa non considera la struttura dei documenti, cioè ipotizza
-la non strutturazione.
+Il problema di questa funzione è che essa non considera la struttura dei documenti, cioè adotta un modello
+per i documenti di tipo ``bag of words".
 A seconda del tipo di collezione, i documenti possono essere strutturati; infatti
 se consideriamo una collezione di articoli scientifici avremo che un singolo documento è composto da un titolo, 
 un'introduzione, alcuni paragrafi e una conclusione.
@@ -75,7 +75,7 @@ Per esempio $w_{titolo} = 2.5, w_{corpo} = 1.0$, in modo da aumentare il contrib
 \pagebreak
 
 \section{BM25P}
-Il problema risolto da BM25F ha come ipotesi il fatto che tutti i documenti abbiano una struttura comune.
+L'assunzione alla base di BM25F ha come ipotesi il fatto che tutti i documenti abbiano una struttura comune.
 In realtà non sempre si ha a che fare con questo tipo di documenti e la memorizzazione dei campi comporterebbe, durante
 la fase di indexing, una complessità addizionale sia in spazio che in tempo.
 Possiamo però tenere conto che se ogni documento è rappresentato come \textit{raw text}, ovvero come una sequenza
@@ -97,7 +97,7 @@ ed estendere la formula utilizzando al posto dei campi i \textit{passages}.
 	r_i = \frac{
 		\tfp(q_i, d) \cdot (k_1 +1)
 	}{
-		\tfp(q_i, d) + k_1 \cdot \left(1-k_2 + k_2 \cdot \frac{\left|d\right|}{\text{avgdl}}\right)
+		\tfp(q_i, d) + k_1 \cdot \left(1-b + b \cdot \frac{\left|d\right|}{\text{avgdl}}\right)
 	}
 	$$
 	
@@ -111,12 +111,12 @@ ed estendere la formula utilizzando al posto dei campi i \textit{passages}.
 	Da notare anche l'introduzione del vettore $\boldsymbol{w}$, che gioca il ruolo di amplificare il valore delle frequenze
 	in base al passage in questione.
 	Tale vettore ha tante componenti quante sono le parti, e possiamo anche stabilire una proporzionalità
-	diretta tra $\boldsymbol{w}_i$ e la distrubuzione di probabilità del termine $t$ nel passage $i$.
+	diretta tra $\boldsymbol{w}_i$ e la distribuzione di probabilità del termine $t$ nel passage $i$.
 	
 	Si noti infine che impostando $\alpha=1$ e $\boldsymbol{w} = \boldsymbol{1}$, BM25P è uguale a BM25.
 \end{definizione}
 
-\section{I weighting models a confronto}
+\section{I modelli di pesatura a confronto}
  
  Si sono viste in dettaglio entrambe le funzioni di scoring e in questo paragrafo possiamo metterle a confronto.
  BM25 è un meccanismo che tiene in considerazione documenti non strutturati (possiamo anche chiamarli fluidi),

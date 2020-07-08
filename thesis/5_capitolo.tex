@@ -1,7 +1,7 @@
 \chapter{Ricerca degli iperparametri}
 
 \paragraph{Introduzione}
-In questa sezione della relazione verrà illustrato il problema principale su cui si è basato il tirocinio:
+In questa sezione della relazione verrà illustrato il problema principale affrontato nel tirocinio:
 \textit{l'ottimizzazione della funzione di ranking di BM25P}.
 Come illustrato nel capitolo 2, quasi ogni funzione di ranking possiede degli iperparametri, i quali
 devono essere calibrati a seconda del tipo di dati e dalla natura dei dati stessi.
@@ -37,10 +37,10 @@ $p$ e $\alpha$ costanti.
 \paragraph{La funzione obiettivo}
 
 Come in qualsiasi ambito di ricerca nello spazio degli stati, anche in questo contesto
-si deve scegliere una funzione da massimizzare e vedremo che presenterà dei problemi ben
+si deve scegliere una funzione da massimizzare e vedremo che essa presenterà dei problemi ben
 noti i quali limiteranno la scelta dei possibili algoritmi applicabili.
 
-Una delle misure che meglio esprimono l'effettività di un motore di ricerca è NDCG \ref{def:ndcg}, la quale è
+Una delle misure che meglio esprimono l'efficacia di un motore di ricerca è NDCG \ref{def:ndcg}, la quale è
 stata illustrata e commentata nel capitolo 4.
 Massimizzando questa funzione siamo dunque in grado di ottenere una funzione di ranking che
 è ottima per un certo dataset $\mathcal{D}$.
@@ -88,12 +88,12 @@ di lavoro che gli algoritmi di ricerca avrebbero potuto richiedere.
 \section{La pipeline di ricerca}
 Per poter eseguire la massimizzazione della funzione obiettivo,
 è necessario eseguire una serie di operazioni, che configurano il sistema Terrier
-in modo da poter processare i dati con i parametri impostati.
+in modo da poter elaborare i dati con i parametri impostati.
 Verrà dato di seguito una lista ordinata delle operazioni da eseguire:
 
 \begin{enumerate}
 	\item \textbf{Inizializzare} gli iperparametri scelti ad un valore iniziale.
-	\item \textbf{Eseguire} la fase di \textit{retrieval}, producendo dunque una serie di risultati.
+	\item \textbf{Eseguire} la fase di \textit{recupero}, producendo dunque una serie di risultati.
 	\item \textbf{Eseguire} la fase di \textit{evaluation}, calcolando dunque il valore della funzione obiettivo.
 	\item \textbf{Confrontare} il valore attuale della funzione obiettivo con quello in memoria.
 	\item \textbf{Aggiornare} gli iperparametri e tornare al punto 2.
@@ -146,7 +146,7 @@ Riporto per completezza lo pseudocodice di Grid Search:
 	$w = w_{start}$\;
 	\BlankLine
 	\While{$w  \le w_{end}$}{
-		terrierSetup($w$)\;
+		terrierSetup($\boldsymbol{w}$)\;
 		terrierRetrieve()\;
 		$ev$ = terrierEval()\;
 		
@@ -157,14 +157,14 @@ Riporto per completezza lo pseudocodice di Grid Search:
 		
 		$w = w + w_{step}$\;
 	}
-	\Return{$\mathcal{I}$}
+		\Return{$w_{opt}$}
 	\caption{\textsc{}}
 	\label{alg:gss}
 \end{algorithm}
 
 Una precisazione da fare è che il confronto
 eseguito alla linea 4 è di tipo vettoriale, vale a dire che
-viene comparata ogni componente di $w$ con $w_{end}$ e se
+viene comparata ogni componente di $\boldsymbol{w}$ con $w_{end}$ e se
 è falso almeno un confronto, allora è falso anche il risultato.
 
 L'incremento che viene fatto alla linea 11 inoltre, è un incremento
@@ -240,7 +240,7 @@ A questo punto è possibile esprimere la dimensione dello spazio da analizzare c
 & \text{Dim}(\Omega) = \prod\limits_{i=1}^{p} \frac{w_{end_i} - w_{start_i}}{w_{step}} \\
 \end{align*}
 
-\'E immediato specializzare tale equazione nel caso in cui i vettori $w_{start}$ e $w_{end}$
+\`E immediato specializzare tale equazione nel caso in cui i vettori $w_{start}$ e $w_{end}$
 siano esprimibili come $w_{start|end} = \vec{r}$ dove $r \in \mathbb{R}$. \footnote{
 	Si intendono tutti i vettori le quali componenti sono identiche le une alle altre, per esempi o il vettore $v = \left[0, 0, 0\right]$.
 	Una variante potrebbe essere quella di scrivere che $\forall{i,j.1 \leq i,j \leq p} \implies x_i = x_j$.
@@ -316,7 +316,7 @@ L'algoritmo verrà illustrato per passi nei seguenti paragrafi.
 \paragraph{Calcolo del trend}
 Per calcolare il trend è sufficiente raccogliere una serie di dati formati
 da coppie $\langle w, e\rangle$, dove $e$ è il valore di NDCG calcolato
-utilizzando $w$. Successivamente l'idea è quella di capire
+utilizzando $\boldsymbol{w}$. Successivamente l'idea è quella di capire
 l'andamento della successione dei valori di $e$ mediante
 la sottrazione dell'elemento $i$-esimo con l'elemento ($i-1$)-esimo.
 Si calcola dunque il vettore delle \textit{differenze} $dE$, di lunghezza $p-1$, nel seguente modo:
@@ -365,7 +365,7 @@ l'incremento, fino a che non si decide o di abbandonare
 l'opportunità oppure di proseguire, scegliendo quindi la componente successiva.
 
 Sia dunque $\mathcal{P}$ l'insieme delle permutazioni della stringa
-composta da tutti gli indici di $w$, quindi:
+composta da tutti gli indici di $\boldsymbol{w}$, quindi:
 
 $$
 \mathcal{P} = \text{Perm}(\langle1,\cdots, p\rangle)
@@ -421,7 +421,7 @@ Di seguito verrà illustrato lo pseudocodice dell'algoritmo completo:
 	\ForEach{$i \in p$}{	
 		$b = 0$\;
 		\While{$w_i \le w_{end_i}$} {
-		terrierSetup($w$)\;
+		terrierSetup($\boldsymbol{w}$)\;
 		terrierRetrieve()\;
 		$ev$ = terrierEval()\;
 		\BlankLine
@@ -448,7 +448,7 @@ Di seguito verrà illustrato lo pseudocodice dell'algoritmo completo:
 		}
 	}
 	
-	\Return{$\mathcal{I}$}
+	\Return{$w_{opt}$}
 	\caption{\textsc{}}
 	\label{alg:gs}
 \end{algorithm}
@@ -487,7 +487,7 @@ una ricerca su griglia, ma con un random restart per ogni iterazione.
 L'idea alla base è la seguente:
 
 \begin{enumerate}
-	\item si \textbf{inizializza} $w$ con dei valori casuali $c_i \in W_i$;
+	\item si \textbf{inizializza} $\boldsymbol{w}$ con dei valori casuali $c_i \in W_i$;
 	\item si \textbf{sceglie} una componente e si inizia ad incrementare, fino ad arrivare al massimo;
 	\item si \textbf{sceglie} la componente successiva e si esegue il punto 2;
 	\item quando le componenti sono state iterate tutte, si \textbf{ritorna} al punto 1.
@@ -513,13 +513,13 @@ Lo pseudocodice dell'algoritmo è il seguente:
 
 	$w_{opt} = w_{start}$\;
 	$max_{eval} = -\infty$\;
-	$w$ = randomW()\;
+	$\boldsymbol{w}$ = randomW()\;
 		
 	\BlankLine
 	
 	\For{$i =1 $ to $i=p$}{
 		\While{$w_i \le w_{end_i}$}{
-		terrierSetup($w$)\;
+		terrierSetup($\boldsymbol{w}$)\;
 		terrierRetrieve()\;
 		$ev$ = terrierEval()\;
 		\BlankLine

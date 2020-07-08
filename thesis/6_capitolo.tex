@@ -7,17 +7,20 @@ da un totale di 50 query.
 \section{Valori di riferimento}
 Come prima cosa è necessario capire sul dataset in questione
 quali sono le prestazioni ottenibili utilizzando l'algoritmo rivale di BM25P, cioè BM25.
+Si è dunque eseguita l'intera pipeline con Terrier su \textit{Acquaint} specificando come modello
+di pesatura BM25 e impostando gli iperparametri standard.
 
-La tabella seguente mostra i valori di riferimento che sono stati calcolati utilizzando come modello di pesi
-BM25, configurato con gli iperparametri standard.
+La tabella seguente mostra i valori di riferimento:
 
 \begin{table}[h!]
 	\centering
 	\begin{tabular}{|c|c|}
 		\hline
-		recall@100 & 0.2071 \\
+		\textbf{Misura} & \textbf{Valore} \\
 		\hline
-		recall@200 & 0.3069 \\
+		richiamo@100 & 0.2071 \\
+		\hline
+		richiamo@200 & 0.3069 \\
 		\hline
 		NDCG & 0.4161 \\
 		\hline
@@ -26,7 +29,7 @@ BM25, configurato con gli iperparametri standard.
 		NDCG@10 & 0.2707 \\
 		\hline
 	\end{tabular}
-\caption{Valutazione di BM25 su Aquaint}
+\caption{Valutazione di BM25 su Aquaint con iperparametri standard.}
 \end{table}
 
 Con la notazione $misura@k$ si intende che
@@ -76,9 +79,9 @@ i valori massimi delle funzioni di valutazione trovati sono i seguenti:
 		\hline
 		\textbf{Misura} & \textbf{Valore} & \multicolumn{2}{|c|}{\textbf{Incremento} $\left[\%\right]$} \\
 		\hline
-		recall@100  &  0.1932 &   $\downarrow$ & $-6.71$ \\
+		richiamo@100  &  0.1932 &   $\downarrow$ & $-6.71$ \\
 		\hline
-		recall@200   & 0.2786 & $\downarrow$ & $-9.22$ \\
+		richiamo@200   & 0.2786 & $\downarrow$ & $-9.22$ \\
 		\hline
 		NDCG    & 0.3845 &  $\downarrow$ & $-7.59$ \\
 		\hline
@@ -122,9 +125,9 @@ I risultati trovati sono i seguenti:
 		\hline
 		\textbf{Misura} & \textbf{Valore} & \multicolumn{2}{|c|}{\textbf{Incremento} $\left[\%\right]$} \\
 		\hline
-		recall@100 &  0.1988 & $\downarrow$ & $-4.00$   \\
+		richiamo@100 &  0.1988 & $\downarrow$ & $-4.00$   \\
 		\hline
-		recall@200 & 0.2793  & $\downarrow$ & $-8.99$ \\
+		richiamo@200 & 0.2793  & $\downarrow$ & $-8.99$ \\
 		\hline
 		NDCG & 0.3814 & $\downarrow$ & $-8.33$\\
 		\hline
@@ -155,9 +158,9 @@ si è avvalso degli stessi parametri di configurazione e dello stesso budget tem
 		\hline
 		\textbf{Misura} & \textbf{Valore} & \multicolumn{2}{|c|}{\textbf{Incremento} $\left[\%\right]$} \\
 		\hline
-		recall@100 &  0.1971 & $\downarrow$ & $-4.83$  \\
+		richiamo@100 &  0.1971 & $\downarrow$ & $-4.83$  \\
 		\hline
-		recall@200 & 0.2954 & $\downarrow$ & $-3.88$  \\
+		richiamo@200 & 0.2954 & $\downarrow$ & $-3.88$  \\
 		\hline
 		NDCG & 0.4119 & $\downarrow$ & $-1.01$ \\
 		\hline

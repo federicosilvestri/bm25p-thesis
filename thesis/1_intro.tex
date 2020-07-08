@@ -9,8 +9,8 @@ Tale memoria non consiste nel memorizzare l'informazione stessa, ma in come giun
 Non è solo all'interno del web che c'è la necessità di un sistema di ricerca. Si pensi per esempio a Spotlight di Mac OS che
 viene utilizzato per reperire informazioni da file di testo, audio, immagini e anche news dalla rete.
 
-Il ruolo dell'Information Retrieval in questi giorni è dunque di fondamentale importanza.
-Per questo gli algoritmi si sono dovuti sviluppare in tutte le dimensioni, a partire dall'architettura delle macchine sulle quali i documenti vengono archiviati a come i documenti stessi vengono strutturati.
+Il ruolo dell'Information Retrieval al giorno d'oggi è dunque di fondamentale importanza.
+Per questo c'è stata la necessità di sviluppare gli algoritmi in tutte le dimensioni, a partire dall'architettura delle macchine sulle quali i documenti vengono archiviati a come i documenti stessi vengono strutturati.
 
 In questa tesi di tirocinio verrà illustrato \textit{Terrier}: una piattaforma sviluppata dall'università di Glasgow
 per sperimentare gli algoritmi legati all'Information Retrieval, anche su collezioni di dati nell'ordine dei terabyte.  Successivamente il focus si sposterà
@@ -37,10 +37,10 @@ sono in qualche modo collegate a ciò che l'utente stava realmente cercando.
 Quello che sta dietro a tutto questo processo, che sembra essere quasi immediato nell'esempio di Google, è
 in realtà un lavoro molto complesso e lungo.
 La fase in cui l'utente è abituato ad essere partecipe è quella finale, ovvero
-il \textit{retrieval}; ma prima di poter parlare di ciò è necessario illustrare la fase primaria, l'\textit{indexing}.
+il \textit{recupero}; ma prima di poter parlare di ciò è necessario illustrare la fase primaria, l'\textit{indicizzazione}.
 
 \paragraph{Alcune definizioni}
-Per essere più chiari, conveniamo alcune definizioni di termini tecnici che al giorno d'oggi possono essere attribuiti
+Per essere più chiari, conveniamo alcune definizioni di termini tecnici che in altri contesti possono essere attribuiti
 a concetti diversi.
 
 \begin{definizione}\label{def:token}
@@ -67,16 +67,22 @@ Un altro concetto importante è quello di \textit{tipo}.
 	Una query è un multinsieme di token, che rappresenta l'input che il motore di ricerca
 	riceve dall'utente. 
 \end{definizione}
+
+\begin{esempio}
+	Se si volessero cercare dei manuali tecnici sul linguaggio Python, si potrebbe esprimere 
+	tale necessità attraverso la query $q$: \tokenbox{manuali} \tokenbox{python}.
+	\\
+	\\
+	Un altro esempio potrebbe essere quello di voler ricercare i componenti
+	elettronici inventati nel 1950. La query potrebbe essere $q$ : \tokenbox{componenti}
+	\tokenbox{elettronici} \tokenbox{1950}.
+\end{esempio}
+
 Da notare che il concetto di multinsieme deriva dal fatto che si vuole tenere traccia in modo esplicito 
-della molteplicità
-dei termini nella query stessa.
+della molteplicità dei token nella query stessa.
 
-\begin{definizione}[termine]\label{def:temine}
-	Un termine è un tipo di una query.
-\end{definizione}
-
-\paragraph{Fase di indexing}
-Per poter offrire quella velocità che si richiede durante la fase di retrieving è necessario: aver ``preparato"
+\paragraph{Fase di indicizzazione}
+Per poter offrire quella velocità che si richiede durante la fase di \textit{recupero} è necessario: aver ``preparato"
 una struttura dati che sia completa, ovvero che comprenda tutte le informazioni necessarie e 
 rapida da scorrere, cioè che le informazioni che si stanno cercando devono poter essere recuperate
 il prima possibile.  Un esempio abbastanza esplicativo è quello dell'addetto alla biblioteca che deve rispondere
@@ -87,7 +93,7 @@ di accedere solo alle informazioni necessarie ed è dunque inefficiente.
 Se quindi non ci fosse un indice, per un motore di ricerca sarebbe troppo dispendioso elaborare tutti
 i documenti ``su richiesta".
 La fase di \textit{indexing} ha lo scopo di costruire una struttura dati, chiamata indice, che consenta
-di velocizzare la fase successiva, il \textit{retrieval}.
+di velocizzare la fase successiva, il \textit{recupero}.
 
 Dal punto di vista delle prestazioni tale fase è quella con il  dispendio computazionale
 più elevato, sia in termini di spazio che di tempo.
@@ -125,13 +131,12 @@ Tale processo può essere schematizzato nel seguente modo, dove a sinistra viene
 il nome della normalizzazione e a destra una breve descrizione.
 
 \begin{itemize}
-	\item[\textbf{Casing:}] le lettere maiuscole vengono convertite in minuscole.
+	\item[\textbf{Casing:}] le lettere maiuscole vengono convertite in minuscole oppure viceversa, in base al tipo di convenzione utilizzata.
 	\item[\textbf{Accenti:}] le parole con accenti vengono convertite in parole senza accenti.
-	\item[\textbf{Stemming:}] i verbi vengono convertiti in una forma normale, per esempio nel tempo infinito.
-	\item[\textbf{Lemmization:}] le parole al plurale vengono convertite al singolare.
+	\item[\textbf{Lemmatizzazione:}] vengono convertite le forme flesse delle parole in una forma canonica, cioè nel lemma.
 \end{itemize}
 
-\begin{esempio}[normalization]
+\begin{esempio}[normalizzazione]
 	Sia data la seguente frase: ``\textit{Mi piacciono tutte le auto che sono elettriche}".
 	Utilizzando le tecniche elencate in precedenza, i token normalizzati risultano:
 	\tokenbox{Mi} \tokenbox{piacere} \tokenbox{tutte} \tokenbox{le} \tokenbox{auto}
@@ -139,7 +144,7 @@ il nome della normalizzazione e a destra una breve descrizione.
 \end{esempio}
 
 \subparagraph{Indice invertito}
-Una volta normalizzato si procede all'aggiornamento dell'indice, ovvero alla costruzione (o aggiornamento)
+Una volta che il token è stato normalizzato si procede all'aggiornamento dell'indice, ovvero alla costruzione (o aggiornamento)
 dell'indice invertito. Tale struttura è definita come una lista di coppie
 $\langle token, postingList \rangle$ dove postingList è una lista di \textit{identificatori di documenti}.
 In questo modo possiamo capire il token $x$ in quali documenti è contenuto, cercando dentro l'indice
@@ -163,42 +168,65 @@ Ritornando all'esempio della biblioteca, se l'addetto avesse a disposizione l'in
 In questo modo tutti i documenti che contengono almeno una volta un termine della query verrebbero mostrati
 agli studenti, ma ovviamente non tutti possono essere rilevanti per la ricerca. Il problema dunque si è ridotto
 a come utilizzare l'indice invertito per capire quanto la query sia associata al documento in questione ed è per questo
-motivo che viene introdotta la fase di \textit{retrieval}.
+motivo che viene introdotta la fase di \textit{recupero}.
 
-\paragraph{Fase di retrieval}
-Lo scopo della fase di \textit{retrieval} è quello di utilizzare l'indice invertito e affinare il modo con cui
-i documenti vengono proposti all'utente, comunemente chiamati \textit{risultati}.
-Tale processo prende anche il nome di ranking, poiché l'idea alla base è quella di attribuire
+\paragraph{Fase di recupero}
+Lo scopo della fase di \textit{recupero} è quello di utilizzare l'indice invertito e affinare il modo con cui
+i documenti vengono proposti all'utente. Tali documenti sono comunemente chiamati \textit{risultati}.
+Il processo prende anche il nome di \textit{ranking}, poiché l'idea alla base è quella di attribuire
 un punteggio ad ogni risultato e costruire una lista ordinata in senso crescente.
 Ovviamente il primo risultato è quello nel quale il sistema di ranking è più
 rilevante per la query $q$. Tale processo viene fatto ogni volta che l'utente
-interroga il sistema, per cui deve essere veloce, efficiente ed effettivo.
+interroga il sistema, per cui deve essere veloce, efficiente ed efficace.
 
 L'articolo \cite{10.1016/j.ipm.2016.05.004} mostra una serie di tecniche che possono essere
 utilizzate per valutare il compromesso tra qualità di un ranker ed efficienza, 
 alcune delle quali sono state utilizzate nell'ambito di questo tirocinio.\\
-Per essere più precisi possibile, possiamo definire la funzione di score nel seguente modo:
+Per essere più precisi possibile, possiamo definire la funzione di \textit{scoring} nel seguente modo:
 
 \begin{definizione}\label{def:funzione_di_score_ideale}
-	Una funzione di scoring $f(d,q) : \mathcal{D} \times \mathcal{Q} \rightarrow \mathbb{R}$ è tale
-	se e solo se:
-	\begin{itemize}
-		\item $f(d_1,q_1) \geq f(d_2, q_2) \implies \rel(d_1, q_1) \geq \rel(d_2, q_2)$,\\ dove $\rel(d,q)$ è la rilevanza del documento $d$ per la query $q$, calcolata a priori.
-		\item $f(d,q) \leq 0$ significa che il documento è irrilevante per $q$.
-	\end{itemize}
+	Una funzione di scoring ideale $f(d,q) : \mathcal{D} \times \mathcal{Q} \rightarrow \mathbb{R}$ è tale
+	se e solo se
+	$$
+	f(d_1,q_1) \geq f(d_2, q_2) \implies \rel_B(d_1, q_1) \geq \rel_B(d_2, q_2)
+	$$
+dove $\rel_B(d,q)$ è la rilevanza del documento $d$ per la query $q$, calcolata a priori.	
 \end{definizione}
 
 Tale definizione delinea una funzione di scoring ideale, per la quale non esiste un algoritmo che
-la calcoli. Possiamo però accontentarci di funzioni che la possano approssimare, facendo uso di euristiche basate sulla statistica.
+la calcoli. Possiamo però accontentarci di funzioni che la approssimino, facendo uso di euristiche basate sulla statistica.
+
+Lo scopo di $f$ può esser visto anche come quello di produrre un elenco ordinato il più possibile uguale a quello
+che produrrebbe la funzione $\rel_B$. Ciò comporta che anche se i valori di $f$ sono scalati rispetto a quelli di $\rel_B$,
+$f$ rappresenterebbe comunque una buona approssimazione.
+
+\begin{esempio}
+	Sia $\mathcal{L}= \left\{d_1, d_3, d_5, d_6, d_8 \right\}$ l'elenco ordinato prodotto
+	dalla funzione ideale di scoring secondo una query $q$. Applicando $\rel_B$ ad esso si ottiene dunque la seguente catena
+	di disuguaglianze: \footnote{La funzione $\rel_B$, nell'esempio in questione, non è stata provvista del parametro $q$ per semplicità di trattazione.}
+	
+	$$
+	\rel_B(d_1) \geq \rel_B(d_3) \geq \rel_B(d_5) \geq \rel_B(d_6) \geq  \rel_B(d_8)
+	$$
+	
+	\`E possibile trovare adesso una funzione che assuma valori diversi da $\rel_B$, ma che produca il solito ordine,
+	ad esempio:
+	
+	\begin{align*}
+	\rel_B(\mathcal{L}) = \left\{1, 1, 1, 0, 0\right\} \\
+	f(\mathcal{L}) = \left\{8, 8, 7, 3, 1\right\}
+	\end{align*}
+	
+\end{esempio}
 
 \pagebreak
 
 Nei prossimi capitoli verranno descritte le funzioni di scoring che propongono BM25 e BM25P, le quali si basano sul concetto di \textit{Term Frequency} e \textit{Inverse Document Frequency}.
-Prima di concludere la visione generale diamo la definizione di alcuni concetti che sono utilizzati durante il \textit{retrieval}.
+Prima di concludere la visione generale diamo la definizione di alcuni concetti che sono utilizzati durante il \textit{recupero}.
 
 \begin{definizione}[Raw Count]\label{def:raw_count}
-	$\rc(q, D) : \mathcal{Q} \times \mathcal{D} \rightarrow \mathbb{N}$ è detto raw count, cioè il numero di volte che
-	il termine q occore nel documento $d$.
+	$\rc(q, d) : \mathcal{Q} \times \mathcal{D} \rightarrow \mathbb{N}$ è detto raw count, cioè il numero di volte che
+	il termine q occorre nel documento $d$.
 \end{definizione}
 
 \begin{definizione}[Term Frequency]\label{def:}
@@ -209,7 +237,7 @@ Prima di concludere la visione generale diamo la definizione di alcuni concetti 
 	
 	\begin{itemize}
 		\item $\tf(q,d) = \log_{k}(1+\rc(q,d))$ con $k>1$
-		\item $\tf(q,d) = \frac{rc(q,d)}{|d|}$ dove $|d|$ è il numero totali di token nel documento
+		\item $\tf(q,d) = \frac{rc(q,d)}{|d|}$ dove $|d|$ è il numero totale di token nel documento
 	\end{itemize}
 \end{definizione}
 

@@ -4,17 +4,25 @@ L'algoritmo che è riuscito a trovare il risultato migliore, seppur con un budge
 Di seguito verranno riportate alcune considerazioni maturate
 dallo studio del modello di ranking e del caso sperimentale.
 
-\subsection{Andamento dei valori}
-Il grafico sottostante illustra sull'asse delle ordinate il valore assunto
-dalla componente $i$-esima del vettore dei pesi e sull'asse delle ascisse
-l'indice $i$.
+\section{Andamento dei valori}
+Di seguente riportiamo alcune considerazioni sull'andamento dei valori
+del vettore $\boldsymbol{w}$ e della valutazione
+
 
 \begin{figure}[h!]
 	\centering
 	\includegraphics[width=0.7\linewidth]{figure/w_vectors}
-	\caption[Distribuzione dei valori di w]{Grafico dei valori di $w$ in funzione dell'indice della componente}
+	\caption[Distribuzione dei valori di $\boldsymbol{w}$]{Grafico dei valori di $\boldsymbol{w}$ in funzione dell'indice della componente}
 	\label{fig:wvectors}
 \end{figure}
+
+Il grafico soprastante illustra sull'asse delle ordinate il valore assunto
+dalla componente $i$-esima del vettore dei pesi e sull'asse delle ascisse
+l'indice $i$. Le 3 linee colorate distinguono le differenti configurazioni.
+
+Ad ogni linea è associata la valutazione NDCG@5, la quale è stata calcolata
+eseguendo la pipeline \textit{retrieval, evaluate} e utilizzando come vettore
+dei pesi quello rappresentanto della linea stessa.
 
 Ricordando che ogni indice è associato ad un passaggio del documento,
 si può riflettere sull'andamento del grafico.
@@ -41,7 +49,7 @@ dove $\boldsymbol{w}_0$ è inizializzato casualmente.
 \\
 \\
 Un altro modo invece potrebbe essere quello di sfruttare la considerazione
-fatta in precedenza sulla forma di w, e utilizzare come guida di ricerca delle funzioni
+fatta in precedenza sulla forma di $\boldsymbol{w}$, e utilizzare come guida di ricerca delle funzioni
 con il solito andamento. Quindi funzioni del tipo $y=k_0 x^{2k_1}, y=k_0e^{\cos x}, k_0e^{\sin x}$.
 \\
 \\
@@ -51,4 +59,4 @@ e questo comporterebbe l'aggiunta di una dimensione nello spazio di ricerca.
 \\
 L'ultimo spunto invece è quello di implementare il parallelismo durante la fase di \textit{model selection}.
 Al momento del tirocinio non è stato possibile farlo poiché la versione di Terrier (5.2), 
-non supporta il multithreading durante la fase di \textit{retrieval} ed \textit{evaluation}.
+non supporta il multithreading durante la fase di \textit{recupero} e \textit{valutazione}.

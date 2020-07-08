@@ -1,25 +1,25 @@
 \chapter{Metriche}
 
 In questo capitolo si  illustreranno alcune tecniche 
-per valutare un modello di pesi e dunque poterlo confrontare con gli altri.
-\'E di necessaria importanza poterlo fare perché nel capitolo sull'ottimizzazione di BM25P dovremo avere un modo per eseguire
+per valutare un modello di pesatura e dunque poterlo confrontare con gli altri.
+\`E di necessaria importanza poterlo fare perché nel capitolo sull'ottimizzazione di BM25P dovremo avere un modo per eseguire
 la cosidetta fase di \textit{model selection}. Dovremo cioè valutare se un modello con un iperparametro $\lambda$ è
 migliore rispetto a un modello con un iperparametro $\lambda' \neq \lambda$.
 
-Ma in generale per valutare le prestazioni di un motore di ricerca possiamo usare due unità di misura:
+In generale però per valutare le prestazioni di un motore di ricerca possiamo usare due unità di misura:
 
 \begin{itemize}
-	\item La \textbf{qualità}, intesa come l'effettività, cioè quanto il motore di ricerca
+	\item La \textbf{qualità}, intesa come l'efficacia, cioè quanto il motore di ricerca
 	è in grado di mostrare all'utente documenti che siano rilevanti con la query $q$.
 	\item L'\textbf{efficienza}, cioè quanto tempo viene impiegato nel calcolo dei risultati, quindi in questo caso
-	quanto tempo impiega la fase di \textit{retrieval}.
+	quanto tempo impiega la fase di \textit{recupero}.
 \end{itemize}
 
 L'obiettivo di questo tirocinio è stato quello di massimizzare la qualità di BM25P, pertanto
-la seconda unità di misura non è rilevante, anche perché variando il valore di un iperparametro
+la seconda metrica non è rilevante, anche perché variando il valore di un iperparametro
 non si hanno ripercussioni notevoli sull'efficienza, ma solo sulla qualità.
 
-Per poter valutare l'effettività è necessario riprendere il concetto di rilevanza  che era stato
+Per poter valutare l'efficacia è necessario riprendere il concetto di rilevanza  che era stato
 accennato nel capitolo 1. Essa purtroppo è una misura non del tutto oggettiva,
 poiché un utente potrebbe decidere che la query $q$ e il documento $d$ siano
 in qualche modo collegati tra loro o meno.
@@ -31,7 +31,7 @@ in qualche modo collegati tra loro o meno.
 	potrebbe valutarli come rilevanti oppure no.
 \end{esempio}
 
-Ciò che l'utente intende è chiamata \textit{Information Need}, cioè la richiesta di informazione
+Ciò che l'utente intende è chiamata necessità di informazione (\textit{Information Need}), cioè la richiesta di informazione
 che si tenta di esprimere sottomettendo una query al sistema di ricerca.
 
 La soggettività di questa valutazione è uno dei punti cruciali dell'Information Retrieval, per cui non esistono
@@ -80,11 +80,11 @@ Tale principio afferma che:
 
 \begin{definizione}\label{def:prp}
 	Se per ogni query $q \in \mathcal{Q}$ il sistema ordina i documenti della collezione $\mathcal{D}$ in
-	senso decrescente rispetto alla probabilità di rilevanza, allora l'effettività complessiva del sistema
+	senso decrescente rispetto alla probabilità di rilevanza, allora l'efficacia complessiva del sistema
 	è la migliore ottenibile con i dati a disposizione.
 \end{definizione}
 
-Questo principio rappresenta l'unico metodo formale per verificare l'effettività di un sistema
+Questo principio rappresenta l'unico metodo formale per verificare l'efficacia di un sistema
 di ricerca, poichè migliore è la stima della rilevanza, migliori saranno le prestazioni.
 
 Per completezza della trattazione dell'argomento verrà data di seguito
@@ -132,14 +132,14 @@ un'illustrazione di come dimostrare questo principio.
 	essere massimo.
 \end{proof}
 
-\section{Recall e Precision}
+\section{Richiamo e precisione}
 
 Adesso che abbiamo raccolto tutte le informazioni necessarie possiamo definire
 le unità di misura che descrivono la qualità di un motore di ricerca.
-Le misure più semplici che sono adottate attualmente sono  la \textit{recall} e la \textit{precision}.
+Le misure più semplici che sono adottate attualmente sono il \textit{richiamo} e la \textit{precisione}.
 
-\begin{definizione}\label{def:recall}
-	La recall, indicata con il simbolo $\re$, è definita come il rapporto tra il numero di documenti
+\begin{definizione}\label{def:richiamo}
+	Il \textit{richiamo}, indicato con il simbolo $\re$, è definito come il rapporto tra il numero di documenti
 	messi in lista da  un ranker $\mathcal{R}$, per cui $\rel_B(d,q) = true$,
 	e il numero di elementi totali giudicati rilevanti.
 	In simboli si ha:
@@ -153,11 +153,11 @@ Le misure più semplici che sono adottate attualmente sono  la \textit{recall} e
 	$$
 \end{definizione}
 
-Ovviamente affinchè la recall sia massima, il ranker dovrebbe ritornare la lista di tutti i documenti
+Ovviamente affinchè il \textit{richiamo} sia massimo, il ranker dovrebbe ritornare la lista di tutti i documenti
 rilevanti, ma questo non sempre risulta possibile, poiché $\left|\mathcal{L}\right| \lll \left|\mathcal{D}\right|$.
 
-\begin{definizione}\label{def:precision}
-	La precision, indicata con il simbolo $\preci$, è uguale alla recall
+\begin{definizione}\label{def:precisione}
+	La \textit{precisione}, indicata con il simbolo $\preci$, è uguale al \textit{richiamo}
 	ma con la differenza che il rapporto non ha come denominatore tutti i documenti
 	rilevanti, ma solo quelli in lista.
 	
@@ -169,7 +169,7 @@ rilevanti, ma questo non sempre risulta possibile, poiché $\left|\mathcal{L}\ri
 	}
 	$$
 \end{definizione}
-Invece per precision, raggiungere il valore massimo è abbastanza facile, specialmente quando $\left|\mathcal{L}\right| \approx 1$.
+Invece per \textit{precisione}, raggiungere il valore massimo è più facile, specialmente quando $\left|\mathcal{L}\right| \approx 1$.
 
 \pagebreak
 
@@ -189,12 +189,12 @@ Un modo analogo per calcolare $\re$ e $\preci$ è quello di creare una sorta di 
 	\caption{Matrice di contingenza, o matrice di confusione}
 \end{table}
 
-Una volta avvalorata la matrice, si può calcolare $\preci = \frac{tp}{tp + fp}$ e $\re = \frac{tp}{tp + fn}$.
+Una volta che la matrice è stata riempita con tutti i valori, si può calcolare $\preci = \frac{tp}{tp + fp}$ e $\re = \frac{tp}{tp + fn}$.
 
 \paragraph{Il problema delle misure}
 Il problema principale di queste due misure è il fatto che statisticamente il $99.9\%$\cite{irbook} dei documenti
 risulta non rilevante per una query $q$. 
-Infatti se la funzione obiettivo da massimizzare fosse recall,
+Infatti se la funzione obiettivo da massimizzare fosse \textit{richiamo},
 un sistema che marca tutti i documenti come non rilevanti avrebbe
 un valore molto vicino ad un sistema che invece funziona bene. Inoltre
 queste misure sono basate sull'insieme dei documenti restituiti e non tengono
@@ -203,8 +203,8 @@ conto dell'ordine della lista $\mathcal{L}$.
 Per esempio un utente che naviga nel web è interessato
 ad avere come primo risultato esattamente il documento che stava cercando
 e non vorrebbe scorrere i risultati fino a trovare quello che gli interessava.
-Precision e recall quindi sono misure semplici ed effettive, ma non
-complete per la valutazione di un motore di ricerca.
+\textit{Precisione} e \textit{richiamo} quindi sono misure semplici ed effettive, ma non
+adeguate per la valutazione di un motore di ricerca.
 
 \section{NDCG}
 L'unità di misura che andremo a considerare è la Normative Discontinued Cumulative Gain,
@@ -242,7 +242,7 @@ Parlando anche in termini computazionali, calcolare il valore dell'esponente al 
 non è troppo dispendioso poiché:
 
 \begin{enumerate}
-	\item la base dell'esponente è 2 e il valore di $R(d,q)$ è intero, dunque si può fare bit shifting;
+	\item la base dell'esponente è 2 e il valore di $R(d,q)$ è intero, dunque si può fare bit shifting;\footnote{In rappresentazione binaria per calcolare le potenze di 2 è sufficiente shiftare il bit posto ad uno verso sinistra. Per esempio $0010_2 = 2_{10}, 0100_2 = 4_{10}, 1000_2=8_{10}$. Si può anche pensare precomputare un vettore di lunghezza pari alla cardinalità del codominio di $R$ ed usarlo durante il calcolo, aumentando dunque anche l'efficienza. }
 	\item la funzione $R(d,q)$ inoltre, se la ipotizziamo uguale a $\rel_B$ assume solo due valori,
 	o anche se fosse diversa essa assumerebbe un insieme finito di valori che può essere precomputato.
 \end{enumerate}
